@@ -13,15 +13,21 @@
             h = 42,
             greyscale = false;
 
+        var videoConstraints = {
+            audio: false,
+            video: {
+                mandatory: {
+                    maxWidth: 50,
+                    maxHeight: 50
+                }
+            }
+        };
         // Cross browser
         navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
         if (navigator.getUserMedia) {
             // Request access to video only
             navigator.getUserMedia(
-                {
-                    video:true,
-                    audio:false
-                },
+                videoConstraints,
                 function(stream) {
                     // Cross browser checks
                     var url = window.URL || window.webkitURL;
