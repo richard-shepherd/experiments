@@ -87,7 +87,7 @@
 
                 // Are we on target (seeing red?)
                 var onTarget = false;
-                if(ratioRtoG > 4.0) {
+                if(ratioRtoG > 2.5) {
                     onTarget = true;
                 }
 
