@@ -40,92 +40,92 @@
             return;
         }
 
-        // Wait until the video stream can play
-        video.addEventListener('canplay', function(e) {
-            if (!isStreaming) {
-                // videoWidth isn't always set correctly in all browsers
-                if (video.videoWidth > 0) h = video.videoHeight / (video.videoWidth / w);
-                canvas1.setAttribute('width', w);
-                canvas1.setAttribute('height', h);
-
-                canvas2.setAttribute('width', w*10);
-                canvas2.setAttribute('height', h*10);
-
-                // Reverse the canvas image
-                canvasContext1.translate(w, 0);
-                canvasContext1.scale(-1, 1);
-
-                isStreaming = true;
-            }
-        }, false);
-
-        // Wait for the video to start to play
-        video.addEventListener('play', function() {
-            // Every 33 milliseconds copy the video image to the canvas
-            setInterval(function() {
-                if (video.paused || video.ended) return;
-                canvasContext1.fillRect(0, 0, w, h);
-                canvasContext1.drawImage(video, 0, 0, w, h);
-
-                if (greyscale) goingGrey();
-
-                canvasContext2.drawImage(canvas1, 0, 0, w*10, h*10);
-
-                // We find the color in the middle of the screen...
-                var data = canvasContext1.getImageData(0, 0, w, h).data;
-                var length = data.length;
-                var middle = length / 2;
-                var r = data[middle];
-                var g = data[middle+1];
-                var b = data[middle+2];
-
-                var color = "rgb("+r+","+g+","+b+")";
-                var ratioRtoG = r / g;
-                var ratioRtoB = r / b;
-                info.innerText = color + " r/g:" + ratioRtoG.toFixed(2) + " r/b:" + ratioRtoB.toFixed(2);
-                //info.style.color = color;
-
-                // Are we on target (seeing red?)
-                var onTarget = false;
-                if(ratioRtoG > 2.5) {
-                    onTarget = true;
-                }
-
-                // We draw the crosshair...
-                var outerRadius = 40;
-                var innerRadius = 10;
-                var lineOffset = outerRadius + 10;
-
-                var centerX = w * 5;
-                var centerY = h * 5;
-                canvasContext2.lineWidth = 2;
-                canvasContext2.beginPath();
-                canvasContext2.arc(centerX,centerY,outerRadius,0,2*Math.PI);
-                canvasContext2.stroke();
-
-                canvasContext2.beginPath();
-                canvasContext2.arc(centerX,centerY,innerRadius,0,2*Math.PI);
-                if(onTarget) {
-                    canvasContext2.fillStyle = 'red';
-                    canvasContext2.fill();
-                } else {
-                    canvasContext2.lineWidth = 1;
-                    canvasContext2.stroke();
-                }
-
-
-                canvasContext2.lineWidth = 1;
-                canvasContext2.moveTo(centerX - lineOffset,centerY);
-                canvasContext2.lineTo(centerX + lineOffset,centerY);
-                canvasContext2.stroke();
-
-                canvasContext2.lineWidth = 1;
-                canvasContext2.moveTo(centerX, centerY - lineOffset);
-                canvasContext2.lineTo(centerX, centerY + lineOffset);
-                canvasContext2.stroke();
-
-            }, 33);
-        }, false);
+        // // Wait until the video stream can play
+        // video.addEventListener('canplay', function(e) {
+        //     if (!isStreaming) {
+        //         // videoWidth isn't always set correctly in all browsers
+        //         if (video.videoWidth > 0) h = video.videoHeight / (video.videoWidth / w);
+        //         canvas1.setAttribute('width', w);
+        //         canvas1.setAttribute('height', h);
+        //
+        //         canvas2.setAttribute('width', w*10);
+        //         canvas2.setAttribute('height', h*10);
+        //
+        //         // Reverse the canvas image
+        //         canvasContext1.translate(w, 0);
+        //         canvasContext1.scale(-1, 1);
+        //
+        //         isStreaming = true;
+        //     }
+        // }, false);
+        //
+        // // Wait for the video to start to play
+        // video.addEventListener('play', function() {
+        //     // Every 33 milliseconds copy the video image to the canvas
+        //     setInterval(function() {
+        //         if (video.paused || video.ended) return;
+        //         canvasContext1.fillRect(0, 0, w, h);
+        //         canvasContext1.drawImage(video, 0, 0, w, h);
+        //
+        //         if (greyscale) goingGrey();
+        //
+        //         canvasContext2.drawImage(canvas1, 0, 0, w*10, h*10);
+        //
+        //         // We find the color in the middle of the screen...
+        //         var data = canvasContext1.getImageData(0, 0, w, h).data;
+        //         var length = data.length;
+        //         var middle = length / 2;
+        //         var r = data[middle];
+        //         var g = data[middle+1];
+        //         var b = data[middle+2];
+        //
+        //         var color = "rgb("+r+","+g+","+b+")";
+        //         var ratioRtoG = r / g;
+        //         var ratioRtoB = r / b;
+        //         info.innerText = color + " r/g:" + ratioRtoG.toFixed(2) + " r/b:" + ratioRtoB.toFixed(2);
+        //         //info.style.color = color;
+        //
+        //         // Are we on target (seeing red?)
+        //         var onTarget = false;
+        //         if(ratioRtoG > 2.5) {
+        //             onTarget = true;
+        //         }
+        //
+        //         // We draw the crosshair...
+        //         var outerRadius = 40;
+        //         var innerRadius = 10;
+        //         var lineOffset = outerRadius + 10;
+        //
+        //         var centerX = w * 5;
+        //         var centerY = h * 5;
+        //         canvasContext2.lineWidth = 2;
+        //         canvasContext2.beginPath();
+        //         canvasContext2.arc(centerX,centerY,outerRadius,0,2*Math.PI);
+        //         canvasContext2.stroke();
+        //
+        //         canvasContext2.beginPath();
+        //         canvasContext2.arc(centerX,centerY,innerRadius,0,2*Math.PI);
+        //         if(onTarget) {
+        //             canvasContext2.fillStyle = 'red';
+        //             canvasContext2.fill();
+        //         } else {
+        //             canvasContext2.lineWidth = 1;
+        //             canvasContext2.stroke();
+        //         }
+        //
+        //
+        //         canvasContext2.lineWidth = 1;
+        //         canvasContext2.moveTo(centerX - lineOffset,centerY);
+        //         canvasContext2.lineTo(centerX + lineOffset,centerY);
+        //         canvasContext2.stroke();
+        //
+        //         canvasContext2.lineWidth = 1;
+        //         canvasContext2.moveTo(centerX, centerY - lineOffset);
+        //         canvasContext2.lineTo(centerX, centerY + lineOffset);
+        //         canvasContext2.stroke();
+        //
+        //     }, 33);
+        // }, false);
 
         var goingGrey = function() {
             var imageData = canvasContext1.getImageData(0, 0, w, h);
