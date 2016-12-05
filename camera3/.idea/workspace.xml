@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b40063b0-30e4-4435-a108-8370cf0ffc73" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/index.html" afterPath="$PROJECT_DIR$/index.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../camera1/.idea/workspace.xml" afterPath="$PROJECT_DIR$/../camera1/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../camera1/index.html" afterPath="$PROJECT_DIR$/../camera1/index.html" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -191,7 +192,7 @@
       <option name="presentableId" value="Default" />
       <updated>1480939500485</updated>
       <workItem from="1480939502580" duration="3508000" />
-      <workItem from="1480946862698" duration="5316000" />
+      <workItem from="1480946862698" duration="6931000" />
     </task>
     <task id="LOCAL-00001" summary="x">
       <created>1480945234814</created>
@@ -204,7 +205,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="8824000" />
+    <option name="totallyTimeSpent" value="10439000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
