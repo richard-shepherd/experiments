@@ -24,6 +24,7 @@
     var video = document.querySelector('video');
     var cameras = [];
     var currentCameraIndex = 0;
+    var firstTime = true;
 
     // Called when we get an error...
     var errorCallback = function(e) {
@@ -49,7 +50,7 @@
             });
         }
 
-        document.getElementById("current-source").innerText = "source: " + source.label + ", id: " + source.id;
+        document.getElementById("current-source").innerText = "A: source: " + source.label + ", id: " + source.id;
 
         // We create a new stream for the selected camera...
         var constraints = {
@@ -58,7 +59,7 @@
         };
 
         navigator.getUserMedia(constraints, function(stream) {
-            //window.stream = stream;
+            window.stream = stream;
             video.src = window.URL.createObjectURL(stream);
         }, errorCallback);
 
@@ -87,9 +88,10 @@
         var labels = cameras.map(function(x) { return x.label; });
         document.getElementById("sources").innerText = "sources: " + labels.join();
 
-//        if(cameras.length > 0) {
-//            selectCamera(cameras[0]);
-//        }
+        if(cameras.length > 0 && firstTime) {
+            firstTime = false;
+            selectCamera(cameras[0]);
+        }
     }
 
     findCameras();
