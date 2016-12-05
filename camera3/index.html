@@ -50,7 +50,7 @@
             });
         }
 
-        document.getElementById("current-source").innerText = "A: source: " + source.label + ", id: " + source.id;
+        document.getElementById("current-source").innerText = "B: source: " + source.label;
 
         // We create a new stream for the selected camera...
         var constraints = {
@@ -89,8 +89,16 @@
         document.getElementById("sources").innerText = "sources: " + labels.join();
 
         if(cameras.length > 0 && firstTime) {
+            // We try to find the rear-facing camera...
+            var defaultIndex = 0;
+            for(i=0; i<cameras.length; ++i) {
+                if(cameras[i].label.includes("back")) {
+                    defaultIndex = i;
+                    break;
+                }
+            }
             firstTime = false;
-            selectCamera(cameras[0]);
+            selectCamera(cameras[defaultIndex]);
         }
     }
 
