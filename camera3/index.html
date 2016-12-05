@@ -50,7 +50,7 @@
             });
         }
 
-        document.getElementById("current-source").innerText = "D: source: " + source.label;
+        document.getElementById("current-source").innerText = "E: source: " + source.label;
 
         // We create a new stream for the selected camera...
         var constraints = {
@@ -58,7 +58,12 @@
             video: {deviceId: {exact: source.id } }
         };
 
-        navigator.getUserMedia(constraints, function(stream) {
+        navigator.getUserMedia_ = navigator.getUserMedia ||
+            navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia ||
+            navigator.msGetUserMedia;
+
+        navigator.getUserMedia_(constraints, function(stream) {
             window.stream = stream;
             video.src = window.URL.createObjectURL(stream);
         }, errorCallback);
