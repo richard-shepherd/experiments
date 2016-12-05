@@ -17,7 +17,7 @@
 <div id="sources"></div>
 <div id="current-source"></div>
 <input id="switch-camera" type="image" src="images/switch-camera.png"/>
-
+<p></p>
 <video autoplay></video>
 
 <script>
@@ -42,8 +42,16 @@
     // Sets the video to show the camera selected...
     function selectCamera(source) {
 
+        // We close existing media streams...
+        if (window.stream) {
+            window.stream.getTracks().forEach(function(track) {
+                track.stop();
+            });
+        }
+
         document.getElementById("current-source").innerText = "current-source: " + source.label;
 
+        // We create a new stream for the selected camera...
         var constraints = {
             audio: false,
             video: {deviceId: {exact: source.id } }
