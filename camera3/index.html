@@ -41,17 +41,12 @@
 
     // Sets the video to show the camera selected...
     function selectCamera(source) {
-        if (window.stream) {
-            window.stream.getTracks().forEach(function(track) {
-                track.stop();
-            });
-        }
 
-        document.getElementById("current-source").innerText = "current-source: " + source;
+        document.getElementById("current-source").innerText = "current-source: " + source.label;
 
         var constraints = {
             audio: false,
-            video: {deviceId: source}
+            video: {deviceId: {exact: source.id } }
         };
 
         navigator.getUserMedia(constraints, function(stream) {
@@ -68,11 +63,12 @@
         for (var i = 0; i !== deviceInfos.length; ++i) {
             var deviceInfo = deviceInfos[i];
             if (deviceInfo.kind === 'videoinput') {
-                cameras.push(deviceInfo.label);
+                cameras.push( {label: deviceInfo.label, id: deviceInfo.deviceId} );
             }
         }
 
-        document.getElementById("sources").innerText = "sources: " + cameras.join();
+        var labels = cameras.map(function(x) { return x.label; });
+        document.getElementById("sources").innerText = "sources: " + labels.join();
 
         if(cameras.length > 0) {
             selectCamera(cameras[0]);
