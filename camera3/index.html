@@ -58,15 +58,23 @@
         };
 
         navigator.getUserMedia(constraints, function(stream) {
-            window.stream = stream;
+            //window.stream = stream;
             video.src = window.URL.createObjectURL(stream);
         }, errorCallback);
+
+        findCameras();
     }
 
-    // We find the collection of cameras...
-    navigator.mediaDevices.enumerateDevices()
-        .then(gotDevices)
-        .catch(errorCallback);
+    function findCameras() {
+        while(cameras.length > 0) {
+            cameras.pop();
+        }
+
+        // We find the collection of cameras...
+        navigator.mediaDevices.enumerateDevices()
+            .then(gotDevices)
+            .catch(errorCallback);
+    }
 
     function gotDevices(deviceInfos) {
         for (var i = 0; i !== deviceInfos.length; ++i) {
@@ -79,10 +87,12 @@
         var labels = cameras.map(function(x) { return x.label; });
         document.getElementById("sources").innerText = "sources: " + labels.join();
 
-        if(cameras.length > 0) {
-            selectCamera(cameras[0]);
-        }
+//        if(cameras.length > 0) {
+//            selectCamera(cameras[0]);
+//        }
     }
+
+    findCameras();
 
 </script>
 
