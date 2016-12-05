@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Toggle cameras</title>
+</head>
+
+<style>
+    input {
+        width: 50px;
+        height: 50px;
+    }
+</style>
+
+<body>
+
+<input id="switch-camera" type="image" src="images/switch-camera.png"/>
+
+<video autoplay></video>
+
+<script>
+    var video = document.querySelector('video');
+    var cameras = [];
+    var currentCameraIndex = 0;
+
+    // Called when we get an error...
+    var errorCallback = function(e) {
+        window.alert(e);
+    };
+
+    // Called when the switch-camera button is clicked...
+    document.getElementById("switch-camera").onclick = function() {
+        currentCameraIndex++;
+        if(currentCameraIndex >= cameras.length) {
+            currentCameraIndex = 0;
+        }
+        selectCamera(cameras[currentCameraIndex]);
+    };
+
+    // Sets the video to show the camera selected...
+    function selectCamera(deviceID) {
+        var constraints = {
+            audio: false,
+            video: {deviceId: deviceID}
+        };
+
+        navigator.getUserMedia(constraints, function(stream) {
+            video.src = window.URL.createObjectURL(stream);
+        }, errorCallback);
+    }
+
+    // We find the collection of cameras...
+    navigator.mediaDevices.enumerateDevices()
+        .then(gotDevices)
+        .catch(errorCallback);
+
+    function gotDevices(deviceInfos) {
+        for (var i = 0; i !== deviceInfos.length; ++i) {
+            var deviceInfo = deviceInfos[i];
+            if (deviceInfo.kind === 'videoinput') {
+                cameras.push(deviceInfo.label);
+            }
+        }
+
+        if(cameras.length > 0) {
+            selectCamera(cameras[0]);
+        }
+    }
+
+</script>
+
+</body>
+</html>
