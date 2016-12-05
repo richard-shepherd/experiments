@@ -58,6 +58,7 @@
         };
 
         navigator.getUserMedia(constraints, function(stream) {
+            window.stream = stream;
             video.src = window.URL.createObjectURL(stream);
         }, errorCallback);
     }
