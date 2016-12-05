@@ -14,6 +14,8 @@
 
 <body>
 
+<div id="sources"></div>
+<div id="current-source"></div>
 <input id="switch-camera" type="image" src="images/switch-camera.png"/>
 
 <video autoplay></video>
@@ -38,10 +40,18 @@
     };
 
     // Sets the video to show the camera selected...
-    function selectCamera(deviceID) {
+    function selectCamera(source) {
+        if (window.stream) {
+            window.stream.getTracks().forEach(function(track) {
+                track.stop();
+            });
+        }
+
+        document.getElementById("current-source").innerText = "current-source: " + source;
+
         var constraints = {
             audio: false,
-            video: {deviceId: deviceID}
+            video: {deviceId: source}
         };
 
         navigator.getUserMedia(constraints, function(stream) {
@@ -61,6 +71,8 @@
                 cameras.push(deviceInfo.label);
             }
         }
+
+        document.getElementById("sources").innerText = "sources: " + cameras.join();
 
         if(cameras.length > 0) {
             selectCamera(cameras[0]);
