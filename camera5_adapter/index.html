@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+<style>
+
+    video {
+        visibility: visible;
+    }
+
+    #canvas-div {
+        visibility: visible;
+    }
+
+</style>
+
+<body>
+
+<button id="snapshot-button">Snapshot</button>
+<button id="show-canvas">Show canvas</button>
+
+<video id="video-player" autoplay></video>
+
+<div id="canvas-div">
+    <canvas id="snapshot-canvas"></canvas>
+</div>
+
+<script src="js/externals/adapter.js"></script>
+
+<script>
+    var video = document.querySelector('video');
+    var canvas = document.querySelector('canvas');
+    var ctx = canvas.getContext('2d');
+    var localMediaStream = null;
+
+    var errorCallback = function(e) {
+        console.log('Reeeejected!', e);
+    };
+
+    function snapshot() {
+        if (localMediaStream) {
+            ctx.drawImage(video, 0, 0);
+            // "image/webp" works in Chrome.
+            // Other browsers will fall back to image/png.
+            //document.querySelector('img').src = canvas.toDataURL('image/webp');
+        }
+    }
+
+    document.getElementById("snapshot-button").onclick = function() {
+        snapshot();
+    };
+
+    document.getElementById("show-canvas").onclick = function() {
+        //var canvas = document.getElementById("snapshot-canvas");
+        var canvas = document.getElementById("canvas-div");
+        if(canvas.style.visibility == "visible") {
+            canvas.style.visibility = "hidden";
+        } else {
+            canvas.style.visibility = "visible";
+        }
+    };
+
+    var vgaConstraints = {
+        audio: false,
+        video: {
+            mandatory: {
+                maxWidth: 200,
+                maxHeight: 200,
+                //facingMode: "environment"
+            }
+        }
+    };
+
+    // Not showing vendor prefixes.
+    //navigator.getUserMedia({video: true, audio: true}, function(localMediaStream) {
+    navigator.getUserMedia(vgaConstraints, function(stream) {
+        video.src = window.URL.createObjectURL(stream);
+        localMediaStream = stream;
+    }, errorCallback);
+</script>
+
+</body>
+</html>

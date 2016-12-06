@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+
+        <!-- Javascript libraries loaded in head -->
+        <script src="js/externals/jquery-2.1.4.min.js"></script>
+
+        <title>Camera 4 - camera.js</title>
+    </head>
+
+    <body>
+        <video id="video1" autoplay></video>
+        <video id="video2" autoplay></video>
+
+        <script src="js/externals/adapter.js"></script>
+        <script src="js/camera.js"></script>
+        <script>
+            var video1 = document.getElementById("video1");
+            var camera1 = new Camera(320, 200, Camera.Direction.FRONT_FACING, video1);
+
+            var video2 = document.getElementById("video2");
+            var camera2 = new Camera(320, 200, Camera.Direction.BACK_FACING, video2);
+        </script>
+
+
+    </body>
+
+</html>
