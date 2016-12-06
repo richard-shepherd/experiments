@@ -9,14 +9,15 @@ function Camera(width, height, facingDirection, videoElement) {
     // We create the video part of the constraints...
     var videoConstraints = {
         width : width,
-        height: height
+        height: height,
+        facingMode: "environment"
     };
-    if(facingDirection === Camera.Direction.FRONT_FACING) {
-        videoConstraints.facingMode = "user";
-    }
-    if(facingDirection === Camera.Direction.BACK_FACING) {
-        videoConstraints.facingMode = "environment";
-    }
+    // if(facingDirection === Camera.Direction.FRONT_FACING) {
+    //     videoConstraints.facingMode = "user";
+    // }
+    // if(facingDirection === Camera.Direction.BACK_FACING) {
+    //     videoConstraints.facingMode = "environment";
+    // }
 
     // We create the constraints...
     var constraints = {audio: false, video: videoConstraints };
