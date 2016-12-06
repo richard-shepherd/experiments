@@ -11,6 +11,7 @@
     </head>
 
     <body>
+        <p>V1</p>
         <video id="video1" autoplay></video>
         <video id="video2" autoplay></video>
 
@@ -18,10 +19,10 @@
         <script src="js/camera.js"></script>
         <script>
             var video1 = document.getElementById("video1");
-            var camera1 = new Camera(320, 200, Camera.Direction.FRONT_FACING, video1);
+            var camera1 = new Camera(320, 200, Camera.Direction.BACK_FACING, video1);
 
-            var video2 = document.getElementById("video2");
-            var camera2 = new Camera(320, 200, Camera.Direction.BACK_FACING, video2);
+//            var video2 = document.getElementById("video2");
+//            var camera2 = new Camera(320, 200, Camera.Direction.BACK_FACING, video2);
         </script>
 
 
