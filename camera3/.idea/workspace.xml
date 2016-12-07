@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b40063b0-30e4-4435-a108-8370cf0ffc73" name="Default" comment="" />
+    <list default="true" id="b40063b0-30e4-4435-a108-8370cf0ffc73" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../camera4/.idea/workspace.xml" afterPath="$PROJECT_DIR$/../camera4/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../camera4/index.html" afterPath="$PROJECT_DIR$/../camera4/index.html" />
+    </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
     <ignored path="$PROJECT_DIR$/tmp/" />
