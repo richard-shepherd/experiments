@@ -4,6 +4,9 @@
     <head>
         <meta charset="UTF-8">
 
+        <!-- Stylesheets -->
+        <link rel="stylesheet" href="css/index.css">
+
         <!-- Javascript libraries loaded in head -->
         <script src="js/externals/jquery-2.1.4.min.js"></script>
 
@@ -11,18 +14,18 @@
     </head>
 
     <body>
-        <p>V2</p>
-        <video id="video1" autoplay></video>
-        <video id="video2" autoplay></video>
+        <div id="video-div">
+            <video id="video1" autoplay></video>
+        </div>
+        <div id="logging-div">
+        </div>
 
         <script src="js/externals/adapter.js"></script>
-        <script src="js/camera.js"></script>
+        <script src="js/Logger.js"></script>
+        <script src="js/Camera.js"></script>
         <script>
             var video1 = document.getElementById("video1");
-            var camera1 = new Camera(320, 200, Camera.Direction.BACK_FACING, video1);
-
-//            var video2 = document.getElementById("video2");
-//            var camera2 = new Camera(320, 200, Camera.Direction.BACK_FACING, video2);
+            var camera1 = new Camera(320, 200, Camera.FacingDirection.BACK_FACING, video1);
         </script>
 
 

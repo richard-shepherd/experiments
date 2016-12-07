@@ -1,0 +1,9 @@
+#video-div {
+    float: left;
+    width: 45vw;
+}
+
+#logging-div {
+    float: right;
+    width: 45vw
+}
