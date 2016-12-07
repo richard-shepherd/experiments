@@ -4,6 +4,8 @@
     <head>
         <meta charset="UTF-8">
 
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+
         <!-- Stylesheets -->
         <link rel="stylesheet" href="css/index.css">
 
@@ -25,6 +27,8 @@
         <script src="js/Logger.js"></script>
         <script src="js/Camera.js"></script>
         <script>
+            Logger.log("TEST VERSION 2");
+
             var video1 = document.getElementById("video1");
             var camera1 = new Camera(500, 500, Camera.FacingDirection.BACK_FACING, video1);
 
