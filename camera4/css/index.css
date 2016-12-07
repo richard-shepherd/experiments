@@ -3,7 +3,17 @@
     width: 45vw;
 }
 
+#video1 {
+    width: 30vw;
+    height: 30vw;
+}
+
 #logging-div {
     float: right;
     width: 45vw
+}
+
+#switch-camera {
+    width: 10vw;
+    height: 10vw;
 }

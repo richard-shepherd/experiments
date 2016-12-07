@@ -15,6 +15,7 @@
 
     <body>
         <div id="video-div">
+            <input id="switch-camera" type="image" src="images/switch-camera.png"/>
             <video id="video1" autoplay></video>
         </div>
         <div id="logging-div">
@@ -25,7 +26,12 @@
         <script src="js/Camera.js"></script>
         <script>
             var video1 = document.getElementById("video1");
-            var camera1 = new Camera(320, 200, Camera.FacingDirection.BACK_FACING, video1);
+            var camera1 = new Camera(500, 500, Camera.FacingDirection.BACK_FACING, video1);
+
+            $("#switch-camera").click(function() {
+                camera1.toggleCamera();
+            });
+
         </script>
 
 
