@@ -23,3 +23,8 @@ video {
     width: 30vw;
     height: 30vw;
 }
+
+#log {
+    font-family: courier, monospace;
+    font-size: 1vw;
+}

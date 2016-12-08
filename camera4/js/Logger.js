@@ -22,7 +22,7 @@ Logger.log = function(text) {
 
     var newElement = $("<div></div>");
     newElement.addClass("log-line").html(message);
-    $("#logging-div").prepend(newElement);
+    $("#log").prepend(newElement);
 };
 
 /**
