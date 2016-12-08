@@ -1,0 +1,11 @@
+- Options for how to show the video
+    var options = {
+        width: width,
+        height: height,
+        facingDirection: enum,
+        showVideo: parentElement,
+        showCanvas: parentElement
+    }
+
+- Do you ever want to show the canvas?
+  - Yes: So that you can draw on it.

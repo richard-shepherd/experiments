@@ -1,19 +1,25 @@
-#video-div {
+#left-panel {
     float: left;
     width: 45vw;
 }
 
-#video1 {
-    width: 30vw;
-    height: 30vw;
+#right-panel {
+    float: right;
+    width: 45vw;
 }
 
-#logging-div {
-    float: right;
-    width: 45vw
+video {
+    /*width: 15vw;*/
+    /*height: 15vw;*/
+    display: none;
 }
 
 #switch-camera {
-    width: 10vw;
-    height: 10vw;
+    width: 5vw;
+    height: 5vw;
+}
+
+#canvas1 {
+    width: 30vw;
+    height: 30vw;
 }

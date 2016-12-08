@@ -16,24 +16,39 @@
     </head>
 
     <body>
-        <div id="video-div">
-            <input id="switch-camera" type="image" src="images/switch-camera.png"/>
-            <video id="video1" autoplay></video>
-        </div>
-        <div id="logging-div">
+        <div id="left-panel">
+
+            <div>
+                <input id="switch-camera" type="image" src="images/switch-camera.png"/>
+            </div>
+
+            <div id="video-div"></div>
+
+            <div>
+                <canvas id='canvas1'></canvas>
+            </div>
+
         </div>
 
-        <script src="js/externals/adapter.js"></script>
+        <div id="right-panel">
+            <div id="logging-div">
+            </div>
+        </div>
+
         <script src="js/Logger.js"></script>
+        <script src="js/externals/adapter.js"></script>
         <script src="js/Camera.js"></script>
         <script>
             Logger.log("TEST VERSION 4");
 
-            var video1 = document.getElementById("video1");
-            var camera1 = new Camera(500, 500, Camera.FacingDirection.BACK_FACING, video1);
+            var videoDiv = document.getElementById("video-div");
+            var camera1 = new Camera(500, 500, Camera.FacingDirection.BACK_FACING, videoDiv);
 
             $("#switch-camera").click(function() {
-                camera1.toggleCamera();
+                var canvas = document.getElementById("canvas1");
+                camera1.snapshotToCanvas(canvas);
+                //camera1.toggleCamera();
+
             });
 
         </script>

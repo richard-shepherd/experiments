@@ -5,8 +5,13 @@
  *
  * @constructor
  */
-function Camera(width, height, facingDirection, videoElement) {
+function Camera(width, height, facingDirection, videoDiv) {
     Logger.log("Starting camera");
+
+    // We add the video element to the div passed in...
+    var videoElement = document.createElement("video");
+    videoElement.autoplay = true;
+    videoDiv.prepend(videoElement);
 
     // We keep hold of the construction parameters...
     this.width = width;
@@ -38,6 +43,24 @@ Camera.FacingDirection = {
     DEFAULT : 0,
     FRONT_FACING : 1,
     BACK_FACING : 2
+};
+
+/**
+ * snapshotToCanvas
+ * ----------------
+ * Snapshots the video to the canvas passed in.
+ */
+Camera.prototype.snapshotToCanvas = function(canvas) {
+    try {
+        var canvasWidth = canvas.width;
+        var canvasHeight = this.videoElement.videoHeight / (this.videoElement.videoWidth / canvasWidth);
+        canvas.setAttribute('height', canvasHeight);
+
+        var canvasContext = canvas.getContext('2d');
+        canvasContext.drawImage(this.videoElement, 0, 0, canvasWidth, canvasHeight);
+    } catch(ex) {
+        Logger.log(ex.message);
+    }
 };
 
 /**
