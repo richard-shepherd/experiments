@@ -22,10 +22,6 @@
                 <input id="switch-camera" type="image" src="images/switch-camera.png"/>
             </div>
 
-            <div id="video-div">
-                <video id="video1" autoplay></video>
-            </div>
-
             <div>
                 <canvas id='canvas1'></canvas>
             </div>
@@ -41,18 +37,17 @@
         <script src="js/externals/adapter.js"></script>
         <script src="js/Camera.js"></script>
         <script>
-            Logger.log("TEST VERSION 4");
+            Logger.log("TEST VERSION 5");
 
             var cameraOptions = {
-                videoElementID: "video1"
+                showCanvas: {
+                    canvasElementID: "canvas1",
+                }
             };
             var camera1 = new Camera(cameraOptions);
-            //var camera1 = new Camera();
 
             $("#switch-camera").click(function() {
-                var canvas = document.getElementById("canvas1");
-                camera1.snapshotToCanvas(canvas);
-                //camera1.toggleCamera();
+                camera1.toggleCamera();
 
             });
 

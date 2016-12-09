@@ -117,6 +117,20 @@ Camera.prototype._parseOptions_Options = function(options) {
     } else {
         this.videoElement = this._createVideoElement();
     }
+
+    // We check if we are sampling the video to a canvas...
+    this.canvas = null;
+    if(options.showCanvas && options.showCanvas.canvasElementID) {
+        this.canvas = document.getElementById(options.showCanvas.canvasElementID);
+        var sampleIntervalMS = options.showCanvas.sampleIntervalMilliseconds || 33;
+
+        // We get the context for the canvas...
+        this.canvasContext = this.canvas.getContext('2d');
+
+        // We create a time to sample the video...
+        var that = this;
+        this.canvasSampleTimer = setInterval(function() { that._onCanvasSampleTimer(); }, sampleIntervalMS);
+    }
 };
 
 /**
@@ -130,6 +144,24 @@ Camera.prototype._parseOptions_AllDefaults = function() {
     this.facingDirection = Camera.FacingDirection.DEFAULT;
     this.videoElement = this._createVideoElement();
     this.canvas = null;
+};
+
+/**
+ * _onCanvasSampleTimer
+ * --------------------
+ * Called when the canvas sample timer ticks.
+ */
+Camera.prototype._onCanvasSampleTimer = function() {
+    try {
+        // We copy the video to the canvas...
+        var canvasWidth = this.canvas.width;
+        var canvasHeight = this.videoElement.videoHeight / (this.videoElement.videoWidth / canvasWidth);
+        this.canvas.setAttribute('height', canvasHeight);
+        this.canvasContext.drawImage(this.videoElement, 0, 0, canvasWidth, canvasHeight);
+    } catch(ex) {
+        Logger.log(ex.message);
+    }
+
 };
 
 /**
