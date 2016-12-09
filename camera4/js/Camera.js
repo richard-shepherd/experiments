@@ -11,10 +11,12 @@
  *         videoElementID: videoElementID (default=hidden video element),
  *         showCanvas: {
  *             canvasElementID: canvasElementID (default=no canvas element),
- *             sampleIntervalMilliseconds: interval (default=33)
+ *             sampleIntervalMilliseconds: interval (default=33),
+ *             imageDataCallback: (default=null)
  *         }
  *     }
  *
+ * Note: imageDataCallback(data, canvasContext)
  *
  * @constructor
  */
@@ -123,6 +125,7 @@ Camera.prototype._parseOptions_Options = function(options) {
     if(options.showCanvas && options.showCanvas.canvasElementID) {
         this.canvas = document.getElementById(options.showCanvas.canvasElementID);
         var sampleIntervalMS = options.showCanvas.sampleIntervalMilliseconds || 33;
+        this.imageDataCallback = options.showCanvas.imageDataCallback || null;
 
         // We get the context for the canvas...
         this.canvasContext = this.canvas.getContext('2d');
@@ -158,6 +161,12 @@ Camera.prototype._onCanvasSampleTimer = function() {
         var canvasHeight = this.videoElement.videoHeight / (this.videoElement.videoWidth / canvasWidth);
         this.canvas.setAttribute('height', canvasHeight);
         this.canvasContext.drawImage(this.videoElement, 0, 0, canvasWidth, canvasHeight);
+
+        if(this.imageDataCallback) {
+            // A callback is set up for the image data...
+            var data = this.canvasContext.getImageData(0, 0, canvasWidth, canvasHeight).data;
+            this.imageDataCallback(data, this.canvasContext);
+        }
     } catch(ex) {
         Logger.log(ex.message);
     }

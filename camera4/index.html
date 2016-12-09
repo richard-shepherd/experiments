@@ -40,11 +40,53 @@
             Logger.log("TEST VERSION 5");
 
             var cameraOptions = {
+                width: 50,
+                height: 50,
                 showCanvas: {
                     canvasElementID: "canvas1",
+                    imageDataCallback: onImageDataUpdated
                 }
             };
             var camera1 = new Camera(cameraOptions);
+
+            function onImageDataUpdated(data, canvasContext) {
+                var width = canvasContext.canvas.width
+                var height = canvasContext.canvas.height;
+
+                var onTarget = false;
+
+                // We draw the crosshair...
+                var outerRadius = width / 8.0;
+                var innerRadius = width / 40.0;
+                var lineOffset = outerRadius * 1.5;
+
+                var centerX = width / 2.0;
+                var centerY = height / 2.0;
+                canvasContext.lineWidth = 2;
+                canvasContext.beginPath();
+                canvasContext.arc(centerX, centerY, outerRadius, 0, 2*Math.PI);
+                canvasContext.stroke();
+
+                canvasContext.beginPath();
+                canvasContext.arc(centerX, centerY, innerRadius, 0, 2*Math.PI);
+                if(onTarget) {
+                    canvasContext.fillStyle = 'red';
+                    canvasContext.fill();
+                } else {
+                    canvasContext.lineWidth = 1;
+                    canvasContext.stroke();
+                }
+
+                canvasContext.lineWidth = 1;
+                canvasContext.moveTo(centerX - lineOffset,centerY);
+                canvasContext.lineTo(centerX + lineOffset,centerY);
+                canvasContext.stroke();
+
+                canvasContext.lineWidth = 1;
+                canvasContext.moveTo(centerX, centerY - lineOffset);
+                canvasContext.lineTo(centerX, centerY + lineOffset);
+                canvasContext.stroke();
+            }
 
             $("#switch-camera").click(function() {
                 camera1.toggleCamera();
