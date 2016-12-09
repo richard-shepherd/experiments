@@ -9,9 +9,8 @@
 }
 
 video {
-    /*width: 15vw;*/
-    /*height: 15vw;*/
-    display: none;
+    width: 15vw;
+    height: 15vw;
 }
 
 #switch-camera {
@@ -20,8 +19,8 @@ video {
 }
 
 #canvas1 {
-    width: 30vw;
-    height: 30vw;
+    width: 15vw;
+    /*height: 30vw;*/
 }
 
 #log {

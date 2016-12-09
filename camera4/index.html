@@ -22,7 +22,9 @@
                 <input id="switch-camera" type="image" src="images/switch-camera.png"/>
             </div>
 
-            <div id="video-div"></div>
+            <div id="video-div">
+                <video id="video1" autoplay></video>
+            </div>
 
             <div>
                 <canvas id='canvas1'></canvas>
@@ -41,8 +43,11 @@
         <script>
             Logger.log("TEST VERSION 4");
 
-            var videoDiv = document.getElementById("video-div");
-            var camera1 = new Camera(500, 500, Camera.FacingDirection.BACK_FACING, videoDiv);
+            var cameraOptions = {
+                videoElementID: "video1"
+            };
+            var camera1 = new Camera(cameraOptions);
+            //var camera1 = new Camera();
 
             $("#switch-camera").click(function() {
                 var canvas = document.getElementById("canvas1");

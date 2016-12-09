@@ -3,8 +3,11 @@
         width: width,
         height: height,
         facingDirection: enum,
-        showVideo: parentElement,
-        showCanvas: parentElement
+        showVideo: videoElementID,
+        showCanvas: {
+            canvasElementID: canvasElement,
+            sampleIntervalMilliseconds: 33
+        }
     }
 
 - Do you ever want to show the canvas?

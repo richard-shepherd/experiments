@@ -3,21 +3,25 @@
  * ------
  * Manages video input from a camera.
  *
+ * The options passed in look like this:
+ *     var options = {
+ *         width: (default=640),
+ *         height: (default=480),
+ *         facingDirection: Camera.FacingDirection enum (default=DEFAULT),
+ *         videoElementID: videoElementID (default=hidden video element),
+ *         showCanvas: {
+ *             canvasElementID: canvasElementID (default=no canvas element),
+ *             sampleIntervalMilliseconds: interval (default=33)
+ *         }
+ *     }
+ *
+ *
  * @constructor
  */
-function Camera(width, height, facingDirection, videoDiv) {
+function Camera(options) {
     Logger.log("Starting camera");
 
-    // We add the video element to the div passed in...
-    var videoElement = document.createElement("video");
-    videoElement.autoplay = true;
-    videoDiv.prepend(videoElement);
-
-    // We keep hold of the construction parameters...
-    this.width = width;
-    this.height = height;
-    this.facingDirection = facingDirection;
-    this.videoElement = videoElement;
+    this._parseOptions(options);
 
     // The collection of available cameras.
     // This is a collection of objects with 'label' and 'deviceID' fields.
@@ -79,6 +83,66 @@ Camera.prototype.toggleCamera = function() {
     } catch (ex) {
         Logger.log(ex.message);
     }
+};
+
+/**
+ * _parseOptions
+ * -------------
+ * Parses the options passed to the constructor.
+ */
+Camera.prototype._parseOptions = function(options) {
+    if(options) {
+        // Some options were passed in, so we parse them...
+        this._parseOptions_Options(options);
+    } else {
+        // There were no options, so we set all the defaults...
+        this._parseOptions_AllDefaults();
+
+    }
+};
+
+/**
+ * _parseOptions_Options
+ * ---------------------
+ * Parses options from the options passed in.
+ */
+Camera.prototype._parseOptions_Options = function(options) {
+    this.width = options.width || 640;
+    this.height = options.height || 480;
+    this.facingDirection = options.facingDirection || Camera.FacingDirection.DEFAULT;
+
+    // If there is no video element specified, we create a hidden one...
+    if(options.videoElementID) {
+        this.videoElement = document.getElementById(options.videoElementID);
+    } else {
+        this.videoElement = this._createVideoElement();
+    }
+};
+
+/**
+ * _parseOptions_AllDefaults
+ * -------------------------
+ * Sets all the default options.
+ */
+Camera.prototype._parseOptions_AllDefaults = function() {
+    this.width = 640;
+    this.height = 480;
+    this.facingDirection = Camera.FacingDirection.DEFAULT;
+    this.videoElement = this._createVideoElement();
+    this.canvas = null;
+};
+
+/**
+ * _createVideoElement
+ * -------------------
+ * Creates a hidden video element (when one is not supplied).
+ */
+Camera.prototype._createVideoElement = function() {
+    var videoElement = document.createElement("video");
+    videoElement.autoplay = true;
+    videoElement.style.display = "none";
+    document.body.prepend(videoElement);
+    return videoElement;
 };
 
 /**
