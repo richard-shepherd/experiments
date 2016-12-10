@@ -1,14 +1,28 @@
-- Options for how to show the video
-    var options = {
-        width: width,
-        height: height,
-        facingDirection: enum,
-        showVideo: videoElementID,
-        showCanvas: {
-            canvasElementID: canvasElement,
-            sampleIntervalMilliseconds: 33
-        }
-    }
+- We have a Game class
+  - This is the master controller
+  - Creates the camera and gets the callback
+  - The callback is the main "message loop"
 
-- Do you ever want to show the canvas?
-  - Yes: So that you can draw on it.
+- Opponent  / color detection
+  - We have an Player class
+  - Holds a bunch of info about the opponent (=> "player" as players may be in teams)
+  - (Could hold GPS position, p2p contact info etc)
+  - Holds color info
+
+- PlayerMananger
+  - Holds the collection of players
+  - Calls into them to detect colors
+
+
+- Holds a collection of weapons which yo can cycle through
+  - Each has a fire() method
+
+
+- Game names
+  - ShootEmUp
+  - PhoneShooter
+  - KillEmAll
+  - Kill-M-All
+  - Hellfire
+  - BlackOps
+  -
