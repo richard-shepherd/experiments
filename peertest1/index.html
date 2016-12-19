@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Peer Test 1</title>
+    </head>
+    <body>
+
+
+        My name<br>
+        <input id="my-name" type="text"><br>
+
+        Their name<br>
+        <input id="their-name" type="text"><br>
+
+        <button id="connect" type="button">Connect</button><br>
+        <button id="send" type="button">Send</button><br>
+
+        <br>
+
+        <div id="output"></div>
+
+        <script src="externals/peerjs/peer.min.js"></script>
+
+        <script>
+
+            var peer;
+            var connectElement = document.getElementById("connect");
+            var sendElement = document.getElementById("send");
+            var myNameElement = document.getElementById("my-name");
+            var theirNameElement = document.getElementById("their-name");
+            var outputElement = document.getElementById("output");
+            var sendCount = 1;
+            var replyCount = 1;
+
+            connectElement.onclick = function() {
+                var myName = myNameElement.value;
+                peer = new Peer(myName, {key: '2ce3ogbzi9y3c8fr'});
+
+                peer.on('connection', function(connectionFromThem) {
+                    connectionFromThem.on('data', function(data){
+                        outputElement.innerHTML = data;
+                        connectionFromThem.send("Hello back from " + myName + " " + replyCount++);
+                    });
+                });
+            };
+
+            sendElement.onclick = function() {
+                var myName = myNameElement.value;
+                var theirName = theirNameElement.value;
+
+                var connectionToThem = peer.connect(theirName);
+                connectionToThem.on('open', function(){
+                    connectionToThem.send('hello from ' + myName + " " + sendCount++);
+                });
+            };
+
+        </script>
+
+    </body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+    </head>
+    <body>
+
+        <button type="button" id="fire">FIRE!</button>
+
+        <script src="externals/howler/howler.js"></script>
+
+        <script>
+
+            var doomMusic = new Howl({
+                src: ['audio/Doom.ogg'],
+                volume: 0.5,
+                buffer: true,
+                preload: true
+            });
+
+            var shotgun = new Howl({
+                src: ['audio/shotgun.mp3'],
+                buffer: true,
+                preload: true
+            });
+
+            doomMusic.loop(true);
+            doomMusic.play();
+
+            var fireButton = document.getElementById("fire");
+            fireButton.onclick = function() {
+                doomMusic.volume(1.0);
+                shotgun.play();
+            };
+
+
+
+        </script>
+
+    </body>
+</html>

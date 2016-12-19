@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+    </head>
+    <body>
+
+        <div>Let's check some colors</div>
+        <div id="info"></div>
+
+        <script src="externals/deltae/deltae.global.min.js"></script>
+        <script src="js/Color.js"></script>
+        <script>
+            console.log(DeltaE);
+
+            var info = document.getElementById("info");
+            info.innerHTML = "ABC";
+
+            var r1 = new Color(0, 0, 250);
+            var r1Lab = r1.getLAB();
+
+            var r2 = new Color(250, 0, 0);
+            var r2Lab = r2.getLAB();
+
+            var r3 = new Color(0, 250, 0);
+            var r3Lab = r3.getLAB();
+
+            //r3Lab.L = r2Lab.L = r1Lab.L = 40.0;
+            var r1r2 = DeltaE.getDeltaE94(r1Lab, r2Lab);
+            var r2r3 = DeltaE.getDeltaE94(r2Lab, r3Lab);
+
+
+
+            // Let's create two test LAB color objects to compare!
+            var color1 = {L: 36, A: 60, B: 41};
+            var color2 = {L: 100, A: 40, B: 90};
+
+            // 1976 formula
+            var de76 = DeltaE.getDeltaE76(color1, color2);
+
+            // 1994 formula
+            var de94 = DeltaE.getDeltaE94(color1, color2);
+
+            // 2000 formula
+            var de00 = DeltaE.getDeltaE00(color1, color2);
+        </script>
+
+    </body>
+
+
+</html>
