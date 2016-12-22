@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+    </head>
+    <body>
+
+        <div>Lat:<span id="lat"></span></div>
+        <div>Long:<span id="long"></span></div>
+        <div>Heading:<span id="heading"></span></div>
+
+        <script src="LocationProvider.js"></script>
+
+        <script>
+
+            var locationProvider = new LocationProvider(function(position) {
+                document.getElementById("lat").innerHTML = position.coords.latitude;
+                document.getElementById("long").innerHTML = position.coords.longitude;
+                document.getElementById("heading").innerHTML = position.coords.heading;
+            });
+
+        </script>
+
+    </body>
+</html>

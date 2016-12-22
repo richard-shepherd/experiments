@@ -30,12 +30,34 @@
             var myNameElement = document.getElementById("my-name");
             var theirNameElement = document.getElementById("their-name");
             var outputElement = document.getElementById("output");
+
+            var connectionToThem = null;
+
+            var myName = null;
+            var theirName = null;
+
             var sendCount = 1;
             var replyCount = 1;
 
+
             connectElement.onclick = function() {
-                var myName = myNameElement.value;
-                peer = new Peer(myName, {key: '2ce3ogbzi9y3c8fr'});
+                myName = myNameElement.value;
+                theirName = theirNameElement.value;
+
+
+//                var peerOptions = {
+//                    key: "2ce3ogbzi9y3c8fr",
+//                    //secure: true
+//                };
+//                peer = new Peer(myName, peerOptions);
+
+                var peerOptions = {
+                    host: 'localhost',
+                    port: 443,
+                    path: '/peerjs',
+                    debug: 3
+                };
+                peer = new Peer(myName, peerOptions);
 
                 peer.on('connection', function(connectionFromThem) {
                     connectionFromThem.on('data', function(data){
@@ -46,13 +68,16 @@
             };
 
             sendElement.onclick = function() {
-                var myName = myNameElement.value;
-                var theirName = theirNameElement.value;
 
-                var connectionToThem = peer.connect(theirName);
-                connectionToThem.on('open', function(){
+                if(connectionToThem === null) {
+                    connectionToThem = peer.connect(theirName);
+                    connectionToThem.on("open", function() {
+                        connectionToThem.send('hello from ' + myName + " " + sendCount++);
+                    });
+                } else {
                     connectionToThem.send('hello from ' + myName + " " + sendCount++);
-                });
+                }
+
             };
 
         </script>
