@@ -6,6 +6,8 @@
     </head>
     <body>
 
+        <div>V2</div>
+
         <div>Exception:<span id="exception"></span></div>
         <div>Lat:<span id="lat"></span></div>
         <div>Long:<span id="long"></span></div>
@@ -62,7 +64,7 @@
 
             }
 
-            window.addEventListener('deviceorientation', function(evt) {
+            window.addEventListener('deviceorientationabsolute', function(evt) {
 
                 document.getElementById("absolute").innerHTML = evt.absolute;
                 document.getElementById("alpha").innerHTML = evt.alpha;
