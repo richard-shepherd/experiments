@@ -2,13 +2,14 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Title</title>
+        <title>GPD & Compass</title>
     </head>
     <body>
 
         <div>Lat:<span id="lat"></span></div>
         <div>Long:<span id="long"></span></div>
         <div>Heading:<span id="heading"></span></div>
+        <div>Alpha:<span id="alpha"></span></div>
         <div>Compass:<span id="compass"></span></div>
 
         <script src="LocationProvider.js"></script>
@@ -61,13 +62,12 @@
 
             window.addEventListener('deviceorientation', function(evt) {
 
-                var compassHeading = null;
+                document.getElementById("alpha").innerHTML = evt.alpha;
 
                 if(evt.absolute === true && evt.alpha !== null) {
-                    compassHeading = compassHeading(evt.alpha, evt.beta, evt.gamma);
+                    var compassHeading = compassHeading(evt.alpha, evt.beta, evt.gamma);
+                    document.getElementById("compass").innerHTML = compassHeading;
                 }
-
-                document.getElementById("compass").innerHTML = compassHeading;
 
             }, false);
 
