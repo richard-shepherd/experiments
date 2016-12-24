@@ -6,9 +6,11 @@
     </head>
     <body>
 
+        <div>Exception:<span id="exception"></span></div>
         <div>Lat:<span id="lat"></span></div>
         <div>Long:<span id="long"></span></div>
         <div>Heading:<span id="heading"></span></div>
+        <div>Absolute:<span id="absolute"></span></div>
         <div>Alpha:<span id="alpha"></span></div>
         <div>Compass:<span id="compass"></span></div>
 
@@ -62,9 +64,15 @@
 
             window.addEventListener('deviceorientation', function(evt) {
 
+                document.getElementById("absolute").innerHTML = evt.absolute;
                 document.getElementById("alpha").innerHTML = evt.alpha;
 
                 if(evt.absolute === true && evt.alpha !== null) {
+                    try {
+
+                    } catch(ex) {
+                        document.getElementById("exception").innerHTML = ex.message;
+                    }
                     var compassHeading = compassHeading(evt.alpha, evt.beta, evt.gamma);
                     document.getElementById("compass").innerHTML = compassHeading;
                 }
