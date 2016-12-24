@@ -6,7 +6,7 @@
     </head>
     <body>
 
-        <div>V2</div>
+        <div>V3</div>
 
         <div>Exception:<span id="exception"></span></div>
         <div>Lat:<span id="lat"></span></div>
@@ -71,12 +71,11 @@
 
                 if(evt.absolute === true && evt.alpha !== null) {
                     try {
-
+                        var compassHeading = compassHeading(evt.alpha, evt.beta, evt.gamma);
+                        document.getElementById("compass").innerHTML = compassHeading;
                     } catch(ex) {
                         document.getElementById("exception").innerHTML = ex.message;
                     }
-                    var compassHeading = compassHeading(evt.alpha, evt.beta, evt.gamma);
-                    document.getElementById("compass").innerHTML = compassHeading;
                 }
 
             }, false);
