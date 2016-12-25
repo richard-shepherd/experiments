@@ -2,83 +2,36 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>GPD & Compass</title>
+        <title>GPS & Compass</title>
     </head>
     <body>
 
-        <div>V4</div>
+        <div>V5</div>
 
-        <div>Exception:<span id="exception"></span></div>
+        <div>Log:<span id="log"></span></div>
         <div>Lat:<span id="lat"></span></div>
         <div>Long:<span id="long"></span></div>
-        <div>Heading:<span id="heading"></span></div>
-        <div>Absolute:<span id="absolute"></span></div>
-        <div>Alpha:<span id="alpha"></span></div>
         <div>Compass:<span id="compass"></span></div>
 
         <script src="LocationProvider.js"></script>
 
         <script>
 
-            var locationProvider = new LocationProvider(function(position) {
-                document.getElementById("lat").innerHTML = position.coords.latitude;
-                document.getElementById("long").innerHTML = position.coords.longitude;
-                document.getElementById("heading").innerHTML = position.coords.heading;
-            });
-
-
-            function compassHeading(alpha, beta, gamma) {
-
-                // Convert degrees to radians
-                var alphaRad = alpha * (Math.PI / 180);
-                var betaRad = beta * (Math.PI / 180);
-                var gammaRad = gamma * (Math.PI / 180);
-
-                // Calculate equation components
-                var cA = Math.cos(alphaRad);
-                var sA = Math.sin(alphaRad);
-                var cB = Math.cos(betaRad);
-                var sB = Math.sin(betaRad);
-                var cG = Math.cos(gammaRad);
-                var sG = Math.sin(gammaRad);
-
-                // Calculate A, B, C rotation components
-                var rA = - cA * sG - sA * sB * cG;
-                var rB = - sA * sG + cA * sB * cG;
-                var rC = - cB * cG;
-
-                // Calculate compass heading
-                var compassHeading = Math.atan(rA / rB);
-
-                // Convert from half unit circle to whole unit circle
-                if(rB < 0) {
-                    compassHeading += Math.PI;
-                }else if(rA < 0) {
-                    compassHeading += 2 * Math.PI;
-                }
-
-                // Convert radians to degrees
-                compassHeading *= 180 / Math.PI;
-
-                return compassHeading;
+            function Logger() {
 
             }
+            Logger.log = function(text) {
+                document.getElementById("log").innerHTML = text;
+            };
 
-            window.addEventListener('deviceorientationabsolute', function(evt) {
-
-                document.getElementById("absolute").innerHTML = evt.absolute;
-                document.getElementById("alpha").innerHTML = evt.alpha;
-
-                if(evt.absolute === true && evt.alpha !== null) {
-                    try {
-                        var compass = compassHeading(evt.alpha, evt.beta, evt.gamma);
-                        document.getElementById("compass").innerHTML = compass;
-                    } catch(ex) {
-                        document.getElementById("exception").innerHTML = ex.message;
-                    }
-                }
-
-            }, false);
+            var locationProvider = new LocationProvider(
+                function(position) {
+                    document.getElementById("lat").innerHTML = position.coords.latitude;
+                    document.getElementById("long").innerHTML = position.coords.longitude;
+                },
+                function(compassHeading) {
+                    document.getElementById("compass").innerHTML = compassHeading;
+                });
 
         </script>
 
