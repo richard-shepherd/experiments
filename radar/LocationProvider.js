@@ -59,7 +59,7 @@ LocationProvider.prototype._subscribeCompass = function() {
             that.compassHeadingRadians = LocationProvider.compassHeading(orientationInfo.alpha, orientationInfo.beta, orientationInfo.gamma);
 
             // And call back , ifa callback is set up...
-            if(this._compassCallback) {
+            if(that._compassCallback) {
                 that._compassCallback(that.compassHeadingRadians);
             }
         } catch(ex) {
