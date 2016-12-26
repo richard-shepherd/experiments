@@ -1,0 +1,30 @@
+ - We have a collection of Players. Each one has:
+   - latitude
+   - longitude
+   - color
+
+- OR: A collection of objects
+  - These could be players or items (ammo, guns etc)
+
+
+
+- We show players who are within ome distance of our position
+  - Say 200m (though configurable)
+
+- For each player we convert their position to:
+  - Distance from our position
+  - Angle from us
+    - So get distance as x-distance, y-distance and total distance
+
+- We convert the angles relative to the direction we are facing.
+  - Say they are E (90-deg)
+  - We are NE (50-deg)
+  - They are 40-deg to our right
+    - ie, them-us
+
+- Them = 10, us = 90
+  - them-us = -80 = -80%360 = 280
+
+- OR: Can we plot everyone in absolute values, and then rotate the canvas?
+  - Maybe that's easier / faster?
+  - I think it will be

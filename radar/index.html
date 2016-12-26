@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Radar</title>
+    </head>
+    <body>
+
+        <div>Above</div>
+
+        <div>
+            <canvas id="radar-canvas" width="400px" height="400px"></canvas>
+        </div>
+
+        <div>Below</div>
+
+        <script>
+
+            var rotation = 0.0;
+
+            var canvas = document.getElementById("radar-canvas");
+            var context = canvas.getContext("2d");
+            var canvasWidth = canvas.width;
+            var canvasHeight = canvas.height;
+
+            canvas.style.backgroundColor = "black";
+
+            function rotate() {
+                rotation += 0.5;
+
+                context.clearRect(0, 0, canvasWidth, canvasHeight);
+
+                context.save();
+
+                // Move registration point to the center of the canvas
+                context.translate(canvasWidth/2, canvasWidth/2);
+
+                context.rotate(rotation * Math.PI / 180);
+
+                var compassLineOffset = Math.min(canvasWidth, canvasHeight);
+                compassLineOffset /= 2.0;
+                compassLineOffset *= 0.85;
+
+                context.beginPath();
+                context.strokeStyle = 'white';
+                context.lineWidth = 2;
+                context.moveTo(0, -compassLineOffset);
+                context.lineTo(0, compassLineOffset);
+                context.stroke();
+
+                var fontSize = Math.floor(canvasWidth / 14.0);
+                var fontOffset = fontSize / 2.0 * 0.8;
+
+                context.font =  fontSize +  "px Arial";
+                context.fillStyle = "red";
+                context.textAlign = "center";
+                context.fillText("N", 0, -compassLineOffset);
+
+                context.fillStyle = "white";
+                context.textAlign = "center";
+                context.fillText("S", 0, compassLineOffset + fontOffset*2);
+
+                context.beginPath();
+                context.strokeStyle = 'white';
+                context.lineWidth = 2;
+                context.moveTo(-compassLineOffset, 0);
+                context.lineTo(compassLineOffset, 0);
+                context.stroke();
+
+                context.fillText("W", -compassLineOffset - fontOffset, fontOffset);
+                context.fillText("E", compassLineOffset + fontOffset, fontOffset);
+
+                context.restore();
+            }
+
+            setInterval(rotate, 50);
+
+        </script>
+
+    </body>
+</html>
