@@ -13,6 +13,9 @@ function LocationProvider(locationCallback, compassCallback) {
     this._locationCallback = locationCallback;
     this._compassCallback = compassCallback;
 
+    this.position = null;
+    this.compassHeadingRadians = 0.0;
+
     this._subscribeLocation();
     this._subscribeCompass();
 }
@@ -30,7 +33,13 @@ LocationProvider.prototype._subscribeLocation =function() {
     var that = this;
     navigator.geolocation.getCurrentPosition(function(position) {
         try {
-            that._locationCallback(position);
+            // We hold the latest position...
+            that.position = position;
+
+            // And call back, if the callback is set up...
+            if(that._locationCallback) {
+                that._locationCallback(position);
+            }
         } catch(ex) {
             Logger.log(ex.message);
         }
@@ -46,8 +55,13 @@ LocationProvider.prototype._subscribeCompass = function() {
     var that = this;
     window.addEventListener('deviceorientationabsolute', function(orientationInfo) {
         try {
-            var compassHeading = LocationProvider.compassHeading(orientationInfo.alpha, orientationInfo.beta, orientationInfo.gamma);
-            that._compassCallback(compassHeading);
+            // We store the latest compass heading...
+            that.compassHeadingRadians = LocationProvider.compassHeading(orientationInfo.alpha, orientationInfo.beta, orientationInfo.gamma);
+
+            // And call back , ifa callback is set up...
+            if(this._compassCallback) {
+                that._compassCallback(that.compassHeadingRadians);
+            }
         } catch(ex) {
             Logger.log(ex.message);
         }

@@ -6,7 +6,7 @@
     </head>
     <body>
 
-        <div>V1</div>
+        <div>V2</div>
         <div>Log:<span id="log"></span></div>
         <div>Above</div>
 
@@ -80,16 +80,10 @@
                 context.restore();
             }
 
-            var locationProvider = new LocationProvider(
-                function(position) {},
-                function(headingRadians) {
-                    try {
-                        rotate(headingRadians);
-                    } catch(ex) {
-                        Logger.log(ex.message);
-                    }
-                }
-            );
+            var locationProvider = new LocationProvider(null, null);
+            setInterval(function() {
+                rotate(locationProvider.compassHeadingRadians);
+            }, 100);
 
         </script>
 
