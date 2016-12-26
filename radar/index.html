@@ -21,6 +21,8 @@
                 document.getElementById("log").innerHTML = text;
             };
 
+            Logger.log("V1");
+
             var canvas = document.getElementById("radar-canvas");
             var context = canvas.getContext("2d");
             var canvasWidth = canvas.width;
@@ -82,7 +84,7 @@
                 } catch(ex) {
                     Logger.log(ex.message);
                 }
-            }, 100);
+            }, 30);
 
         </script>
 
