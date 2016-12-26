@@ -37,7 +37,7 @@ LocationProvider.prototype._subscribeLocation =function() {
             that.position = position;
 
             // And call back, if the callback is set up...
-            if(that._locationCallback) {
+            if(that._locationCallback !== null) {
                 that._locationCallback(position);
             }
         } catch(ex) {
@@ -59,7 +59,7 @@ LocationProvider.prototype._subscribeCompass = function() {
             that.compassHeadingRadians = LocationProvider.compassHeading(orientationInfo.alpha, orientationInfo.beta, orientationInfo.gamma);
 
             // And call back , ifa callback is set up...
-            if(that._compassCallback) {
+            if(that._compassCallback !== null) {
                 that._compassCallback(that.compassHeadingRadians);
             }
         } catch(ex) {
@@ -95,7 +95,10 @@ LocationProvider.compassHeading = function(alpha, beta, gamma) {
     var rC = - cB * cG;
 
     // Calculate compass heading
-    var compassHeading = Math.atan(rA / rB);
+    var compassHeading = 0.0;
+    if(rB !== 0.0) {
+        compassHeading = Math.atan(rA / rB);
+    }
 
     // Convert from half unit circle to whole unit circle
     if(rB < 0) {

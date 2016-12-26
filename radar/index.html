@@ -6,8 +6,9 @@
     </head>
     <body>
 
-        <div>V3</div>
+        <div>V5</div>
         <div>Log:<span id="log"></span></div>
+        <div>Heading:<span id="compass-heading"></span></div>
         <div>Above</div>
 
         <div>
@@ -82,6 +83,8 @@
 
             var locationProvider = new LocationProvider(null, null);
             setInterval(function() {
+                var heading = document.getElementById("compass-heading");
+                heading.innerHTML = locationProvider.compassHeadingRadians;
                 rotate(locationProvider.compassHeadingRadians);
             }, 100);
 
