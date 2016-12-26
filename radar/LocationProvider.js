@@ -9,10 +9,7 @@
  *
  * @constructor
  */
-function LocationProvider(locationCallback, compassCallback) {
-    this._locationCallback = locationCallback;
-    this._compassCallback = compassCallback;
-
+function LocationProvider() {
     this.position = null;
     this.compassHeadingRadians = 0.0;
 
@@ -35,11 +32,6 @@ LocationProvider.prototype._subscribeLocation =function() {
         try {
             // We hold the latest position...
             that.position = position;
-
-            // And call back, if the callback is set up...
-            if(that._locationCallback !== null) {
-                that._locationCallback(position);
-            }
         } catch(ex) {
             Logger.log(ex.message);
         }
@@ -57,11 +49,6 @@ LocationProvider.prototype._subscribeCompass = function() {
         try {
             // We store the latest compass heading...
             that.compassHeadingRadians = LocationProvider.compassHeading(orientationInfo.alpha, orientationInfo.beta, orientationInfo.gamma);
-
-            // And call back , if a callback is set up...
-            if(that._compassCallback !== null) {
-                that._compassCallback(that.compassHeadingRadians);
-            }
         } catch(ex) {
             Logger.log(ex.message);
         }
