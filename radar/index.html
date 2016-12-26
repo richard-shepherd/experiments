@@ -6,6 +6,8 @@
     </head>
     <body>
 
+        <div>V1</div>
+        <div>Log:<span id="log"></span></div>
         <div>Above</div>
 
         <div>
@@ -16,6 +18,13 @@
 
         <script src="LocationProvider.js"></script>
         <script>
+
+            function Logger() {
+
+            }
+            Logger.log = function(text) {
+                document.getElementById("log").innerHTML = text;
+            };
 
             var canvas = document.getElementById("radar-canvas");
             var context = canvas.getContext("2d");
@@ -33,7 +42,7 @@
                 // Move registration point to the center of the canvas
                 context.translate(canvasWidth/2, canvasWidth/2);
 
-                context.rotate(rotation * Math.PI / 180);
+                context.rotate(rotation);
 
                 var compassLineOffset = Math.min(canvasWidth, canvasHeight);
                 compassLineOffset /= 2.0;
@@ -73,7 +82,13 @@
 
             var locationProvider = new LocationProvider(
                 function(position) {},
-                rotate
+                function(headingRadians) {
+                    try {
+                        rotate(headingRadians);
+                    } catch(ex) {
+                        Logger.log(ex.message);
+                    }
+                }
             );
 
         </script>
