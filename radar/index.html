@@ -14,9 +14,8 @@
 
         <div>Below</div>
 
+        <script src="LocationProvider.js"></script>
         <script>
-
-            var rotation = 0.0;
 
             var canvas = document.getElementById("radar-canvas");
             var context = canvas.getContext("2d");
@@ -25,8 +24,7 @@
 
             canvas.style.backgroundColor = "black";
 
-            function rotate() {
-                rotation += 0.5;
+            function rotate(rotation) {
 
                 context.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -73,7 +71,10 @@
                 context.restore();
             }
 
-            setInterval(rotate, 50);
+            var locationProvider = new LocationProvider(
+                function(position) {},
+                rotate
+            );
 
         </script>
 
