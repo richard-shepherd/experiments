@@ -6,7 +6,7 @@
     </head>
     <body>
 
-        <div>V5</div>
+        <div>V6</div>
         <div>Log:<span id="log"></span></div>
         <div>Heading:<span id="compass-heading"></span></div>
         <div>Above</div>
@@ -83,9 +83,13 @@
 
             var locationProvider = new LocationProvider(null, null);
             setInterval(function() {
-                var heading = document.getElementById("compass-heading");
-                heading.innerHTML = locationProvider.compassHeadingRadians;
-                rotate(locationProvider.compassHeadingRadians);
+                try {
+                    var heading = document.getElementById("compass-heading");
+                    heading.innerHTML = locationProvider.compassHeadingRadians;
+                    rotate(locationProvider.compassHeadingRadians);
+                } catch(ex) {
+                    Logger.log(ex.message);
+                }
             }, 100);
 
         </script>
