@@ -6,7 +6,7 @@
     </head>
     <body>
 
-        <div>V7</div>
+        <div>V8</div>
         <div>Log:<span id="log"></span></div>
         <div>Heading:<span id="compass-heading"></span></div>
         <div>Above</div>
@@ -86,7 +86,7 @@
                 try {
                     var heading = document.getElementById("compass-heading");
                     heading.innerHTML = locationProvider.compassHeadingRadians;
-                    rotate(locationProvider.compassHeadingRadians);
+                    rotate(-1.0 * locationProvider.compassHeadingRadians);
                 } catch(ex) {
                     Logger.log(ex.message);
                 }
