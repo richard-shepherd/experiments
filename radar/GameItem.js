@@ -9,18 +9,22 @@ function GameItem() {
     // The item's position...
     this.latitude = 0.0;
     this.longitude = 0.0;
-
-    // The item type...
-    this.itemType = GameItem.ItemType.UNKNOWN;
 }
 
 /**
- * ItemType
- * --------
- * An enum for different types of item.
+ * radarInfo
+ * ---------
+ * Returns info about how to show this item on the radar.
+ *
+ * Returned object = {
+ *      showAsCircle : true / false,
+ *      circleColor: hex-string,
+ *      showAsImage: true / false,
+ *      image: ImageManager.Image enum
+ * }
  */
-GameItem.ItemType = {
-    UNKNOWN: 0,
-    PLAYER: 1,
-    ITEM: 2
+GameItem.prototype.radarInfo = function() {
+    throw new Error("radarInfo must be implemented in derived classes");
 };
+
+

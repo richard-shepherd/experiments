@@ -1,7 +1,8 @@
 /**
  * GameItem_Player (derived from GameItem)
- * ---------------------------------------
+ * ---------------
  * Represents a player.
+ *
  * @constructor
  */
 function GameItem_Player(playerNumber, color) {
