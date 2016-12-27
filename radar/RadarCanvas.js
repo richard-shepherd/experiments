@@ -152,6 +152,9 @@ RadarCanvas.prototype._drawCompass = function() {
     ctx.fillStyle = "red";
     ctx.fillText("N", 0, -1.0 * this._radarRadius);
     ctx.fillStyle = "white";
+
+    ctx.font =  fontSize/1.3 +  "px Arial";
+    ctx.textAlign = "center";
     ctx.fillText("S", 0, this._radarRadius + fontOffset*2);
     ctx.fillText("W", -1.0 * this._radarRadius - fontOffset, fontOffset);
     ctx.fillText("E", this._radarRadius + fontOffset, fontOffset);
