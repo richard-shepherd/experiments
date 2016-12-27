@@ -1,3 +1,8 @@
+- Radar should have a sweeping line, like an old-fashioned air traffic radar
+  - Objects should highlight when touched, and then fade.
+
+
+
  - We have a collection of Players. Each one has:
    - latitude
    - longitude
