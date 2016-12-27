@@ -82,21 +82,21 @@ RadarCanvas.prototype.showRadar = function(compassHeadingRadians) {
 RadarCanvas.prototype._drawRadarLine = function() {
     var ctx = this._canvasContext;
 
-    var numBands = 400;
-    var greenOffset = 255 / (numBands + 1);
-    var g = 255;
-    var bandWidthRadians = 0.01;
+    var numBands = 60;
+    var green = 150;
+    var greenOffset = green / (numBands + 1);
+    var bandWidthRadians = 0.09;
     var angle = this._radarLineAngleRadians;
     for(var i=0; i<numBands; ++i) {
-        ctx.fillStyle = Utils.rgbToString(0, g, 0);
+        ctx.fillStyle = Utils.rgbToString(0, green, 0);
         ctx.beginPath();
         ctx.arc(0, 0, this._radarRadius, angle, angle-bandWidthRadians, true);
         ctx.lineTo(0, 0);
         ctx.closePath();
         ctx.fill();
 
-        g -= greenOffset;
-        angle -= bandWidthRadians;
+        green -= greenOffset;
+        angle -= (bandWidthRadians * 0.5);
     }
 };
 
