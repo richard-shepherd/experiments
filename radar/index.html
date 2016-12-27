@@ -16,10 +16,10 @@
         <script src="GameItem_Player.js"></script>
         <script src="LocationProvider.js"></script>
         <script src="ImageManager.js"></script>
+        <script src="RadarCanvas.js"></script>
         <script>
 
-            var imageManager = new ImageManager();
-
+            // Logger replacement...
             function Logger() {
 
             }
@@ -27,75 +27,14 @@
                 document.getElementById("log").innerHTML = text;
             };
 
-            Logger.log("V1");
+            Logger.log("V3");
 
-            var canvas = document.getElementById("radar-canvas");
-            var context = canvas.getContext("2d");
-            var canvasWidth = canvas.width;
-            var canvasHeight = canvas.height;
-
-            canvas.style.backgroundColor = "#002000";
-
-            function rotate(rotation) {
-                try {
-                    context.save();
-
-                    context.clearRect(0, 0, canvasWidth, canvasHeight);
-
-
-                    // Move registration point to the center of the canvas
-                    context.translate(canvasWidth/2, canvasWidth/2);
-
-                    context.rotate(rotation);
-
-                    var compassLineOffset = Math.min(canvasWidth, canvasHeight);
-                    compassLineOffset /= 2.0;
-                    compassLineOffset *= 0.85;
-
-                    context.beginPath();
-                    context.strokeStyle = 'white';
-                    context.lineWidth = 2;
-                    context.moveTo(0, -compassLineOffset);
-                    context.lineTo(0, compassLineOffset);
-                    context.stroke();
-
-                    var fontSize = Math.floor(canvasWidth / 14.0);
-                    var fontOffset = fontSize / 2.0 * 0.8;
-
-                    context.font =  fontSize +  "px Arial";
-                    context.fillStyle = "red";
-                    context.textAlign = "center";
-                    context.fillText("N", 0, -compassLineOffset);
-
-                    context.fillStyle = "white";
-                    context.textAlign = "center";
-                    context.fillText("S", 0, compassLineOffset + fontOffset*2);
-
-                    context.beginPath();
-                    context.strokeStyle = 'white';
-                    context.lineWidth = 2;
-                    context.moveTo(-compassLineOffset, 0);
-                    context.lineTo(compassLineOffset, 0);
-                    context.stroke();
-
-                    context.fillText("W", -compassLineOffset - fontOffset, fontOffset);
-                    context.fillText("E", compassLineOffset + fontOffset, fontOffset);
-
-                    var shotgun = imageManager.getImage(ImageManager.Image.RADAR_SHOTGUN);
-                    var imageWidth = 70;
-                    var imageScale = imageWidth / shotgun.width;
-                    var imageHeight = shotgun.height * imageScale;
-                    context.drawImage(shotgun, 30, 40, imageWidth, imageHeight);
-
-                } finally {
-                    context.restore();
-                }
-            }
-
+            var imageManager = new ImageManager();
+            var radarCanvas = new RadarCanvas("radar-canvas");
             var locationProvider = new LocationProvider();
             setInterval(function() {
                 try {
-                    rotate(-1.0 * locationProvider.compassHeadingRadians);
+                    radarCanvas.showRadar(locationProvider.compassHeadingRadians);
                 } catch(ex) {
                     Logger.log(ex.message);
                 }
