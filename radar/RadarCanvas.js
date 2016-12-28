@@ -103,53 +103,40 @@ RadarCanvas.prototype._drawGrid = function() {
         ctx.stroke();
 
         // Circles with labels at set distances...
-        var fontSize = Math.floor(this._canvasWidth / 45.0);
+        var fontSize = Math.floor(this._canvasWidth / 40.0);
+        var fontOffset = this._canvasWidth / 150.0;
         ctx.font =  fontSize +  "px Arial";
-        ctx.textAlign = "center";
+        ctx.fillStyle = textColor;
+        ctx.textAlign = "left";
 
-        // 50m line...
-        ctx.setLineDash([2]);
+        // Circle color and style...
         ctx.lineWidth = 1;
         ctx.strokeStyle = circleColor;
+        ctx.setLineDash([2, 3]);
+
+        // 50m line...
         ctx.beginPath();
         ctx.arc(0, 0, 0.25 * this._radarRadius, 0, 2.0 * Math.PI);
         ctx.stroke();
-
-        ctx.fillStyle = textColor;
-        ctx.fillText("50m", 0, -0.25 * this._radarRadius);
+        ctx.fillText("50m", fontOffset, -0.25 * this._radarRadius - fontOffset);
 
         // 100m line...
-        ctx.setLineDash([2]);
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = circleColor;
         ctx.beginPath();
         ctx.arc(0, 0, 0.5 * this._radarRadius, 0, 2.0 * Math.PI);
         ctx.stroke();
-
-        ctx.fillStyle = textColor;
-        ctx.fillText("100m", 0, -0.5 * this._radarRadius);
+        ctx.fillText("100m", fontOffset, -0.5 * this._radarRadius - fontOffset);
 
         // 150m line...
-        ctx.setLineDash([2]);
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = circleColor;
         ctx.beginPath();
         ctx.arc(0, 0, 0.75 * this._radarRadius, 0, 2.0 * Math.PI);
         ctx.stroke();
-
-        ctx.fillStyle = textColor;
-        ctx.fillText("150m", 0, -0.75 * this._radarRadius);
+        ctx.fillText("150m", fontOffset, -0.75 * this._radarRadius - fontOffset);
 
         // 200m line...
-        ctx.setLineDash([2]);
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = circleColor;
         ctx.beginPath();
         ctx.arc(0, 0, 1.0 * this._radarRadius, 0, 2.0 * Math.PI);
         ctx.stroke();
-
-        ctx.fillStyle = textColor;
-        ctx.fillText("200m", 0, -1.0 * this._radarRadius);
+        ctx.fillText("200m", fontOffset, -1.0 * this._radarRadius - fontOffset);
     } finally {
         ctx.restore();
     }
@@ -179,7 +166,7 @@ RadarCanvas.prototype._drawRadarLine = function(deltaMilliseconds) {
         // We show the radar as a number of bands fading from
         // green to black...
         var numBands = 100;
-        var green = 100;
+        var green = 60;
         var greenOffset = green / (numBands + 1);
         var bandWidthRadians = 0.08;
         var angle = this._radarLineAngleRadians;
