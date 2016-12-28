@@ -9,9 +9,6 @@ function GameItem_Player(playerNumber, color) {
     // We call the base class's constructor...
     GameItem.call(this);
 
-    // We set the item type...
-    this.itemType = GameItem.ItemType.PLAYER;
-
     this.playerNumber = playerNumber;
     this.color = color;
 }
