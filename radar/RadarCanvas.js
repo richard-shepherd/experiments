@@ -52,20 +52,8 @@ RadarCanvas.prototype.showRadar = function(compassHeadingRadians) {
         this._radarRadius /= 2.0;
         this._radarRadius *= 0.85;
 
-        // We store the context and restore it later, as we will
-        // be applying various transformations to it, such as rotations.
-        // (If we don't save and restore, these will be cumulative in
-        // later updates.)this._radarRadius
-        ctx.save();
-
         // We clear the canvas, before redrawing...
         ctx.clearRect(0, 0, this._canvasWidth, this._canvasHeight);
-
-        // We set the origin to the center of the canvas...
-        ctx.translate(this._canvasWidth/2, this._canvasWidth/2);
-
-        // We rotate the canvas, so that north points north...
-        ctx.rotate(-1.0 * this._compassHeadingRadians);
 
         // We show the sweeping, green radar line...
         this._drawRadarLine(deltaMilliseconds);
@@ -74,8 +62,96 @@ RadarCanvas.prototype.showRadar = function(compassHeadingRadians) {
         this._compassHeadingRadians = compassHeadingRadians;
         this._drawCompass();
 
+        // We draw the radar grid (unrotated)...
+        this._drawGrid();
+    } catch(ex) {
+        Logger.log(ex.message);
+    }
+};
+
+/**
+ * _drawGrid
+ * ---------
+ * Draws the radar grid.
+ */
+RadarCanvas.prototype._drawGrid = function() {
+    var ctx = this._canvasContext;
+    try {
+        // We set the origin to the center of the canvas (with no rotation)...
+        ctx.save();
+        ctx.translate(this._canvasWidth/2, this._canvasWidth/2);
+
+        // We draw crosshair lines...
+        var lineColor = "#008000"
+        var textColor = "#405000"
+        var circleColor = "#405000"
+
+        // Vertical line...
+        ctx.beginPath();
+        ctx.strokeStyle = lineColor;
+        ctx.lineWidth = 1;
+        ctx.moveTo(0, -1.0 * this._radarRadius);
+        ctx.lineTo(0, this._radarRadius);
+        ctx.stroke();
+
+        // Horizontal line...
+        ctx.beginPath();
+        ctx.strokeStyle = lineColor;
+        ctx.lineWidth = 1;
+        ctx.moveTo(-1.0 * this._radarRadius, 0);
+        ctx.lineTo(this._radarRadius, 0);
+        ctx.stroke();
+
+        // Circles with labels at set distances...
+        var fontSize = Math.floor(this._canvasWidth / 45.0);
+        ctx.font =  fontSize +  "px Arial";
+        ctx.textAlign = "center";
+
+        // 50m line...
+        ctx.setLineDash([2]);
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = circleColor;
+        ctx.beginPath();
+        ctx.arc(0, 0, 0.25 * this._radarRadius, 0, 2.0 * Math.PI);
+        ctx.stroke();
+
+        ctx.fillStyle = textColor;
+        ctx.fillText("50m", 0, -0.25 * this._radarRadius);
+
+        // 100m line...
+        ctx.setLineDash([2]);
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = circleColor;
+        ctx.beginPath();
+        ctx.arc(0, 0, 0.5 * this._radarRadius, 0, 2.0 * Math.PI);
+        ctx.stroke();
+
+        ctx.fillStyle = textColor;
+        ctx.fillText("100m", 0, -0.5 * this._radarRadius);
+
+        // 150m line...
+        ctx.setLineDash([2]);
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = circleColor;
+        ctx.beginPath();
+        ctx.arc(0, 0, 0.75 * this._radarRadius, 0, 2.0 * Math.PI);
+        ctx.stroke();
+
+        ctx.fillStyle = textColor;
+        ctx.fillText("150m", 0, -0.75 * this._radarRadius);
+
+        // 200m line...
+        ctx.setLineDash([2]);
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = circleColor;
+        ctx.beginPath();
+        ctx.arc(0, 0, 1.0 * this._radarRadius, 0, 2.0 * Math.PI);
+        ctx.stroke();
+
+        ctx.fillStyle = textColor;
+        ctx.fillText("200m", 0, -1.0 * this._radarRadius);
     } finally {
-        this._canvasContext.restore();
+        ctx.restore();
     }
 };
 
@@ -86,31 +162,40 @@ RadarCanvas.prototype.showRadar = function(compassHeadingRadians) {
  */
 RadarCanvas.prototype._drawRadarLine = function(deltaMilliseconds) {
     var ctx = this._canvasContext;
+    try {
+        // We set the origin to the center of the canvas, and with
+        // rotation...
+        ctx.save();
+        ctx.translate(this._canvasWidth/2, this._canvasWidth/2);
+        ctx.rotate(-1.0 * this._compassHeadingRadians);
 
-    // We update the angle...
-    var offsetRadians = deltaMilliseconds / this._radarSweepTimeMilliseconds * 2.0 * Math.PI;
-    this._radarLineAngleRadians += offsetRadians;
-    if(this._radarLineAngleRadians > 2.0 * Math.PI) {
-        this._radarLineAngleRadians = 0.0;
-    }
+        // We update the angle...
+        var offsetRadians = deltaMilliseconds / this._radarSweepTimeMilliseconds * 2.0 * Math.PI;
+        this._radarLineAngleRadians += offsetRadians;
+        if(this._radarLineAngleRadians > 2.0 * Math.PI) {
+            this._radarLineAngleRadians = 0.0;
+        }
 
-    // We show the radar as a number of bands fading from
-    // green to black...
-    var numBands = 100;
-    var green = 100;
-    var greenOffset = green / (numBands + 1);
-    var bandWidthRadians = 0.08;
-    var angle = this._radarLineAngleRadians;
-    for(var i=0; i<numBands; ++i) {
-        ctx.fillStyle = Utils.rgbToString(0, green, 0);
-        ctx.beginPath();
-        ctx.arc(0, 0, this._radarRadius, angle, angle-bandWidthRadians, true);
-        ctx.lineTo(0, 0);
-        ctx.closePath();
-        ctx.fill();
+        // We show the radar as a number of bands fading from
+        // green to black...
+        var numBands = 100;
+        var green = 100;
+        var greenOffset = green / (numBands + 1);
+        var bandWidthRadians = 0.08;
+        var angle = this._radarLineAngleRadians;
+        for(var i=0; i<numBands; ++i) {
+            ctx.fillStyle = Utils.rgbToString(0, green, 0);
+            ctx.beginPath();
+            ctx.arc(0, 0, this._radarRadius, angle, angle-bandWidthRadians, true);
+            ctx.lineTo(0, 0);
+            ctx.closePath();
+            ctx.fill();
 
-        green -= greenOffset;
-        angle -= (bandWidthRadians * 0.5);
+            green -= greenOffset;
+            angle -= (bandWidthRadians * 0.5);
+        }
+    } finally {
+        ctx.restore();
     }
 };
 
@@ -121,47 +206,46 @@ RadarCanvas.prototype._drawRadarLine = function(deltaMilliseconds) {
  */
 RadarCanvas.prototype._drawCompass = function() {
     var ctx = this._canvasContext;
+    try {
+        // We set the origin to the center of the canvas, and with
+        // rotation...
+        ctx.save();
+        ctx.translate(this._canvasWidth/2, this._canvasWidth/2);
+        ctx.rotate(-1.0 * this._compassHeadingRadians);
 
-    ctx.save();
+        var numLines = 72;
+        var angleBetweenLines = 2.0 * Math.PI / numLines;
+        for(var i=0; i<numLines; ++i) {
+            ctx.beginPath();
+            ctx.strokeStyle = '#dddddd';
+            ctx.lineWidth = 1;
+            if(i%2 === 0) {
+                ctx.moveTo(0, 0.93 * this._radarRadius);
+            } else {
+                ctx.moveTo(0, 0.96 * this._radarRadius);
+            }
+            ctx.lineTo(0, this._radarRadius);
+            ctx.stroke();
 
-    var numLines = 72;
-    var angleBetweenLines = 2.0 * Math.PI / numLines;
-    for(var i=0; i<numLines; ++i) {
-        ctx.beginPath();
-        ctx.strokeStyle = '#dddddd';
-        ctx.lineWidth = 1;
-        if(i%2 === 0) {
-            ctx.moveTo(0, 0.93 * this._radarRadius);
-        } else {
-            ctx.moveTo(0, 0.96 * this._radarRadius);
+            ctx.rotate(angleBetweenLines);
         }
-        ctx.lineTo(0, this._radarRadius);
-        ctx.stroke();
 
-        ctx.rotate(angleBetweenLines);
+        // We show the N, E, W, S labels...
+        var fontSize = Math.floor(this._canvasWidth / 22.0);
+        var fontOffset = fontSize / 2.0 * 0.8;
+        ctx.font =  fontSize +  "px Arial";
+        ctx.textAlign = "center";
+
+        ctx.fillStyle = "red";
+        ctx.fillText("N", 0, -1.0 * this._radarRadius);
+        ctx.fillStyle = "white";
+
+        ctx.font =  fontSize/1.3 +  "px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("S", 0, this._radarRadius + fontOffset*2);
+        ctx.fillText("W", -1.0 * this._radarRadius - fontOffset, fontOffset);
+        ctx.fillText("E", this._radarRadius + fontOffset, fontOffset);
+    } finally {
+        ctx.restore();
     }
-
-    ctx.restore();
-
-    // We show the N, E, W, S labels...
-    var fontSize = Math.floor(this._canvasWidth / 22.0);
-    var fontOffset = fontSize / 2.0 * 0.8;
-    ctx.font =  fontSize +  "px Arial";
-    ctx.textAlign = "center";
-
-    ctx.fillStyle = "red";
-    ctx.fillText("N", 0, -1.0 * this._radarRadius);
-    ctx.fillStyle = "white";
-
-    ctx.font =  fontSize/1.3 +  "px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText("S", 0, this._radarRadius + fontOffset*2);
-    ctx.fillText("W", -1.0 * this._radarRadius - fontOffset, fontOffset);
-    ctx.fillText("E", this._radarRadius + fontOffset, fontOffset);
-
-    var shotgun = imageManager.getImage(ImageManager.Image.RADAR_SHOTGUN);
-    var imageWidth = 70;
-    var imageScale = imageWidth / shotgun.width;
-    var imageHeight = shotgun.height * imageScale;
-    ctx.drawImage(shotgun, 30, 40, imageWidth, imageHeight);
 };

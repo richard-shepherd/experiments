@@ -34,7 +34,8 @@
             var locationProvider = new LocationProvider();
             setInterval(function() {
                 try {
-                    radarCanvas.showRadar(locationProvider.compassHeadingRadians);
+                    radarCanvas.showRadar(0.7);
+                    //radarCanvas.showRadar(locationProvider.compassHeadingRadians);
                 } catch(ex) {
                     Logger.log(ex.message);
                 }

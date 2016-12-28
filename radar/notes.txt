@@ -1,6 +1,7 @@
 - Radar should have a sweeping line, like an old-fashioned air traffic radar
   - Objects should highlight when touched, and then fade.
 
+- Optimize by creating the radar as an image and rotating it???
 
 
  - We have a collection of Players. Each one has:
