@@ -58,8 +58,8 @@
             var locationProvider = new LocationProvider();
             setInterval(function() {
                 try {
-                    radarCanvas.showRadar(0.0, gameItems);
-                    //radarCanvas.showRadar(locationProvider.compassHeadingRadians);
+                    //radarCanvas.showRadar(0.0, gameItems);
+                    radarCanvas.showRadar(locationProvider.compassHeadingRadians, gameItems);
                 } catch(ex) {
                     Logger.log(ex.message);
                 }

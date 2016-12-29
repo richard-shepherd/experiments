@@ -14,21 +14,14 @@ function GameItem() {
     // The angle is radians clockwise from north.
     this.distanceMeters = 1000.0;
     this.angleRadians = Math.PI / 4.0;
+
+    // Radar info...
+    this.radarInfo = {
+        showAsCircle: false,
+        circleColor: "#ff0000",
+        label: "?"
+    };
 }
 
-/**
- * radarInfo
- * ---------
- * Returns info about how to show this item on the radar.
- *
- * Returned object = {
- *      showAsCircle : true / false,
- *      circleColor: hex-string,
- *      label: (string)
- * }
- */
-GameItem.prototype.radarInfo = function() {
-    throw new Error("radarInfo must be implemented in derived classes");
-};
 
 

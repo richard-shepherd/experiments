@@ -22,8 +22,8 @@ function RadarCanvas(canvasElementID) {
     // The most recent compass heading...
     this._compassHeadingRadians = 0.0;
 
-    // The angle of the radar line...
-    this._radarLineAngleRadians = 1.5 * Math.PI;
+    // The angle of the radar line (clockwise from north)...
+    this._radarLineAngleRadians = 0.0;
 
     // The number of seconds it takes to sweep the entire circle
     // with the radar...
@@ -90,7 +90,7 @@ RadarCanvas.prototype._drawGameItems = function(gameItems, compassHeadingRadians
         // We set the text size for items...
         var fontSize = Math.floor(this._canvasWidth / 40.0);
         ctx.font =  fontSize +  "px Arial";
-        ctx.fillStyle = "#00ff00";
+        ctx.fillStyle = "rgba(0,255,0,1.0)";
         ctx.textAlign = "left";
 
         // We show each item...
@@ -129,7 +129,8 @@ RadarCanvas.prototype._drawGameItem = function(ctx, gameItem, compassHeadingRadi
     var y = -1.0 * yMeters / this.radarDistanceMeters * this._radarRadius;
 
     // We show the item...
-    ctx.fillText("+", x, y);
+    var text = "+" + gameItem.radarInfo.label;
+    ctx.fillText(text, x, y);
 };
 
 /**
@@ -222,7 +223,7 @@ RadarCanvas.prototype._drawRadarLine = function(deltaMilliseconds) {
         var green = 60;
         var greenOffset = green / (numBands + 1);
         var bandWidthRadians = 0.08;
-        var angle = this._radarLineAngleRadians;
+        var angle = this._radarLineAngleRadians - 0.5 * Math.PI;
         for(var i=0; i<numBands; ++i) {
             ctx.fillStyle = Utils.rgbToString(0, green, 0);
             ctx.beginPath();
