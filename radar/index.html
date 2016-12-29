@@ -14,6 +14,8 @@
         <script src="Utils.js"></script>
         <script src="GameItem.js"></script>
         <script src="GameItem_Player.js"></script>
+        <script src="GameItem_Weapon.js"></script>
+        <script src="GameItem_Ammo.js"></script>
         <script src="LocationProvider.js"></script>
         <script src="ImageManager.js"></script>
         <script src="RadarCanvas.js"></script>
@@ -29,13 +31,35 @@
 
             Logger.log("V3");
 
+            // We create some game items...
+            var gameItems = [];
+
+            // Some ammo...
+            var item1 = new GameItem_Ammo();
+            item1.distanceMeters = 100.0;
+            item1.angleRadians = 2.0;
+            gameItems.push(item1);
+
+            // A weapon...
+            var item2 = new GameItem_Weapon();
+            item2.distanceMeters = 150.0;
+            item2.angleRadians = 0.0;
+            gameItems.push(item2);
+
+            // More ammo...
+            var item3 = new GameItem_Ammo();
+            item3.distanceMeters = 50.0;
+            item3.angleRadians = 5.0;
+            gameItems.push(item3);
+
+
             var imageManager = new ImageManager();
             var radarCanvas = new RadarCanvas("radar-canvas");
             var locationProvider = new LocationProvider();
             setInterval(function() {
                 try {
-                    //radarCanvas.showRadar(0.7);
-                    radarCanvas.showRadar(locationProvider.compassHeadingRadians);
+                    radarCanvas.showRadar(0.0, gameItems);
+                    //radarCanvas.showRadar(locationProvider.compassHeadingRadians);
                 } catch(ex) {
                     Logger.log(ex.message);
                 }

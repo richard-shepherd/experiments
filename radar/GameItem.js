@@ -24,8 +24,7 @@ function GameItem() {
  * Returned object = {
  *      showAsCircle : true / false,
  *      circleColor: hex-string,
- *      showAsImage: true / false,
- *      image: ImageManager.Image enum
+ *      label: (string)
  * }
  */
 GameItem.prototype.radarInfo = function() {

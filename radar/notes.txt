@@ -3,6 +3,9 @@
 
 - Optimize by creating the radar as an image and rotating it???
 
+- Try overlaying the radar on the video
+  - As a sort of HUD
+
 
  - We have a collection of Players. Each one has:
    - latitude

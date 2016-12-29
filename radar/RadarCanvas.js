@@ -16,6 +16,9 @@ function RadarCanvas(canvasElementID) {
     this._canvasHeight = 1.0;
     this._radarRadius = 0.5;
 
+    // The distance we cover on the radar...
+    this.radarDistanceMeters = 200.0;
+
     // The most recent compass heading...
     this._compassHeadingRadians = 0.0;
 
@@ -36,7 +39,7 @@ function RadarCanvas(canvasElementID) {
  * ---------
  * Shows the radar.
  */
-RadarCanvas.prototype.showRadar = function(compassHeadingRadians) {
+RadarCanvas.prototype.showRadar = function(compassHeadingRadians, gameItems) {
     try {
         var ctx = this._canvasContext;
 
@@ -62,11 +65,71 @@ RadarCanvas.prototype.showRadar = function(compassHeadingRadians) {
         this._compassHeadingRadians = compassHeadingRadians;
         this._drawCompass();
 
-        // We draw the radar grid (unrotated)...
+        // We draw the radar grid...
         this._drawGrid();
+
+        // We draw the game items...
+        this._drawGameItems(gameItems, compassHeadingRadians);
     } catch(ex) {
         Logger.log(ex.message);
     }
+};
+
+/**
+ * _drawGameItems
+ * --------------
+ * Shows the game items on the radar.
+ */
+RadarCanvas.prototype._drawGameItems = function(gameItems, compassHeadingRadians) {
+    var ctx = this._canvasContext;
+    try {
+        // We set the origin to the center of the canvas (with no rotation)...
+        ctx.save();
+        ctx.translate(this._canvasWidth/2, this._canvasWidth/2);
+
+        // We set the text size for items...
+        var fontSize = Math.floor(this._canvasWidth / 40.0);
+        ctx.font =  fontSize +  "px Arial";
+        ctx.fillStyle = "#00ff00";
+        ctx.textAlign = "left";
+
+        // We show each item...
+        for(var i=0; i<gameItems.length; ++i) {
+            this._drawGameItem(ctx, gameItems[i], compassHeadingRadians);
+        }
+    } finally {
+        ctx.restore();
+    }
+};
+
+/**
+ * _drawGameItem
+ * -------------
+ * Shows one game item on the radar.
+ */
+RadarCanvas.prototype._drawGameItem = function(ctx, gameItem, compassHeadingRadians) {
+    // If the object is too far away, we do not show it...
+    if(gameItem.distanceMeters > this._radarRadius) {
+        return;
+    }
+
+    // We know:
+    // - The distance of the item from us.
+    // - The angle in radians, clockwise from north.
+
+    // We adjust the angle for the compass heading...
+    var angleRadians = gameItem.angleRadians - compassHeadingRadians;
+
+    // We convert the position to (x, y) coordinates in meters...
+    var xMeters = Math.sin(angleRadians) * gameItem.distanceMeters;
+    var yMeters = Math.cos(angleRadians) * gameItem.distanceMeters;
+
+    // We convert the distances to pixels...
+    var x = xMeters / this.radarDistanceMeters * this._radarRadius;
+    var y = -1.0 * yMeters / this.radarDistanceMeters * this._radarRadius;
+
+    // We show the item...
+    ctx.fillText("+", x, y);
 };
 
 /**
@@ -114,29 +177,19 @@ RadarCanvas.prototype._drawGrid = function() {
         ctx.strokeStyle = circleColor;
         ctx.setLineDash([2, 3]);
 
-        // 50m line...
-        ctx.beginPath();
-        ctx.arc(0, 0, 0.25 * this._radarRadius, 0, 2.0 * Math.PI);
-        ctx.stroke();
-        ctx.fillText("50m", fontOffset, -0.25 * this._radarRadius - fontOffset);
-
-        // 100m line...
-        ctx.beginPath();
-        ctx.arc(0, 0, 0.5 * this._radarRadius, 0, 2.0 * Math.PI);
-        ctx.stroke();
-        ctx.fillText("100m", fontOffset, -0.5 * this._radarRadius - fontOffset);
-
-        // 150m line...
-        ctx.beginPath();
-        ctx.arc(0, 0, 0.75 * this._radarRadius, 0, 2.0 * Math.PI);
-        ctx.stroke();
-        ctx.fillText("150m", fontOffset, -0.75 * this._radarRadius - fontOffset);
-
-        // 200m line...
-        ctx.beginPath();
-        ctx.arc(0, 0, 1.0 * this._radarRadius, 0, 2.0 * Math.PI);
-        ctx.stroke();
-        ctx.fillText("200m", fontOffset, -1.0 * this._radarRadius - fontOffset);
+        // A function to draw a circle at a distance-fraction from the center...
+        var that = this;
+        function drawCircle(distance) {
+            ctx.beginPath();
+            ctx.arc(0, 0, distance * that._radarRadius, 0, 2.0 * Math.PI);
+            ctx.stroke();
+            var text = distance * that.radarDistanceMeters + "m";
+            ctx.fillText(text, fontOffset, -1.0 * distance * that._radarRadius - fontOffset);
+        }
+        drawCircle(0.25);
+        drawCircle(0.5);
+        drawCircle(0.75);
+        drawCircle(1.0);
     } finally {
         ctx.restore();
     }
