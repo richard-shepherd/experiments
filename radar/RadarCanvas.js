@@ -24,6 +24,7 @@ function RadarCanvas(canvasElementID) {
 
     // The angle of the radar line (clockwise from north)...
     this._radarLineAngleRadians = 0.0;
+    this._previousRadarLineAngleRadians = 0.0;
 
     // The number of seconds it takes to sweep the entire circle
     // with the radar...
@@ -69,9 +70,60 @@ RadarCanvas.prototype.showRadar = function(compassHeadingRadians, gameItems) {
         this._drawGrid();
 
         // We draw the game items...
+        this._updateGameItemAlpha(gameItems);
         this._drawGameItems(gameItems, compassHeadingRadians);
+
+        // We note the radar-line angle for next time...
+        this._previousRadarLineAngleRadians = this._radarLineAngleRadians;
     } catch(ex) {
         Logger.log(ex.message);
+    }
+};
+
+/**
+ * _updateGameItemAlpha
+ * --------------------
+ * Updates the alpha (visibility) for the game items.
+ *
+ * We show each item as the radar sweeps past it, and then it fades.
+ */
+RadarCanvas.prototype._updateGameItemAlpha = function(gameItems) {
+    var now = Date.now();
+    var fadeTime = this._radarSweepTimeMilliseconds / 2.0;
+
+    // We check each game item...
+    for(var i=0; i<gameItems.length; ++i) {
+        var gameItem = gameItems[i];
+
+        if(gameItem.distanceMeters > this.radarDistanceMeters) {
+            // The item is out of range...
+            gameItem.radarInfo.timeShown = null;
+            gameItem.radarInfo.alpha = 0.0;
+            continue;
+        }
+
+        // The item is in range...
+
+        // We check if the radar has swept past it since we last checked...
+        if(this._radarLineAngleRadians >= gameItem.angleRadians &&
+            (this._previousRadarLineAngleRadians < gameItem.angleRadians ||
+            this._radarLineAngleRadians < this._previousRadarLineAngleRadians)) {
+            // The radar line has gone past the item...
+            gameItem.radarInfo.timeShown = now;
+        }
+
+        // We update the alpha...
+        if(gameItem.radarInfo.timeShown === null) {
+            // The item has not been touched by the radar yet...
+            continue;
+        }
+
+        // We fade from full visibility to transparency over half the radar sweep time...
+        var timeDelta = now - gameItem.radarInfo.timeShown;
+        gameItem.radarInfo.alpha = 1.0 - timeDelta / fadeTime;
+        if(gameItem.radarInfo.alpha < 0.0) {
+            gameItem.radarInfo.alpha = 0.0;
+        }
     }
 };
 
@@ -90,7 +142,6 @@ RadarCanvas.prototype._drawGameItems = function(gameItems, compassHeadingRadians
         // We set the text size for items...
         var fontSize = Math.floor(this._canvasWidth / 40.0);
         ctx.font =  fontSize +  "px Arial";
-        ctx.fillStyle = "rgba(0,255,0,1.0)";
         ctx.textAlign = "left";
 
         // We show each item...
@@ -127,6 +178,11 @@ RadarCanvas.prototype._drawGameItem = function(ctx, gameItem, compassHeadingRadi
     // We convert the distances to pixels...
     var x = xMeters / this.radarDistanceMeters * this._radarRadius;
     var y = -1.0 * yMeters / this.radarDistanceMeters * this._radarRadius;
+
+    // We set the color based on the visibility of the item...
+    var color = Utils.rgbaToString(0, 255, 0, gameItem.radarInfo.alpha);
+    console.log(gameItem.radarInfo.alpha);
+    ctx.fillStyle = color;
 
     // We show the item...
     var text = "+" + gameItem.radarInfo.label;

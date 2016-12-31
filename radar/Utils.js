@@ -52,6 +52,18 @@ Utils.rgbToString = function(r, g, b) {
 };
 
 /**
+ * rgbaToString
+ * ------------
+ * Converts RGBA values to a color string.
+ */
+Utils.rgbaToString = function(r, g, b, a) {
+    r = Math.round(r);
+    g = Math.round(g);
+    b = Math.round(b);
+    return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+};
+
+/**
  * Returns the percentage difference between a and b (as a percentage
  * of a) as a number like 0.1 for 10% difference.
  */

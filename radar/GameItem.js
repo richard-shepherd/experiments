@@ -19,7 +19,9 @@ function GameItem() {
     this.radarInfo = {
         showAsCircle: false,
         circleColor: "#ff0000",
-        label: "?"
+        label: "?",
+        timeShown: null,
+        alpha: 0.0
     };
 }
 

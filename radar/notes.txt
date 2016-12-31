@@ -6,6 +6,24 @@
 - Try overlaying the radar on the video
   - As a sort of HUD
 
+- Item has time-shown
+  - Can be set to null
+- Has alpha
+  - Starts at zero
+  - On each radar update, we updte the alpha
+    of all items.
+
+- time-shown
+  - We hold the previous radar angle
+  - We calculate the new angle
+  - We look through all items
+    - If previous < item < new then the radar has gone passed us.
+  - What if the item is at (say) 1
+    - And previous = 355, new = 3
+    - if item < new
+      - if item > previous
+      - or new < previous
+
 
  - We have a collection of Players. Each one has:
    - latitude
