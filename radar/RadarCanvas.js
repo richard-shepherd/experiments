@@ -89,7 +89,7 @@ RadarCanvas.prototype.showRadar = function(compassHeadingRadians, gameItems) {
  */
 RadarCanvas.prototype._updateGameItemAlpha = function(gameItems) {
     var now = Date.now();
-    var fadeTime = this._radarSweepTimeMilliseconds / 2.0;
+    var fadeTime = this._radarSweepTimeMilliseconds / 1.5;
 
     // We check each game item...
     for(var i=0; i<gameItems.length; ++i) {
