@@ -32,7 +32,7 @@ function RadarCanvas(canvasElementID) {
     this._lastUpdateTime = Date.now();
 
     // We set the background color of the canvas...
-    this._canvasElement.style.backgroundColor = "#000000";
+    //this._canvasElement.style.backgroundColor = "#000000";
 }
 
 /**
@@ -275,20 +275,20 @@ RadarCanvas.prototype._drawRadarLine = function(deltaMilliseconds) {
 
         // We show the radar as a number of bands fading from
         // green to black...
-        var numBands = 100;
-        var green = 60;
-        var greenOffset = green / (numBands + 1);
-        var bandWidthRadians = 0.08;
+        var numBands = 20;
+        var alpha = 1.0;
+        var alphaOffset = alpha / (numBands + 1);
+        var bandWidthRadians = 0.04;
         var angle = this._radarLineAngleRadians - 0.5 * Math.PI;
         for(var i=0; i<numBands; ++i) {
-            ctx.fillStyle = Utils.rgbToString(0, green, 0);
+            ctx.fillStyle = Utils.rgbaToString(20, 100, 20, alpha);
             ctx.beginPath();
             ctx.arc(0, 0, this._radarRadius, angle, angle-bandWidthRadians, true);
             ctx.lineTo(0, 0);
             ctx.closePath();
             ctx.fill();
 
-            green -= greenOffset;
+            alpha -= alphaOffset;
             angle -= (bandWidthRadians * 0.5);
         }
     } finally {
