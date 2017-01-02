@@ -113,7 +113,7 @@ RadarCanvas.prototype._preRenderCanvases = function() {
         return;
     }
 
-    console.log("Pre-rendering canvases");
+    Logger.log("Pre-rendering canvases");
 
     // The main canvas size has changed, so we pre-render canvases
     // for the static elements...
@@ -358,7 +358,7 @@ RadarCanvas.prototype._drawGameItems = function(gameItems, compassHeadingRadians
         ctx.translate(this._canvasWidth/2, this._canvasWidth/2);
 
         // We set the text size for items...
-        var fontSize = Math.floor(this._canvasWidth / 35.0);
+        var fontSize = Math.floor(this._canvasWidth / 30.0);
         ctx.font =  fontSize +  "px Arial";
         ctx.textAlign = "left";
 
