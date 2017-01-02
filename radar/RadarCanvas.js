@@ -30,7 +30,24 @@ function RadarCanvas(canvasElementID) {
     // with the radar...
     this._radarSweepTimeMilliseconds = 4500.0;
     this._lastUpdateTime = Date.now();
+
+    // We pre-render some of the items for efficiency...
+    this._radarSweepCanvas = this._createCanvas();
+    this._compassCanvas = this._createCanvas();
+    this._gridCanvas = this._createCanvas();
 }
+
+/**
+ * _createCanvas
+ * -------------
+ * Creates a canvas with defaults.
+ */
+RadarCanvas.prototype._createCanvas = function() {
+    var canvas = document.createElement("canvas");
+    canvas.width = 1;
+    canvas.height = 1;
+    return canvas;
+};
 
 /**
  * showRadar
@@ -202,13 +219,13 @@ RadarCanvas.prototype._drawGrid = function() {
 
         // We draw crosshair lines...
         var lineColor = "#008000"
-        var textColor = "#405000"
-        var circleColor = "#405000"
+        var textColor = "#408000"
+        var circleColor = "#408000"
 
         // Vertical line...
         ctx.beginPath();
         ctx.strokeStyle = lineColor;
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 2;
         ctx.moveTo(0, -1.0 * this._radarRadius);
         ctx.lineTo(0, this._radarRadius);
         ctx.stroke();
@@ -216,7 +233,7 @@ RadarCanvas.prototype._drawGrid = function() {
         // Horizontal line...
         ctx.beginPath();
         ctx.strokeStyle = lineColor;
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 2;
         ctx.moveTo(-1.0 * this._radarRadius, 0);
         ctx.lineTo(this._radarRadius, 0);
         ctx.stroke();
@@ -229,7 +246,7 @@ RadarCanvas.prototype._drawGrid = function() {
         ctx.textAlign = "left";
 
         // Circle color and style...
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 2;
         ctx.strokeStyle = circleColor;
         ctx.setLineDash([2, 3]);
 
@@ -268,8 +285,8 @@ RadarCanvas.prototype._drawRadarLine = function(deltaMilliseconds) {
         // We update the angle...
         var offsetRadians = deltaMilliseconds / this._radarSweepTimeMilliseconds * 2.0 * Math.PI;
         this._radarLineAngleRadians += offsetRadians;
-        if(this._radarLineAngleRadians > 2.0 * Math.PI) {
-            this._radarLineAngleRadians = 0.0;
+        while(this._radarLineAngleRadians > 2.0 * Math.PI) {
+            this._radarLineAngleRadians -= 2.0 * Math.PI;
         }
 
         // We show the radar as a number of bands fading from
@@ -313,7 +330,7 @@ RadarCanvas.prototype._drawCompass = function() {
         var angleBetweenLines = 2.0 * Math.PI / numLines;
         for(var i=0; i<numLines; ++i) {
             ctx.beginPath();
-            ctx.strokeStyle = '#eeeeee';
+            ctx.strokeStyle = '#dddddd';
             ctx.lineWidth = 3;
             if(i%2 === 0) {
                 ctx.moveTo(0, 0.93 * this._radarRadius);
