@@ -28,11 +28,8 @@ function RadarCanvas(canvasElementID) {
 
     // The number of seconds it takes to sweep the entire circle
     // with the radar...
-    this._radarSweepTimeMilliseconds = 5000.0;
+    this._radarSweepTimeMilliseconds = 4500.0;
     this._lastUpdateTime = Date.now();
-
-    // We set the background color of the canvas...
-    //this._canvasElement.style.backgroundColor = "#000000";
 }
 
 /**
@@ -140,7 +137,7 @@ RadarCanvas.prototype._drawGameItems = function(gameItems, compassHeadingRadians
         ctx.translate(this._canvasWidth/2, this._canvasWidth/2);
 
         // We set the text size for items...
-        var fontSize = Math.floor(this._canvasWidth / 40.0);
+        var fontSize = Math.floor(this._canvasWidth / 35.0);
         ctx.font =  fontSize +  "px Arial";
         ctx.textAlign = "left";
 
@@ -180,12 +177,14 @@ RadarCanvas.prototype._drawGameItem = function(ctx, gameItem, compassHeadingRadi
     var y = -1.0 * yMeters / this.radarDistanceMeters * this._radarRadius;
 
     // We set the color based on the visibility of the item...
-    var color = Utils.rgbaToString(0, 255, 0, gameItem.radarInfo.alpha);
-    console.log(gameItem.radarInfo.alpha);
-    ctx.fillStyle = color;
+    var fillColor = Utils.rgbaToString(0, 255, 0, gameItem.radarInfo.alpha);
+    var strokeColor = Utils.rgbaToString(64, 64, 64, gameItem.radarInfo.alpha);
+    ctx.fillStyle = fillColor;
+    ctx.strokeStyle = strokeColor;
 
     // We show the item...
     var text = "+" + gameItem.radarInfo.label;
+    ctx.strokeText(text, x, y);
     ctx.fillText(text, x, y);
 };
 
@@ -314,8 +313,8 @@ RadarCanvas.prototype._drawCompass = function() {
         var angleBetweenLines = 2.0 * Math.PI / numLines;
         for(var i=0; i<numLines; ++i) {
             ctx.beginPath();
-            ctx.strokeStyle = '#dddddd';
-            ctx.lineWidth = 1;
+            ctx.strokeStyle = '#eeeeee';
+            ctx.lineWidth = 3;
             if(i%2 === 0) {
                 ctx.moveTo(0, 0.93 * this._radarRadius);
             } else {
@@ -332,15 +331,20 @@ RadarCanvas.prototype._drawCompass = function() {
         var fontOffset = fontSize / 2.0 * 0.8;
         ctx.font =  fontSize +  "px Arial";
         ctx.textAlign = "center";
+        ctx.strokeStyle = "#404040";
 
         ctx.fillStyle = "red";
+        ctx.strokeText("N", 0, -1.0 * this._radarRadius);
         ctx.fillText("N", 0, -1.0 * this._radarRadius);
-        ctx.fillStyle = "white";
 
         ctx.font =  fontSize/1.3 +  "px Arial";
         ctx.textAlign = "center";
+        ctx.fillStyle = "white";
+        ctx.strokeText("S", 0, this._radarRadius + fontOffset*2);
         ctx.fillText("S", 0, this._radarRadius + fontOffset*2);
+        ctx.strokeText("W", -1.0 * this._radarRadius - fontOffset, fontOffset);
         ctx.fillText("W", -1.0 * this._radarRadius - fontOffset, fontOffset);
+        ctx.strokeText("E", this._radarRadius + fontOffset, fontOffset);
         ctx.fillText("E", this._radarRadius + fontOffset, fontOffset);
     } finally {
         ctx.restore();
