@@ -297,7 +297,7 @@ RadarCanvas.prototype._preRenderCanvas_Grid = function() {
     var height = ctx.canvas.height;
     var outerRadius = width / 3.5;
     var innerRadius = width / 40.0;
-    var lineOffset = outerRadius  + width / 20.0;
+    var lineOffset = outerRadius  + width / 40.0;
 
     var centerX = width / 2.0;
     var centerY = height / 2.0;
@@ -306,8 +306,8 @@ RadarCanvas.prototype._preRenderCanvas_Grid = function() {
     this._drawCrosshairRings(ctx, Color.black);
 
     // The crosshair lines...
-    drawLine("black", 1, centerX - lineOffset,centerY, centerX + lineOffset,centerY);
-    drawLine("black", 1, centerX, centerY - lineOffset, centerX, centerY + lineOffset);
+    drawLine("black", 2, centerX - lineOffset,centerY, centerX + lineOffset,centerY);
+    drawLine("black", 2, centerX, centerY - lineOffset, centerX, centerY + lineOffset);
 
     // The red markers...
     var numMarkers = 5;
@@ -373,7 +373,7 @@ RadarCanvas.prototype._drawCrosshairRings = function(ctx, color) {
     // The center ring...
     ctx.beginPath();
     ctx.strokeStyle = ringColorString;
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 2;
     ctx.arc(centerX, centerY, innerRadius, 0, 2*Math.PI);
     ctx.stroke();
 };
