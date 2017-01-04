@@ -53,6 +53,20 @@
             item3.angleRadians = 5.0;
             gameItems.push(item3);
 
+            // A player...
+            var item4 = new GameItem_Player(1, new Color(230, 45, 76));
+            item4.radarInfo.label = "Druss";
+            item4.distanceMeters = 88.0;
+            item4.angleRadians = 1.0;
+            gameItems.push(item4);
+
+            // Another player...
+            var item5 = new GameItem_Player(1, new Color(23, 45, 226));
+            item5.radarInfo.label = "Danger Mouse";
+            item5.distanceMeters = 128.0;
+            item5.angleRadians = 4.0;
+            gameItems.push(item5);
+
 
             var imageManager = new ImageManager();
             var radarCanvas = new RadarCanvas("radar-canvas");

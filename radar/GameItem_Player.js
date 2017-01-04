@@ -14,6 +14,6 @@ function GameItem_Player(playerNumber, color) {
 
     // Radar info...
     this.radarInfo.showAsCircle = true;
-    this.radarInfo.label = "Richard";
+    this.radarInfo.circleColor = color;
 }
 Utils.extend(GameItem, GameItem_Player); // Derived from GameItem

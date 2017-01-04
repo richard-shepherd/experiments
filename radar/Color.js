@@ -18,6 +18,15 @@ function Color(r, g, b) {
 Color.black = new Color(0, 0, 0);
 
 /**
+ * toHexString
+ * -----------
+ * Returns an RGB color string.
+ */
+Color.prototype.toHexString = function() {
+    return Utils.colorToString(this);
+};
+
+/**
  * isMatch
  * -------
  * Returns true if the two colors match to the tolerance specified,
