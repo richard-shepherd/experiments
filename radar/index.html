@@ -6,6 +6,7 @@
     </head>
     <body background="images/waterfall.jpg">
 
+        <div id="info"></div>
         <div>Log:<span id="log"></span></div>
         <div>
             <canvas id="radar-canvas" width="600px" height="600px"></canvas>
@@ -30,7 +31,7 @@
                 document.getElementById("log").innerHTML = text;
             };
 
-            Logger.log("V6");
+            Logger.log("V7");
 
             // We create some game items...
             var gameItems = [];
@@ -79,6 +80,9 @@
                     Logger.log(ex.message);
                 }
             }, 30);
+
+            var info = document.getElementById("info");
+            info.innerHTML = "screen-width=" + screen.width;
 
         </script>
 
