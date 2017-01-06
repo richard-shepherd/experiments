@@ -31,7 +31,7 @@
                 document.getElementById("log").innerHTML = text;
             };
 
-            Logger.log("V7");
+            Logger.log("V8");
 
             // We create some game items...
             var gameItems = [];
@@ -68,6 +68,8 @@
             item5.angleRadians = 4.0;
             gameItems.push(item5);
 
+            var info = document.getElementById("info");
+            var r = document.getElementById("radar-canvas");
 
             var imageManager = new ImageManager();
             var radarCanvas = new RadarCanvas("radar-canvas");
@@ -76,12 +78,12 @@
                 try {
                     //radarCanvas.showRadar(0.5, gameItems);
                     radarCanvas.showRadar(locationProvider.compassHeadingRadians, gameItems);
+                    info.innerHTML = "width=" + r.width + ", clientWidth="  r.clientWidth;
                 } catch(ex) {
                     Logger.log(ex.message);
                 }
             }, 30);
 
-            var info = document.getElementById("info");
             info.innerHTML = "screen-width=" + screen.width;
 
         </script>
