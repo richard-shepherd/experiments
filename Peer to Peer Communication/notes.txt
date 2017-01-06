@@ -1,0 +1,79 @@
+TODO
+----
+- Handle client disconnection from peers
+- Work out how to send metadata with connections to the server
+- Work out how to get peer info (by location) from the server
+
+
+
+
+
+Client disconnection
+--------------------
+- Client may disconnect from one or many peers
+  - Do we get an event?
+
+- Does it matter if we lose connection to the peer-server
+  once the client connections have been made?
+  - I think it should not.
+  - TEST this. (By stopping the server on the command-line.)
+  - BUT: We need to be connected to the server, so that
+         peers can find us if they disconnect.
+
+- Find the disconnection events.
+
+- Find the error events.
+
+- When playing a game, each player knows who the other players are
+  - Should try to reconnect to them.
+  - We need to know when a game is over.
+
+- How do we make sure that all players in a game are playing with all
+  the same peers?
+  - To do with the Master player?
+ 
+
+
+Client ID
+---------
+- Each player gets a GUID.
+  - Stored with the game.
+  - This is the ID used for peer connections
+
+- Player also has a name
+  - Which does not have to be unique.
+  - (As players are discovered by location.)
+
+
+
+Master player / Hub player
+--------------------------
+- One player decides to be the Hub / Host
+  - (This should be the player with the best data connection 
+    and/or fastest phone.)
+
+- Maybe have a game screen where you can:
+  - "Start" a game (as the Hub)
+  - "Join" a game (hosted by a Hub)
+  - See which games are available close to you.
+
+
+
+
+
+Sending metadata with the peer-server connection
+------------------------------------------------
+- Can we send meta-data with the server connection?
+  - I think I saw something like this (???)
+
+- It would be very useful to send:
+  - ID (GUID)
+  - Readable name
+  - Position (lat/long)
+
+
+
+Query for peers
+---------------
+- 
+

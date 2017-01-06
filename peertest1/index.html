@@ -20,6 +20,11 @@
 
         <div id="output"></div>
 
+        <div>
+            Info: <span id="info"></span>
+        </div>
+
+
         <script src="externals/peerjs/peer.min.js"></script>
 
         <script>
@@ -30,6 +35,7 @@
             var myNameElement = document.getElementById("my-name");
             var theirNameElement = document.getElementById("their-name");
             var outputElement = document.getElementById("output");
+            var infoElement = document.getElementById("info");
 
             var connectionToThem = null;
 
@@ -45,14 +51,8 @@
                 theirName = theirNameElement.value;
 
 
-//                var peerOptions = {
-//                    key: "2ce3ogbzi9y3c8fr",
-//                    //secure: true
-//                };
-//                peer = new Peer(myName, peerOptions);
-
                 var peerOptions = {
-                    host: 'localhost',
+                    host: '192.168.178.30',
                     port: 443,
                     path: '/peerjs',
                     debug: 3
@@ -60,9 +60,10 @@
                 peer = new Peer(myName, peerOptions);
 
                 peer.on('connection', function(connectionFromThem) {
+                    infoElement.innerHTML = "Connection received";
                     connectionFromThem.on('data', function(data){
+                        infoElement.innerHTML = "Data received";
                         outputElement.innerHTML = data;
-                        connectionFromThem.send("Hello back from " + myName + " " + replyCount++);
                     });
                 });
             };
@@ -70,8 +71,10 @@
             sendElement.onclick = function() {
 
                 if(connectionToThem === null) {
+                    infoElement.innerHTML = "Connecting to them...";
                     connectionToThem = peer.connect(theirName);
                     connectionToThem.on("open", function() {
+                        infoElement.innerHTML = "Connection to them open...";
                         connectionToThem.send('hello from ' + myName + " " + sendCount++);
                     });
                 } else {
