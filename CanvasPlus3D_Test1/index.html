@@ -31,20 +31,22 @@
 
             // We show some random circles on the main canvas...
             var radarCanvas = document.getElementById("radar-canvas");
+            radarCanvas.style.backgroundColor = "#ffd0d0";
             var ctx = radarCanvas.getContext("2d");
 
             radarCanvas.width = size;
             radarCanvas.height = size;
 
-            var x = radarCanvas.width / 2.0;
-            var y = radarCanvas.height / 2.0;
             var radius = 50;
-            var distanceOffset = 6.0;
+            var distanceOffset = 40.0;
             var radiusOffset = 6.0;
             var colors = ["red", "green", "blue"]
             //var colors = ["blue"]
 
             function drawCircles() {
+
+                var x = radarCanvas.width / 2.0;
+                var y = radarCanvas.height / 2.0;
 
                 for(var i=0; i<10; ++i) {
                     var colorIndex = Math.floor(Math.random() * 3.0);
@@ -75,56 +77,55 @@
             var renderer = new THREE.WebGLRenderer({ alpha: true });
             renderer.setSize( size, size );
 
-            var box;
+            var gun;
             var loader = new THREE.TextureLoader();
             var shotgunsLoaded = 0;
-            var shotgunL = loader.load("images/shotgun-l.png", onShotgunLoaded);
-            var shotgunR = loader.load("images/shotgun-r.png", onShotgunLoaded);
+            var shotgunL = loader.load("images/shotgun-l.png", function(texture) {
+                var material = new THREE.MeshLambertMaterial({map: texture, side: THREE.DoubleSide, alphaTest: 0.5});
+                var plane = new THREE.PlaneGeometry(4, 2);
+                gun = new THREE.Mesh(plane, material);
+                gun.position.x = -1.0;
+                gun.position.z = -4.0;
+                scene.add( gun );
+            });
 
-            function onShotgunLoaded(texture) {
-                try {
-                    shotgunsLoaded += 1;
-                    if(shotgunsLoaded !== 2) {
-                        return;
-                    }
 
-                    // Everything loaded...
-                    var materialL = new THREE.MeshLambertMaterial({map: shotgunL});
-                    var materialR = new THREE.MeshLambertMaterial({map: shotgunR});
-                    var shotgunMaterial = new THREE.MultiMaterial([
-                        materialL, materialR,
-                        materialL, materialR,
-                        materialL, materialR,
-                    ]);
-
-                    var boxGeometry = new THREE.BoxGeometry( 4, 2, 0.0 );
-                    box = new THREE.Mesh(boxGeometry, shotgunMaterial);
-                    box.position.x = 0.0;
-                    box.position.z = -5.0;
-                    scene.add(box);
-                } catch(ex) {
-                    console.log(ex.message);
-                }
-            }
+            var sprite;
+            var impTexture = loader.load("images/imp.png", function(texture) {
+                var material = new THREE.MeshLambertMaterial( { map: texture, alphaTest: 0.5 } );
+                var plane = new THREE.PlaneGeometry(4, 4);
+                sprite = new THREE.Mesh(plane, material);
+                sprite.position.x = 0.0;
+                sprite.position.z = -4.0;
+                scene.add( sprite );
+            });
 
 
             camera.position.z = 0.0;
-            camera.position.y = 3.0;
+            camera.position.y = 1.0;
 
             var light = new THREE.AmbientLight( 0xe0e0e0 ); // soft white light
             scene.add( light );
 
             var render = function () {
-                if(box) {
-                    //box.rotation.x += 0.01;
-                    box.rotation.y += 0.04;
+                if(gun) {
+                    gun.rotation.y += 0.04;
                 }
+
+                if(sprite) {
+                    sprite.position.z += 0.1;
+                    if(sprite.position.z > 0.0) {
+                        sprite.position.z  = -10.0;
+                    }
+                }
+
 
                 renderer.render(scene, camera);
 
                 ctx.clearRect(0, 0, size, size);
                 drawCircles();
                 ctx.drawImage(renderer.domElement, 0, 0);
+
             };
 
             setInterval(render, 30.0);
