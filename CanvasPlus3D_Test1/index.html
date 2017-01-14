@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>2D canvas with 3D overlay</title>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #radar-canvas {
+                height: 90%;
+                touch-action: none;
+            }
+        </style>
+
+    </head>
+    <body>
+
+        <canvas id="radar-canvas"></canvas>
+
+        <script src="external/three.js/three.js"></script>
+
+        <script>
+            var size = 600.0;
+
+            // We show some random circles on the main canvas...
+            var radarCanvas = document.getElementById("radar-canvas");
+            var ctx = radarCanvas.getContext("2d");
+
+            radarCanvas.width = size;
+            radarCanvas.height = size;
+
+            var x = radarCanvas.width / 2.0;
+            var y = radarCanvas.height / 2.0;
+            var radius = 50;
+            var distanceOffset = 6.0;
+            var radiusOffset = 6.0;
+            var colors = ["red", "green", "blue"]
+            //var colors = ["blue"]
+
+            function drawCircles() {
+
+                for(var i=0; i<10; ++i) {
+                    var colorIndex = Math.floor(Math.random() * 3.0);
+                    ctx.strokeStyle = colors[colorIndex];
+                    ctx.beginPath();
+                    ctx.arc(x, y, radius, 0, 2.0 * Math.PI);
+                    ctx.stroke();
+
+                    x += (Math.random() * distanceOffset - distanceOffset/2.0);
+                    if(x > size) { x = 0.0 }
+                    if(x < 0.0) { x = size }
+
+                    y += (Math.random() * distanceOffset - distanceOffset/2.0);
+                    if(y > size) { y = 0.0 }
+                    if(y < 0.0) { y = size }
+
+                    radius += (Math.random() * radiusOffset - radiusOffset/2.0);
+                    if(radius < 10.0) { radius = 10.0; }
+                    if(radius > 50.0) { radius = 50.0; }
+                }
+            }
+
+
+            // 3D...
+            var scene = new THREE.Scene();
+            var camera = new THREE.PerspectiveCamera( 140, 1.0, 0.1, 1000 );
+
+            var renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.setSize( size, size );
+
+            var box;
+            var loader = new THREE.TextureLoader();
+            var shotgunsLoaded = 0;
+            var shotgunL = loader.load("images/shotgun-l.png", onShotgunLoaded);
+            var shotgunR = loader.load("images/shotgun-r.png", onShotgunLoaded);
+
+            function onShotgunLoaded(texture) {
+                try {
+                    shotgunsLoaded += 1;
+                    if(shotgunsLoaded !== 2) {
+                        return;
+                    }
+
+                    // Everything loaded...
+                    var materialL = new THREE.MeshLambertMaterial({map: shotgunL});
+                    var materialR = new THREE.MeshLambertMaterial({map: shotgunR});
+                    var shotgunMaterial = new THREE.MultiMaterial([
+                        materialL, materialR,
+                        materialL, materialR,
+                        materialL, materialR,
+                    ]);
+
+                    var boxGeometry = new THREE.BoxGeometry( 4, 2, 0.0 );
+                    box = new THREE.Mesh(boxGeometry, shotgunMaterial);
+                    box.position.x = 0.0;
+                    box.position.z = -5.0;
+                    scene.add(box);
+                } catch(ex) {
+                    console.log(ex.message);
+                }
+            }
+
+
+            camera.position.z = 0.0;
+            camera.position.y = 3.0;
+
+            var light = new THREE.AmbientLight( 0xe0e0e0 ); // soft white light
+            scene.add( light );
+
+            var render = function () {
+                if(box) {
+                    //box.rotation.x += 0.01;
+                    box.rotation.y += 0.04;
+                }
+
+                renderer.render(scene, camera);
+
+                ctx.clearRect(0, 0, size, size);
+                drawCircles();
+                ctx.drawImage(renderer.domElement, 0, 0);
+            };
+
+            setInterval(render, 30.0);
+            //render();
+
+
+
+
+        </script>
+
+    </body>
+</html>
