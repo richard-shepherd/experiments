@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Map Test</title>
+
+        <style>
+            #map {
+                width:60vw;
+                height:90vh;
+            }
+
+            .overlay{
+                display:block;
+                text-align:center;
+                color:#fff;
+                font-size:5vw;
+                line-height:5vw;
+                opacity:0.8;
+                background:#4477aa;
+                border:solid 3px #336699;
+                border-radius:4px;
+                box-shadow:2px 2px 10px #333;
+                text-shadow:1px 1px 1px #666;
+                padding:0 4px;
+            }
+
+            .overlay_arrow{
+                left:50%;
+                margin-left:-16px;
+                width:0;
+                height:0;
+                position:absolute;
+            }
+
+            .overlay_arrow.above{
+                bottom:-15px;
+                border-left:16px solid transparent;
+                border-right:16px solid transparent;
+                border-top:16px solid #336699;
+            }
+
+        </style>
+
+    </head>
+    <body>
+
+        <div id="map"></div>
+
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCCzITEeTjCVjr892GzcjuK_tbD-ar45yY"></script>
+        <script src="Externals/gmaps/gmaps.js"></script>
+
+        <script>
+            var map = new GMaps({
+                div: "#map",
+                lat: 51.53,
+                lng: -0.16,
+                zoom: 17,
+                mapType: "satellite",
+                scaleControl: false,
+                zoomControl: false,
+                streetViewControl: false,
+                panControl: false,
+                click: onClick
+            });
+
+            var waypointNumber = 1;
+
+            function onClick(eventData) {
+                var lat = eventData.latLng.lat();
+                var long = eventData.latLng.lng();
+                //alert(`lat=${lat}, long=${long}`);
+                map.drawOverlay({
+                    lat: lat,
+                    lng: long,
+//                    content: '<div class="overlay">' + waypointNumber + '<div class="overlay_arrow above"></div></div>',
+                    content: '<div class="overlay">' + waypointNumber + '</div>',
+                    verticalAlign: 'top',
+                    horizontalAlign: 'center'
+                });
+                waypointNumber++;
+            }
+
+        </script>
+
+    </body>
+</html>

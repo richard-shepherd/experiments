@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Page 2</title>
+        <script src="counter.js"></script>
+    </head>
+    <body>
+        <div id="count"></div>
+
+        <script>
+
+            Counter.getInstance().increment();
+            Counter.getInstance().increment();
+            document.getElementById("count").innerHTML = Counter.getInstance().count;
+
+        </script>
+    </body>
+</html>
