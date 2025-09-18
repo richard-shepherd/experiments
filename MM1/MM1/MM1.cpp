@@ -4,26 +4,15 @@
 #include "Message.h"
 using namespace MessagingMesh;
 
-void add(std::map<std::string, Field::Ptr>& map, const Field::Ptr& field)
-{
-    auto& name = field->getName();
-    map.insert({ name, field });
-}
 
 int main()
 {
     try
     {
-        auto f = Field::create("hello");
-        {
-            std::map<std::string, Field::Ptr> map;
-            std::cout << f.use_count() << std::endl;
-
-            add(map, f);
-            std::cout << f.use_count() << std::endl;
-        }
-        std::cout << f.use_count() << std::endl;
-
+        auto m = Message::create();
+        m->addField("hello", 123);
+        m->addField("hello", 234.567);
+        m->addField("world", 17);
     }
     catch (const std::exception& ex)
     {
