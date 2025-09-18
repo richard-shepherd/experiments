@@ -20,6 +20,11 @@ void Message::addField(const std::string& name, double value)
     addField(name, [&value](const Field::Ptr& field) {field->setDouble(value);});
 }
 
+void Message::addField(const std::string& name, const Message::Ptr& value)
+{
+    addField(name, [&value](const Field::Ptr& field) {field->setMessage(value);});
+}
+
 void Message::addField(const std::string& name, std::function<void(const Field::Ptr&)> valueSetter)
 {
     // We create a field with the specified name...

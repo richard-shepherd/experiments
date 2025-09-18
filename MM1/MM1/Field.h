@@ -4,9 +4,18 @@
 
 namespace MessagingMesh
 {
+    // Forward declarations in the MessagingMesh namespace...
+    class Message;
+
     // Holds one field in a message.
     class Field
     {
+    // Private types...
+    private:
+        // Types relating to the forward declaration of Message...
+        typedef std::shared_ptr<Message> MessagePtr;
+        typedef std::shared_ptr<const Message> MessageConstPtr;
+
     // Shared pointer and object creation...
     public:
         // Shared pointer to a Field.
@@ -40,6 +49,13 @@ namespace MessagingMesh
         // Throws a FieldException if the field does not hold this type.
         double getDouble() const;
 
+        // Sets the field to hold a message.
+        void setMessage(const MessagePtr& value);
+
+        // Gets the message held by the field.
+        // Throws a FieldException if the field does not hold this type.
+        MessageConstPtr getMessage() const;
+
     // Private functions...
     private:
         // Constructor.
@@ -52,20 +68,20 @@ namespace MessagingMesh
         {
             NOT_SET,
             SIGNED_INT32,
-            DOUBLE
-        };
-
-        union DataUnion
-        {
-            int32_t data_int32;
-            double data_double;
+            DOUBLE,
+            MESSAGE
         };
 
     // Private data...
     private:
         std::string m_name;
         DataType m_dataType;
-        DataUnion m_data;
+
+        // Data for the various supported types...
+        int32_t m_data_int32 = 0;
+        double m_data_double = 0.0;
+        MessagePtr m_data_message = nullptr;
+
     };
 
 } // namespace

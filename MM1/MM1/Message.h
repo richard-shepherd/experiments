@@ -35,6 +35,9 @@ namespace MessagingMesh
         // Adds a double field to the message. 
         void addField(const std::string& name, double value);
 
+        // Adds a message field to the message. 
+        void addField(const std::string& name, const Message::Ptr& value);
+    
     // Private functions...
     private:
         // Constructor.
