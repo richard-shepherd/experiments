@@ -4,9 +4,7 @@
 
 namespace MessagingMesh
 {
-    /// <summary>
-    /// Base messaging mesh exception.
-    /// </summary>
+    // Base messaging mesh exception.
     class Exception : public std::exception
     {
     public:
@@ -16,9 +14,7 @@ namespace MessagingMesh
         }
     };
 
-    /// <summary>
-    /// Exceptions thrown by invalid interactions with the Field class.
-    /// </summary>
+    // Exceptions thrown by invalid interactions with the Field class.
     class FieldException : public Exception
     {
     public:
@@ -27,5 +23,16 @@ namespace MessagingMesh
         {
         }
     };
+
+    // Exceptions thrown by invalid interactions with the Message class.
+    class MessageException : public Exception
+    {
+    public:
+        MessageException(const std::string& message)
+            : Exception(message)
+        {
+        }
+    };
+
 } // namespace
 

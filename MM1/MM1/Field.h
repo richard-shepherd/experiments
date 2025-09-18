@@ -1,30 +1,50 @@
 #pragma once
+#include <memory>
+#include <string>
 
 namespace MessagingMesh
 {
-    /// <summary>
-    /// Holds one field in a message.
-    /// </summary>
+    // Holds one field in a message.
     class Field
     {
+    // Shared pointer and object creation...
+    public:
+        // Shared pointer to a Field.
+        typedef std::shared_ptr<Field> Ptr;
+
+        // Shared pointer to a const Field.
+        typedef std::shared_ptr<const Field> ConstPtr;
+
+        // Creates a Field instance.
+        static Ptr create(const std::string& name) { return Ptr(new Field(name)); }
+
     // Public methods...
     public:
-        Field();
+        // Destructor.
         ~Field();
 
-        // Sets the field to hold a signed int32.
-        void setSignedInt32(int value);
+        // Gets the field's name.
+        const std::string& getName() const;
 
-        // Returns the signed integer held by the field.
+        // Sets the field to hold a signed int32.
+        void setSignedInt32(int32_t value);
+
+        // Gets the signed int32 held by the field.
         // Throws a FieldException if the field does not hold this type.
-        int getSignedInt32() const;
+        int32_t getSignedInt32() const;
 
         // Sets the field to hold a double.
         void setDouble(double value);
 
-        // Returns the double held by the field.
+        // Gets the double held by the field.
         // Throws a FieldException if the field does not hold this type.
         double getDouble() const;
+
+    // Private functions...
+    private:
+        // Constructor.
+        // NOTE: The constructor is private. Use Field::create() to create an instance.
+        Field(const std::string& name);
 
     // Private types...
     private:
@@ -37,14 +57,16 @@ namespace MessagingMesh
 
         union DataUnion
         {
-            int data_int;
+            int32_t data_int32;
             double data_double;
         };
 
     // Private data...
     private:
+        std::string m_name;
         DataType m_dataType;
         DataUnion m_data;
     };
+
 } // namespace
 

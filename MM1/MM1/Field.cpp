@@ -2,57 +2,43 @@
 #include "MessagingMeshExceptions.h"
 using namespace MessagingMesh;
 
-/// <summary>
-/// Constructor.
-/// </summary>
-Field::Field() :
+Field::Field(const std::string& name) :
+    m_name(name),
     m_dataType(NOT_SET),
     m_data({ 0 })
 {
 }
 
-/// <summary>
-/// Destructor.
-/// </summary>
 Field::~Field()
 {
 }
 
-/// <summary>
-/// Sets the field to hold a signed int32.
-/// </summary>
-void Field::setSignedInt32(int value)
+const std::string& Field::getName() const
 {
-    m_dataType = SIGNED_INT32;
-    m_data.data_int = value;
+    return m_name;
 }
 
-/// <summary>
-/// Returns the signed integer held by the field.
-/// Throws a FieldException if the field does not hold this type.
-/// </summary>
-int Field::getSignedInt32() const
+void Field::setSignedInt32(int32_t value)
+{
+    m_dataType = SIGNED_INT32;
+    m_data.data_int32 = value;
+}
+
+int32_t Field::getSignedInt32() const
 {
     if (m_dataType != SIGNED_INT32)
     {
         throw FieldException("Field is not a signed int32");
     }
-    return m_data.data_int;
+    return m_data.data_int32;
 }
 
-/// <summary>
-/// Sets the field to hold a double.
-/// </summary>
 void Field::setDouble(double value)
 {
     m_dataType = DOUBLE;
     m_data.data_double = value;
 }
 
-/// <summary>
-/// Returns the double held by the field.
-/// Throws a FieldException if the field does not hold this type.
-/// </summary>
 double Field::getDouble() const
 {
     if (m_dataType != DOUBLE)
