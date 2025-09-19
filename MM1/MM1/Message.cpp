@@ -25,10 +25,15 @@ void Message::addField(const std::string& name, const Message::Ptr& value)
     addField(name, [&value](const Field::Ptr& field) {field->setMessage(value);});
 }
 
+/// <summary>
+/// Private addField helper used by the public addField methods to create
+/// and set up a field and add it to the message.
+/// </summary>
 void Message::addField(const std::string& name, std::function<void(const Field::Ptr&)> valueSetter)
 {
-    // We create a field with the specified name...
-    auto field = Field::create(name);
+    // We create a field and set its name...
+    auto field = Field::create();
+    field->setName(name);
 
     // We call the function (lambda) to set the value...
     valueSetter(field);

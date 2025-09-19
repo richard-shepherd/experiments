@@ -44,7 +44,7 @@ namespace MessagingMesh
         // NOTE: The constructor is private. Use Message::create() to create an instance.
         Message();
 
-        // Adds a field to the message, setting its value using the valueSetter function (lambda)...
+        // Adds a field to the message, setting its value using the valueSetter function (lambda).
         void addField(const std::string& name, std::function<void(const Field::Ptr&)> valueSetter);
 
     // Private data...

@@ -25,12 +25,15 @@ namespace MessagingMesh
         typedef std::shared_ptr<const Field> ConstPtr;
 
         // Creates a Field instance.
-        static Ptr create(const std::string& name) { return Ptr(new Field(name)); }
+        static Ptr create() { return Ptr(new Field()); }
 
     // Public methods...
     public:
         // Destructor.
         ~Field();
+
+        // Sets the field's name.
+        void setName(const std::string& name);
 
         // Gets the field's name.
         const std::string& getName() const;
@@ -39,28 +42,28 @@ namespace MessagingMesh
         void setSignedInt32(int32_t value);
 
         // Gets the signed int32 held by the field.
-        // Throws a FieldException if the field does not hold this type.
+        // Throws a MessagingMesh::Exception if the field does not hold this type.
         int32_t getSignedInt32() const;
 
         // Sets the field to hold a double.
         void setDouble(double value);
 
         // Gets the double held by the field.
-        // Throws a FieldException if the field does not hold this type.
+        // Throws a MessagingMesh::Exception  if the field does not hold this type.
         double getDouble() const;
 
         // Sets the field to hold a message.
         void setMessage(const MessagePtr& value);
 
         // Gets the message held by the field.
-        // Throws a FieldException if the field does not hold this type.
+        // Throws a MessagingMesh::Exception  if the field does not hold this type.
         MessageConstPtr getMessage() const;
 
     // Private functions...
     private:
         // Constructor.
         // NOTE: The constructor is private. Use Field::create() to create an instance.
-        Field(const std::string& name);
+        Field();
 
     // Private types...
     private:

@@ -2,14 +2,18 @@
 #include "MessagingMeshExceptions.h"
 using namespace MessagingMesh;
 
-Field::Field(const std::string& name) :
-    m_name(name),
-    m_dataType(NOT_SET)
+Field::Field()
+: m_dataType(NOT_SET)
 {
 }
 
 Field::~Field()
 {
+}
+
+void Field::setName(const std::string& name)
+{
+    m_name = name;
 }
 
 const std::string& Field::getName() const
@@ -27,7 +31,7 @@ int32_t Field::getSignedInt32() const
 {
     if (m_dataType != SIGNED_INT32)
     {
-        throw FieldException("Field is not a signed int32");
+        throw Exception("Field '" + m_name + "' is not a signed int32");
     }
     return m_data_int32;
 }
@@ -42,7 +46,7 @@ double Field::getDouble() const
 {
     if (m_dataType != DOUBLE)
     {
-        throw FieldException("Field is not a double");
+        throw Exception("Field '" + m_name + "' is not a double");
     }
     return m_data_double;
 }
@@ -57,7 +61,7 @@ Field::MessageConstPtr Field::getMessage() const
 {
     if (m_dataType != MESSAGE)
     {
-        throw FieldException("Field is not a message");
+        throw Exception("Field '" + m_name + "' is not a message");
     }
     return m_data_message;
 }
