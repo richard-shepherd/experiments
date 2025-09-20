@@ -127,12 +127,14 @@
   <ItemGroup>
     <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="Field.cpp" />
+    <ClCompile Include="FieldImpl.cpp" />
     <ClCompile Include="Message.cpp" />
     <ClCompile Include="MM1.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="Field.h" />
+    <ClInclude Include="FieldImpl.h" />
     <ClInclude Include="SharedPointers.h" />
     <ClInclude Include="Message.h" />
     <ClInclude Include="Exception.h" />

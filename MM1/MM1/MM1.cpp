@@ -27,7 +27,7 @@ int main()
         auto f = Field::create();
         f->setName("Count");
         f->setSignedInt32(32);
-        std::cout << f->getMessage() << std::endl;
+        std::cout << f->getSignedInt32() << std::endl;
     }
     catch (const std::exception& ex)
     {

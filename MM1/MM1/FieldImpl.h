@@ -1,33 +1,20 @@
 #pragma once
 #include <string>
+#include "Field.h"
 #include "SharedPointers.h"
 
 namespace MessagingMesh
 {
-    // Forward declarations...
-    class FieldImpl;
-
-    // Holds one field in a message.
-    class Field
+    // Implementation of Field functionality.
+    class FieldImpl
     {
-    // Public types...
-    public:
-        enum DataType
-        {
-            NOT_SET,
-            STRING,
-            SIGNED_INT32,
-            DOUBLE,
-            MESSAGE
-        };
-        
     // Public methods...
     public:
-        // Creates a Field instance.
-        static FieldPtr create() { return FieldPtr(new Field()); }
+        // Constructor.
+        FieldImpl();
 
         // Destructor.
-        ~Field();
+        ~FieldImpl();
 
         // Gets the field's name.
         const std::string& getName() const;
@@ -67,16 +54,17 @@ namespace MessagingMesh
 
         // Sets the field to hold a message.
         void setMessage(const ConstMessagePtr& value);
-        
-    // Private functions...
-    private:
-        // Constructor.
-        // NOTE: The constructor is private. Use Field::create() to create an instance.
-        Field();
 
-    // Implementation...
+    // Private data...
     private:
-        FieldImpl* m_pImpl;
+        std::string m_name;
+        Field::DataType m_dataType;
+
+        // Data for the various supported types...
+        std::string m_data_string;
+        int32_t m_data_int32 = 0;
+        double m_data_double = 0.0;
+        ConstMessagePtr m_data_message = nullptr;
     };
 } // namespace
 

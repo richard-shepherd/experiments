@@ -1,52 +1,69 @@
 #include "Field.h"
-#include "Exception.h"
+#include "FieldImpl.h"
 #include "SharedPointers.h"
-#include "Buffer.h"
 using namespace MessagingMesh;
 
 Field::Field()
-: m_dataType(NOT_SET)
+: m_pImpl(new FieldImpl())
 {
 }
 
 Field::~Field()
 {
-}
-
-void Field::setName(const std::string& name)
-{
-    m_name = name;
+    delete m_pImpl;
 }
 
 const std::string& Field::getName() const
 {
-    return m_name;
+    return m_pImpl->getName();
+}
+
+void Field::setName(const std::string& name)
+{
+    m_pImpl->setName(name);
+}
+
+const std::string& Field::getString() const
+{
+    return m_pImpl->getString();
+}
+
+void Field::setString(const std::string& value)
+{
+    m_pImpl->setString(value);
+}
+
+int32_t Field::getSignedInt32() const
+{
+    return m_pImpl->getSignedInt32();
+}
+
+void Field::setSignedInt32(int32_t value)
+{
+    m_pImpl->setSignedInt32(value);
+}
+
+double Field::getDouble() const
+{
+    return m_pImpl->getDouble();
+}
+
+void Field::setDouble(double value)
+{
+    m_pImpl->setDouble(value);
+}
+
+const ConstMessagePtr& Field::getMessage() const
+{
+    return m_pImpl->getMessage();
+}
+
+void Field::setMessage(const ConstMessagePtr& value)
+{
+    m_pImpl->setMessage(value);
 }
 
 void Field::serialize(Buffer& buffer) const
 {
-    // We serialize the field name...
-    buffer.write(m_name);
-
-    // We serialize the data type...
-    buffer.write(static_cast<unsigned char>(m_dataType));
-
-    // We serialize the data...
-    switch (m_dataType)
-    {
-    case STRING:
-        buffer.write(m_data_string);
-        break;
-
-    case SIGNED_INT32:
-        buffer.write(m_data_int32);
-        break;
-
-    case DOUBLE:
-        buffer.write(m_data_double);
-        break;
-
-    default:
-        throw Exception("Field::serialize data-type not handled");
-    }
+    m_pImpl->serialize(buffer);
 }
