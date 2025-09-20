@@ -12,22 +12,65 @@ Buffer::~Buffer()
 {
 }
 
-void Buffer::add(unsigned char item)
+void Buffer::write(unsigned char item)
+{
+    writeCopyable(item);
+}
+
+void Buffer::write(int32_t item)
+{
+    writeCopyable(item);
+}
+
+void Buffer::write(double item)
+{
+    writeCopyable(item);
+}
+
+void Buffer::write(const std::string& item)
+{
+    // String are serialized as [length][chars].
+
+    // We write the length...
+    auto length = static_cast<int32_t>(item.length());
+    write(length);
+
+    // We write the characters...
+    write(item.c_str(), length);
+}
+
+void Buffer::write(const void* p, size_t size)
 {
     // We make sure that the buffer can hold the new data...
-    size_t size = 1;
     checkBufferSize(size);
 
     // We add the data to the buffer...
-    m_data[m_position] = item;
+    memcpy(&m_data[m_position], p, size);
 
     // We update the position and data size... 
     updatePosition(size);
 }
 
-void Buffer::add(const ConstFieldPtr& item)
+void Buffer::write(const ConstFieldPtr& item)
 {
+    // We do not write a field directly to the buffer. Instead we call its serialize()
+    // method which will call back into this buffer to write the data depending on the
+    // type managed by the field...
     item->serialize(*this);
+}
+
+template <typename T> 
+void Buffer::writeCopyable(const T& item)
+{
+    // We make sure that the buffer can hold the new data...
+    size_t size = sizeof(T);;
+    checkBufferSize(size);
+
+    // We add the data to the buffer...
+    memcpy(&m_data[m_position], &item, size);
+
+    // We update the position and data size... 
+    updatePosition(size);
 }
 
 void Buffer::checkBufferSize(size_t bytesRequired)

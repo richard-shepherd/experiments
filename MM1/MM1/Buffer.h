@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <vector>
+#include <string>
 #include "SharedPointers.h"
 
 namespace MessagingMesh
@@ -36,11 +37,25 @@ namespace MessagingMesh
         // Sets the position in the buffer where data will be written.
         void setPosition(size_t position) { m_position = position; }
 
-        // Adds an unsigned char to the buffer.
-        void add(unsigned char item);
+    // write() method for various types...
+    public:
+        // Writes an unsigned char to the buffer.
+        void write(unsigned char item);
 
-        // Adds a serialized field to the buffer.
-        void add(const ConstFieldPtr& item);
+        // Writes a signed int32 to the buffer.
+        void write(int32_t item);
+
+        // Writes a double to the buffer.
+        void write(double item);
+
+        // Writes a string to the buffer.
+        void write(const std::string& item);
+
+        // Writes bytes to the buffer from the pointer passed in.
+        void write(const void* p, size_t size);
+
+        // Writes a field to the buffer.
+        void write(const ConstFieldPtr& item);
 
     // Private functions...
     private:
@@ -48,11 +63,14 @@ namespace MessagingMesh
         // NOTE: The constructor is private. Use Buffer::create() to create an instance.
         Buffer();
 
+        // Writes an item to the buffer which can be written with memcpy.
+        template <typename T> void writeCopyable(const T& item);
+
         // Checks that the buffer has the capacity to hold the number of bytes specified
-        // and expands it if it does not...
+        // and expands it if it does not.
         void checkBufferSize(size_t bytesRequired);
 
-        // Updates the position and data-size to reflect the bytes written...
+        // Updates the position and data-size to reflect the bytes written.
         void updatePosition(size_t bytesWritten);
 
     // Private data...
