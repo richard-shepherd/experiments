@@ -1,25 +1,22 @@
 #pragma once
+#include <vector>
+#include <map>
 #include <string>
+#include <functional>
 #include "SharedPointers.h"
 
 namespace MessagingMesh
 {
-    // Forward declarations...
-    class MessageImpl;
-
-    // A message which can be sent via the Messaging Mesh.
-    // Holds a vector of named Fields which can be accessed by
-    // name or by index. You can add multiple fields with the
-    // same name.
-    class Message
+    // Implementation of Message functionality.
+    class MessageImpl
     {
     // Public methods...
     public:
-        // Creates a Message instance.
-        static MessagePtr create() { return MessagePtr(new Message()); }
+        // Constructor.
+        MessageImpl();
 
         // Destructor.
-        ~Message();
+        ~MessageImpl();
 
     // Helper methods to add fields of various types...
     public:
@@ -37,14 +34,16 @@ namespace MessagingMesh
     
     // Private functions...
     private:
-        // Constructor.
-        // NOTE: The constructor is private. Use Message::create() to create an instance.
-        Message();
+        // Adds a field to the message, setting its value using the valueSetter function (lambda).
+        void addField(const std::string& name, std::function<void(const FieldPtr&)> valueSetter);
 
-    // Implementation...
+    // Private data...
     private:
-        MessageImpl* m_pImpl;
-    };
+        // Vector of fields in the message, in the order they were added...
+        std::vector<FieldPtr> m_fields;
 
+        // Map of field name to the first field with that name...
+        std::map<std::string, FieldPtr> m_mapNameToField;
+    };
 } // namespace
 

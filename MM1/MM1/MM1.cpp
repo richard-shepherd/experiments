@@ -18,11 +18,12 @@ int main()
         buffer->write(f1);
 
 
-        //auto m = Message::create();
-        //m->addField("hello", 123);
-        //m->addField("hello", 234.567);
-        //m->addField("world", 17);
-        //m->addField("sub-message", Message::create());
+        auto m = Message::create();
+        m->addField("name", "richard");
+        m->addField("hello", 123);
+        m->addField("hello", 234.567);
+        m->addField("world", 17);
+        m->addField("sub-message", Message::create());
 
         auto f = Field::create();
         f->setName("Count");
