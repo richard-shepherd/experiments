@@ -2,6 +2,8 @@
 #include <vector>
 #include <map>
 #include "Message.h"
+#include "Field.h"
+#include "Buffer.h"
 using namespace MessagingMesh;
 
 
@@ -9,6 +11,16 @@ int main()
 {
     try
     {
+        auto buffer = Buffer::create();
+        buffer->add('h');
+        buffer->add('e');
+        buffer->add('l');
+        buffer->add('l');
+        buffer->add('o');
+        buffer->setPosition(0);
+        buffer->add('m');
+
+
         int a = 12;
         std::vector<unsigned char> vbytes;
         vbytes.resize(4);

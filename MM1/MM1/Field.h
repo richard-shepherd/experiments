@@ -1,34 +1,28 @@
 #pragma once
 #include <memory>
 #include <string>
+#include "SharedPointers.h"
 
 namespace MessagingMesh
 {
-    // Forward declarations in the MessagingMesh namespace...
-    class Message;
-
     // Holds one field in a message.
     class Field
     {
-    // Private types...
-    private:
-        // Types relating to the forward declaration of Message...
-        typedef std::shared_ptr<Message> MessagePtr;
-        typedef std::shared_ptr<const Message> MessageConstPtr;
-
-    // Shared pointer and object creation...
+    // Public types...
     public:
-        // Shared pointer to a Field.
-        typedef std::shared_ptr<Field> Ptr;
-
-        // Shared pointer to a const Field.
-        typedef std::shared_ptr<const Field> ConstPtr;
-
-        // Creates a Field instance.
-        static Ptr create() { return Ptr(new Field()); }
-
+        enum DataType
+        {
+            NOT_SET,
+            SIGNED_INT32,
+            DOUBLE,
+            MESSAGE
+        };
+        
     // Public methods...
     public:
+        // Creates a Field instance.
+        static FieldPtr create() { return FieldPtr(new Field()); }
+
         // Destructor.
         ~Field();
 
@@ -38,42 +32,37 @@ namespace MessagingMesh
         // Gets the field's name.
         const std::string& getName() const;
 
-        // Sets the field to hold a signed int32.
-        void setSignedInt32(int32_t value);
+        // Serializes the field to the current position of the buffer.
+        void serialize(Buffer& buffer) const;
 
+    // Getters and setters for field types...
+    public:
         // Gets the signed int32 held by the field.
         // Throws a MessagingMesh::Exception if the field does not hold this type.
         int32_t getSignedInt32() const;
 
-        // Sets the field to hold a double.
-        void setDouble(double value);
+        // Sets the field to hold a signed int32.
+        void setSignedInt32(int32_t value);
 
         // Gets the double held by the field.
         // Throws a MessagingMesh::Exception  if the field does not hold this type.
         double getDouble() const;
 
-        // Sets the field to hold a message.
-        void setMessage(const MessagePtr& value);
+        // Sets the field to hold a double.
+        void setDouble(double value);
 
         // Gets the message held by the field.
         // Throws a MessagingMesh::Exception  if the field does not hold this type.
-        MessageConstPtr getMessage() const;
+        ConstMessagePtr getMessage() const;
 
+        // Sets the field to hold a message.
+        void setMessage(const MessagePtr& value);
+        
     // Private functions...
     private:
         // Constructor.
         // NOTE: The constructor is private. Use Field::create() to create an instance.
         Field();
-
-    // Private types...
-    private:
-        enum DataType
-        {
-            NOT_SET,
-            SIGNED_INT32,
-            DOUBLE,
-            MESSAGE
-        };
 
     // Private data...
     private:

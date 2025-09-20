@@ -133,6 +133,7 @@
   <ItemGroup>
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="Field.h" />
+    <ClInclude Include="SharedPointers.h" />
     <ClInclude Include="Message.h" />
     <ClInclude Include="Exception.h" />
   </ItemGroup>

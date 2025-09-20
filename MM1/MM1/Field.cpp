@@ -1,5 +1,7 @@
 #include "Field.h"
-#include "MessagingMeshExceptions.h"
+#include "Exception.h"
+#include "SharedPointers.h"
+#include "Buffer.h"
 using namespace MessagingMesh;
 
 Field::Field()
@@ -57,7 +59,7 @@ void Field::setMessage(const MessagePtr& value)
     m_data_message = value;
 }
 
-Field::MessageConstPtr Field::getMessage() const
+ConstMessagePtr Field::getMessage() const
 {
     if (m_dataType != MESSAGE)
     {
@@ -66,3 +68,18 @@ Field::MessageConstPtr Field::getMessage() const
     return m_data_message;
 }
 
+void Field::serialize(Buffer& buffer) const
+{
+    // We serialize the data type...
+    buffer.add(static_cast<unsigned char>(m_dataType));
+
+    switch (m_dataType)
+    {
+    case SIGNED_INT32:
+        //buffer.addUnsignedChar()
+        break;
+
+    default:
+        throw Exception("Field::serialize data-type not handled");
+    }
+}

@@ -1,5 +1,6 @@
 #include <functional>
 #include "Message.h"
+#include "Field.h"
 using namespace MessagingMesh;
 
 Message::Message()
@@ -12,24 +13,24 @@ Message::~Message()
 
 void Message::addField(const std::string& name, int32_t value)
 {
-    addField(name, [&value](const Field::Ptr& field) {field->setSignedInt32(value);});
+    addField(name, [&value](const FieldPtr& field) {field->setSignedInt32(value);});
 }
 
 void Message::addField(const std::string& name, double value)
 {
-    addField(name, [&value](const Field::Ptr& field) {field->setDouble(value);});
+    addField(name, [&value](const FieldPtr& field) {field->setDouble(value);});
 }
 
-void Message::addField(const std::string& name, const Message::Ptr& value)
+void Message::addField(const std::string& name, const MessagePtr& value)
 {
-    addField(name, [&value](const Field::Ptr& field) {field->setMessage(value);});
+    addField(name, [&value](const FieldPtr& field) {field->setMessage(value);});
 }
 
 /// <summary>
 /// Private addField helper used by the public addField methods to create
 /// and set up a field and add it to the message.
 /// </summary>
-void Message::addField(const std::string& name, std::function<void(const Field::Ptr&)> valueSetter)
+void Message::addField(const std::string& name, std::function<void(const FieldPtr&)> valueSetter)
 {
     // We create a field and set its name...
     auto field = Field::create();

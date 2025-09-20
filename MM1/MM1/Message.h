@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 #include <functional>
-#include "Field.h"
+#include "SharedPointers.h"
 
 namespace MessagingMesh
 {
@@ -13,19 +13,11 @@ namespace MessagingMesh
     // same name.
     class Message
     {
-    // Shared pointer and object creation...
-    public:
-        // Shared pointer to a Message.
-        typedef std::shared_ptr<Message> Ptr;
-
-        // Shared pointer to a const Message.
-        typedef std::shared_ptr<const Message> ConstPtr;
-
-        // Creates a Message instance.
-        static Ptr create() { return Ptr(new Message()); }
-
     // Public methods...
     public:
+        // Creates a Message instance.
+        static MessagePtr create() { return MessagePtr(new Message()); }
+
         // Destructor.
         ~Message();
 
@@ -36,7 +28,7 @@ namespace MessagingMesh
         void addField(const std::string& name, double value);
 
         // Adds a message field to the message. 
-        void addField(const std::string& name, const Message::Ptr& value);
+        void addField(const std::string& name, const MessagePtr& value);
     
     // Private functions...
     private:
@@ -45,15 +37,15 @@ namespace MessagingMesh
         Message();
 
         // Adds a field to the message, setting its value using the valueSetter function (lambda).
-        void addField(const std::string& name, std::function<void(const Field::Ptr&)> valueSetter);
+        void addField(const std::string& name, std::function<void(const FieldPtr&)> valueSetter);
 
     // Private data...
     private:
         // Vector of fields in the message, in the order they were added...
-        std::vector<Field::Ptr> m_fields;
+        std::vector<FieldPtr> m_fields;
 
         // Map of field name to the first field with that name...
-        std::map<std::string, Field::Ptr> m_mapNameToField;
+        std::map<std::string, FieldPtr> m_mapNameToField;
 
     };
 
