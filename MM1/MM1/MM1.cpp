@@ -24,10 +24,10 @@ int main()
         //m->addField("world", 17);
         //m->addField("sub-message", Message::create());
 
-        //auto f = Field::create();
-        //f->setName("Count");
-        //f->setSignedInt32(32);
-        //std::cout << f->getDouble() << std::endl;
+        auto f = Field::create();
+        f->setName("Count");
+        f->setSignedInt32(32);
+        std::cout << f->getMessage() << std::endl;
     }
     catch (const std::exception& ex)
     {
