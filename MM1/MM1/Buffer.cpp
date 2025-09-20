@@ -44,7 +44,7 @@ void Buffer::write(const void* p, size_t size)
     // We make sure that the buffer can hold the new data...
     checkBufferSize(size);
 
-    // We add the data to the buffer...
+    // We write the data to the buffer...
     memcpy(&m_data[m_position], p, size);
 
     // We update the position and data size... 
@@ -53,9 +53,8 @@ void Buffer::write(const void* p, size_t size)
 
 void Buffer::write(const ConstFieldPtr& item)
 {
-    // We do not write a field directly to the buffer. Instead we call its serialize()
-    // method which will call back into this buffer to write the data depending on the
-    // type managed by the field...
+    // We call the field's serialize() method. This calls back into the buffer
+    // to write the data for the field and the specific type it is managing...
     item->serialize(*this);
 }
 
@@ -66,7 +65,7 @@ void Buffer::writeCopyable(const T& item)
     size_t size = sizeof(T);;
     checkBufferSize(size);
 
-    // We add the data to the buffer...
+    // We write the data to the buffer...
     memcpy(&m_data[m_position], &item, size);
 
     // We update the position and data size... 
