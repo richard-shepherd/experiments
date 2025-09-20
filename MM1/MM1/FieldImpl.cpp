@@ -4,6 +4,7 @@
 using namespace MessagingMesh;
 
 // Checks that the data-type we hold is an the type specified.
+// (This is a macro so that we can stringify the enum name in exception text.)
 #define CHECK_DATA_TYPE(x) if(m_dataType != x) throw Exception("Field '" + m_name + "' is not a " + #x)
 
 FieldImpl::FieldImpl()
@@ -20,7 +21,6 @@ void FieldImpl::setName(const std::string& name)
     m_name = name;
 }
 
-// Gets the field's name.
 const std::string& FieldImpl::getName() const
 {
     return m_name;
