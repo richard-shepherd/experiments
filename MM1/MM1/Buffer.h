@@ -57,7 +57,10 @@ namespace MessagingMesh
         // Writes a field to the buffer.
         void write(const ConstFieldPtr& item);
 
-    // Private functions...
+        // Writes a message to the buffer.
+        void write(const ConstMessagePtr& item);
+
+        // Private functions...
     private:
         // Constructor.
         // NOTE: The constructor is private. Use Buffer::create() to create an instance.

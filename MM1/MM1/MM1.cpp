@@ -11,24 +11,17 @@ int main()
 {
     try
     {
-        auto f1 = Field::create();
-        f1->setName("AGE");
-        f1->setSignedInt32(56);
+        auto person = Message::create();
+        person->addField("NAME", "richard");
+        person->addField("AGE", 56);
+        auto address = Message::create();
+        address->addField("HOUSE_NUMBER", 3);
+        address->addField("POST_CODE", "IM4 3LT");
+        person->addField("ADDRESS", address);
+
         auto buffer = Buffer::create();
-        buffer->write(f1);
+        buffer->write(person);
 
-
-        auto m = Message::create();
-        m->addField("name", "richard");
-        m->addField("hello", 123);
-        m->addField("hello", 234.567);
-        m->addField("world", 17);
-        m->addField("sub-message", Message::create());
-
-        auto f = Field::create();
-        f->setName("Count");
-        f->setSignedInt32(32);
-        std::cout << f->getSignedInt32() << std::endl;
     }
     catch (const std::exception& ex)
     {

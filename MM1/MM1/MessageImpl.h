@@ -18,6 +18,8 @@ namespace MessagingMesh
         // Destructor.
         ~MessageImpl();
 
+        void serialize(Buffer& buffer) const;
+
     // Helper methods to add fields of various types...
     public:
         // Adds a string field to the message. 
@@ -40,10 +42,10 @@ namespace MessagingMesh
     // Private data...
     private:
         // Vector of fields in the message, in the order they were added...
-        std::vector<FieldPtr> m_fields;
+        std::vector<ConstFieldPtr> m_fields;
 
         // Map of field name to the first field with that name...
-        std::map<std::string, FieldPtr> m_mapNameToField;
+        std::map<std::string, ConstFieldPtr> m_mapNameToField;
     };
 } // namespace
 

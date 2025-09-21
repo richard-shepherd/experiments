@@ -1,5 +1,6 @@
 #include "Buffer.h"
 #include "Field.h"
+#include "Message.h"
 #include "Exception.h"
 using namespace MessagingMesh;
 
@@ -58,7 +59,14 @@ void Buffer::write(const ConstFieldPtr& item)
     item->serialize(*this);
 }
 
-template <typename T> 
+void Buffer::write(const ConstMessagePtr& item)
+{
+    // We call the message's serialize() method. This calls back into the buffer
+    // to write the data for the message and the fields it is managing...
+    item->serialize(*this);
+}
+
+template <typename T>
 void Buffer::writeCopyable(const T& item)
 {
     // We make sure that the buffer can hold the new data...

@@ -21,6 +21,8 @@ namespace MessagingMesh
         // Destructor.
         ~Message();
 
+        void serialize(Buffer& buffer) const;
+
     // Helper methods to add fields of various types...
     public:
         // Adds a string field to the message. 

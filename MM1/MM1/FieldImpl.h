@@ -61,10 +61,14 @@ namespace MessagingMesh
         Field::DataType m_dataType;
 
         // Data for the various supported types...
-        std::string m_data_string;
-        int32_t m_data_int32 = 0;
-        double m_data_double = 0.0;
-        ConstMessagePtr m_data_message = nullptr;
+        union NumericDataUnion
+        {
+            int32_t Int32;
+            double Double;
+        };
+        NumericDataUnion m_dataNumeric;
+        std::string m_dataString;
+        ConstMessagePtr m_dataMessage = nullptr;
     };
 } // namespace
 

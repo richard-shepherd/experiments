@@ -32,3 +32,7 @@ void Message::addField(const std::string& name, const ConstMessagePtr& value)
     m_pImpl->addField(name, value);
 }
 
+void Message::serialize(Buffer& buffer) const
+{
+    m_pImpl->serialize(buffer);
+}
