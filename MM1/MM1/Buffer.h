@@ -60,7 +60,25 @@ namespace MessagingMesh
         // Writes a message to the buffer.
         void write(const ConstMessagePtr& item);
 
-        // Private functions...
+    // read() method for various types...
+    public:
+        // Reads an unsigned char from the buffer.
+        unsigned char readUnsignedChar();
+
+        // Reads an int32 from the buffer.
+        int32_t readInt32();
+
+        // Reads a double from the buffer.
+        double readDouble();
+
+        // Reads a string from the buffer.
+        std::string readString();
+
+        // Reads bytes from the buffer to the pointer passed in.
+        // NOTE: You must make sure that the memory pointed to is large enough.
+        void read(void* p, size_t size);
+
+    // Private functions...
     private:
         // Constructor.
         // NOTE: The constructor is private. Use Buffer::create() to create an instance.
@@ -69,17 +87,28 @@ namespace MessagingMesh
         // Writes an item to the buffer which can be written with memcpy.
         template <typename T> void writeCopyable(const T& item);
 
+        // Reads an item from the buffer using memcpy.
+        template <typename T> void readCopyable(T& item);
+
         // Checks that the buffer has the capacity to hold the number of bytes specified
         // and expands it if it does not.
-        void checkBufferSize(size_t bytesRequired);
+        // Throws a MessagingMesh::Exception if the buffer required is too large.
+        void checkBufferSize_Write(size_t bytesRequired);
+
+        // Checks that the buffer is large enough to read the specified number of bytes.
+        // Throws a MessagingMesh::Exception if the buffer is not large enough.
+        void checkBufferSize_Read(size_t bytesRequired);
+
+        // Updates the position to reflect the bytes read.
+        void updatePosition_Read(size_t bytesWritten);
 
         // Updates the position and data-size to reflect the bytes written.
-        void updatePosition(size_t bytesWritten);
+        void updatePosition_Write(size_t bytesWritten);
 
     // Private data...
     private:
         // The initial size of the vector...
-        const size_t INITIAL_SIZE = 1;
+        const size_t INITIAL_SIZE = 8192;
 
         // The vector of bytes...
         std::vector<unsigned char> m_data;
