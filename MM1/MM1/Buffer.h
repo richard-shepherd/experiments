@@ -39,8 +39,8 @@ namespace MessagingMesh
 
     // write() method for various types...
     public:
-        // Writes an unsigned char to the buffer.
-        void write(unsigned char item);
+        // Writes an int8 to the buffer.
+        void write(int8_t item);
 
         // Writes a signed int32 to the buffer.
         void write(int32_t item);
@@ -62,8 +62,8 @@ namespace MessagingMesh
 
     // read() method for various types...
     public:
-        // Reads an unsigned char from the buffer.
-        unsigned char readUnsignedChar();
+        // Reads an int8 from the buffer.
+        int8_t readInt8();
 
         // Reads an int32 from the buffer.
         int32_t readInt32();
@@ -77,6 +77,12 @@ namespace MessagingMesh
         // Reads bytes from the buffer to the pointer passed in.
         // NOTE: You must make sure that the memory pointed to is large enough.
         void read(void* p, size_t size);
+
+        // Reads a field from the buffer.
+        ConstFieldPtr readField();
+
+        // Reads a message from the buffer.
+        ConstMessagePtr readMessage();
 
     // Private functions...
     private:

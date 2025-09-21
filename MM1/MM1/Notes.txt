@@ -1,3 +1,5 @@
 TODO: Think about use of std::string. We want to encode strings as UTF-8
 
+TODO: Add getField() methods to Message
+
 

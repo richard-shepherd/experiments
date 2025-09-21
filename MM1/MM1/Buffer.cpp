@@ -13,15 +13,15 @@ Buffer::~Buffer()
 {
 }
 
-// UNSIGNED CHAR
-unsigned char Buffer::readUnsignedChar()
+// INT8
+int8_t Buffer::readInt8()
 {
-    unsigned char result;
+    int8_t result;
     readCopyable(result);
     return result;
 }
 
-void Buffer::write(unsigned char item)
+void Buffer::write(int8_t item)
 {
     writeCopyable(item);
 }
@@ -110,6 +110,14 @@ void Buffer::write(const void* p, size_t size)
 }
 
 // FIELD
+ConstFieldPtr Buffer::readField()
+{
+    // We create a new field and deserialize into it...
+    auto field = Field::create();
+    field->deserialize(*this);
+    return field;
+}
+
 void Buffer::write(const ConstFieldPtr& item)
 {
     // We call the field's serialize() method. This calls back into the buffer
@@ -118,6 +126,14 @@ void Buffer::write(const ConstFieldPtr& item)
 }
 
 // MESSAGE
+ConstMessagePtr Buffer::readMessage()
+{
+    // We create a new message and deserialize into it...
+    auto message = Message::create();
+    message->deserialize(*this);
+    return message;
+}
+
 void Buffer::write(const ConstMessagePtr& item)
 {
     // We call the message's serialize() method. This calls back into the buffer

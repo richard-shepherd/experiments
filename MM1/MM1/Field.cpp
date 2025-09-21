@@ -67,3 +67,8 @@ void Field::serialize(Buffer& buffer) const
 {
     m_pImpl->serialize(buffer);
 }
+
+void Field::deserialize(Buffer& buffer)
+{
+    m_pImpl->deserialize(buffer);
+}

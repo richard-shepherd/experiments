@@ -81,9 +81,9 @@ void FieldImpl::serialize(Buffer& buffer) const
     buffer.write(m_name);
 
     // We serialize the data type...
-    buffer.write(static_cast<unsigned char>(m_dataType));
+    buffer.write(static_cast<int8_t>(m_dataType));
 
-    // We serialize the data...
+    // We serialize the data, depending on the type...
     switch (m_dataType)
     {
     case Field::STRING:
@@ -104,5 +104,37 @@ void FieldImpl::serialize(Buffer& buffer) const
 
     default:
         throw Exception("Field::serialize data-type not handled");
+    }
+}
+
+void FieldImpl::deserialize(Buffer& buffer)
+{
+    // We deserialize the name...
+    m_name = buffer.readString();
+
+    // We deserialize the data type...
+    m_dataType = static_cast<Field::DataType>(buffer.readInt8());
+
+    // We deserialize the data, depending on the type...
+    switch (m_dataType)
+    {
+    case Field::STRING:
+        m_dataString = buffer.readString();
+        break;
+
+    case Field::SIGNED_INT32:
+        m_dataNumeric.Int32 = buffer.readInt32();
+        break;
+
+    case Field::DOUBLE:
+        m_dataNumeric.Double = buffer.readDouble();
+        break;
+
+    case Field::MESSAGE:
+        m_dataMessage = buffer.readMessage();
+        break;
+
+    default:
+        throw Exception("Field::deserialize data-type not handled");
     }
 }

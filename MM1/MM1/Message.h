@@ -21,7 +21,15 @@ namespace MessagingMesh
         // Destructor.
         ~Message();
 
+        // Gets a field by name.
+        // Throws a MessagingMesh::Exception if the field is not in the message.
+        const ConstFieldPtr& getField(const std::string& name) const;
+
+        // Serializes the message to the current position in the buffer.
         void serialize(Buffer& buffer) const;
+
+        // Deserializes the message from the current position in the buffer.
+        void deserialize(Buffer& buffer);
 
     // Helper methods to add fields of various types...
     public:

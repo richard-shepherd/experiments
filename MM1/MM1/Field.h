@@ -38,6 +38,9 @@ namespace MessagingMesh
         // Serializes the field to the current position of the buffer.
         void serialize(Buffer& buffer) const;
 
+        // Serializes the field to the current position of the buffer.
+        void deserialize(Buffer& buffer);
+
     // Getters and setters for field types...
     public:
         // Gets the string held by the field.

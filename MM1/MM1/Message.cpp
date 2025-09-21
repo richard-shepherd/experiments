@@ -2,14 +2,19 @@
 #include "MessageImpl.h"
 using namespace MessagingMesh;
 
-Message::Message()
-    : m_pImpl(new MessageImpl())
+Message::Message() :
+    m_pImpl(new MessageImpl())
 {
 }
 
 Message::~Message()
 {
     delete m_pImpl;
+}
+
+const ConstFieldPtr& Message::getField(const std::string& name) const
+{
+    return m_pImpl->getField(name);
 }
 
 void Message::addField(const std::string& name, const std::string& value)
@@ -35,4 +40,9 @@ void Message::addField(const std::string& name, const ConstMessagePtr& value)
 void Message::serialize(Buffer& buffer) const
 {
     m_pImpl->serialize(buffer);
+}
+
+void Message::deserialize(Buffer& buffer)
+{
+    m_pImpl->deserialize(buffer);
 }

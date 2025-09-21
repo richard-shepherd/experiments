@@ -11,28 +11,28 @@ int main()
 {
     try
     {
-        //auto person = Message::create();
-        //person->addField("NAME", "richard");
-        //person->addField("AGE", 56);
-        //auto address = Message::create();
-        //address->addField("HOUSE_NUMBER", 3);
-        //address->addField("POST_CODE", "IM4 3LT");
-        //person->addField("ADDRESS", address);
+        // We create a person message...
+        auto person = Message::create();
+        person->addField("NAME", "richard");
+        person->addField("AGE", 56);
 
-        //auto buffer = Buffer::create();
-        //buffer->write(person);
+        // We add an address sub-message...
+        auto address = Message::create();
+        address->addField("HOUSE_NUMBER", 3);
+        address->addField("POST_CODE", "IM4 3LT");
+        person->addField("ADDRESS", address);
 
+        // We write the person to a buffer...
         auto buffer = Buffer::create();
-        buffer->write(static_cast<unsigned char>('h'));
-        buffer->write("Messaging Mesh");
-        buffer->write(12345);
-        buffer->write(234.567);
-        buffer->setPosition(0);
-        std::cout << buffer->readUnsignedChar() << std::endl;
-        std::cout << buffer->readString() << std::endl;
-        std::cout << buffer->readInt32() << std::endl;
-        std::cout << buffer->readDouble() << std::endl;
+        buffer->write(person);
 
+        // We deserialize the buffer to a new person message...
+        buffer->setPosition(0);
+        auto person2 = buffer->readMessage();
+
+        auto& name = person2->getField("NAME")->getString();;
+        auto& postcode = person2->getField("ADDRESS")->getMessage()->getField("POST_CODE")->getString();
+        std::cout << name + ": " + postcode << std::endl;
     }
     catch (const std::exception& ex)
     {

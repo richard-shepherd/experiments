@@ -1,6 +1,7 @@
 #include "MessageImpl.h"
 #include "Field.h"
 #include "Buffer.h"
+#include "Exception.h"
 using namespace MessagingMesh;
 
 MessageImpl::MessageImpl()
@@ -9,6 +10,16 @@ MessageImpl::MessageImpl()
 
 MessageImpl::~MessageImpl()
 {
+}
+
+const ConstFieldPtr& MessageImpl::getField(const std::string& name) const
+{
+    auto it = m_mapNameToField.find(name);
+    if (it == m_mapNameToField.end())
+    {
+        throw Exception("Field " + name + " not in message");
+    }
+    return it->second;
 }
 
 void MessageImpl::addField(const std::string& name, const std::string& value)
@@ -61,5 +72,19 @@ void MessageImpl::serialize(Buffer& buffer) const
     for (auto& field : m_fields)
     {
         buffer.write(field);
+    }
+}
+
+void MessageImpl::deserialize(Buffer& buffer)
+{
+    // We find the number of fields...
+    auto fieldCount = buffer.readInt32();
+
+    // We read each field and add them to the message...
+    for (auto i = 0; i < fieldCount; ++i)
+    {
+        auto field = buffer.readField();
+        m_fields.push_back(field);
+        m_mapNameToField.insert({ field->getName(), field });
     }
 }
