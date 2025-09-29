@@ -4,13 +4,23 @@
 #include "Message.h"
 #include "Field.h"
 #include "Buffer.h"
+#include "Logger.h"
 using namespace MessagingMesh;
+
+
+void onMessageLogged(Logger::LogLevel logLevel, const std::string& message)
+{
+    std::cout << "MessagingMesh: " + Logger::toString(logLevel) + ": " + message << std::endl;
+}
 
 
 int main()
 {
     try
     {
+        Logger::registerCallback(onMessageLogged);
+        Logger::error("Hello!");
+
         // We create a person message...
         auto person = Message::create();
         person->addField("NAME", "richard");
