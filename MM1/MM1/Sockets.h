@@ -1,5 +1,6 @@
 #pragma once
 #include <atomic>
+#include <mutex>
 
 namespace MessagingMesh
 {
@@ -17,7 +18,13 @@ namespace MessagingMesh
         static void cleanup();
 
     private:
-        static std::atomic<int> m_initializationCount;
+        // The number of initializations and a mutex to protect it. Initializations are
+        // reference counted. We clean up when initialization-count goes to zero.
+        static std::mutex m_initializationMutex;
+        static int m_initializationCount;
+
+        // True if WSAStartup succeeded...
+        static bool m_wsaStartupSucceeded;
     };
 
 } // namespace

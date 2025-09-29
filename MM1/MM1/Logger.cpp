@@ -31,31 +31,31 @@ void Logger::log(LogLevel logLevel, const std::string& message)
 // Logs a message at DEBUG level.
 void Logger::debug(const std::string& message)
 {
-    log(DEBUG, message);
+    log(LOG_LEVEL_DEBUG, message);
 }
 
 // Logs a message at INFO level.
 void Logger::info(const std::string& message)
 {
-    log(INFO, message);
+    log(LOG_LEVEL_INFO, message);
 }
 
 // Logs a message at WARN level.
 void Logger::warn(const std::string& message)
 {
-    log(WARN, message);
+    log(LOG_LEVEL_WARN, message);
 }
 
 // Logs a message at ERROR level.
 void Logger::error(const std::string& message)
 {
-    log(ERROR, message);
+    log(LOG_LEVEL_ERROR, message);
 }
 
 // Logs a message at FATAL level.
 void Logger::fatal(const std::string& message)
 {
-    log(FATAL, message);
+    log(LOG_LEVEL_FATAL, message);
 }
 
 // Returns the log-level as a string.
@@ -63,15 +63,15 @@ const std::string& Logger::toString(LogLevel logLevel)
 {
     switch (logLevel)
     {
-    case DEBUG:
+    case LOG_LEVEL_DEBUG:
         return DEBUG_STRING;
-    case INFO:
+    case LOG_LEVEL_INFO:
         return INFO_STRING;
-    case WARN:
+    case LOG_LEVEL_WARN:
         return WARN_STRING;
-    case ERROR:
+    case LOG_LEVEL_ERROR:
         return ERROR_STRING;
-    case FATAL:
+    case LOG_LEVEL_FATAL:
         return FATAL_STRING;
     default:
         return UNKNOWN_LOG_LEVEL_STRING;

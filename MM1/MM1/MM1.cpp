@@ -1,10 +1,12 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include "Sockets.h"
 #include "Message.h"
 #include "Field.h"
 #include "Buffer.h"
 #include "Logger.h"
+#include "Utils.h"
 using namespace MessagingMesh;
 
 
@@ -19,7 +21,8 @@ int main()
     try
     {
         Logger::registerCallback(onMessageLogged);
-        Logger::error("Hello!");
+
+        Sockets::initialize();
 
         // We create a person message...
         auto person = Message::create();
