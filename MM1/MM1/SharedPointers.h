@@ -26,4 +26,4 @@ namespace MessagingMesh
     // Shared pointer to a const Buffer.
     typedef std::shared_ptr<const Buffer> ConstBufferPtr;
 
-}// namespace
+} // namespace

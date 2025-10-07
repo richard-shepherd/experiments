@@ -1,0 +1,31 @@
+Namespace
+---------
+- MessagingMesh::Network
+  - eg, MessagingMesh::Network::Client
+
+Data
+----
+- size (int32)
+- payload (size bytes)
+
+- This represents one network 'message', ie one lump of data
+  sent from client to server or server to client.
+
+Socket
+------
+- ICallback: interface for callbacks
+  - onDataReceived(Data data)
+  - onNewConnection(Socket clientSocket)
+- Constructor
+- Destructor: calls disconnect()
+- connectIP(string ipaddress, int port)
+- connectHostname(string hostname, int port)
+- listen()
+- disconnect()
+- send(Data data)
+- registerCallback(callback) -> returns callback-handler, destructor removes it
+- unregisterCallback(callback-handler)
+
+
+
+
