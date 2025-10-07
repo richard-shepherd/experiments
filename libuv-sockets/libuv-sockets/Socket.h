@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "uv.h"
 #include "SharedPointers.h"
 
 namespace MessagingMesh
@@ -29,8 +30,8 @@ namespace MessagingMesh
 
     // Public methods...
     public:
-        // Creates a Socket instance.
-        static SocketPtr create() { return SocketPtr(new Socket()); }
+        // Creates a Socket instance to be managed by the uv loop specified.
+        static SocketPtr create(uv_loop_t* pLoop) { return SocketPtr(new Socket(pLoop)); }
 
         // Destructor.
         ~Socket();
@@ -41,7 +42,12 @@ namespace MessagingMesh
     private:
         // Constructor.
         // NOTE: The constructor is private. Use Socket::create() to create an instance.
-        Socket();
+        Socket(uv_loop_t* pLoop);
+
+    // Private data...
+    private:
+        // The uv loop managing the socket.
+        uv_loop_t* m_pLoop;
     };
 
 } // namespace

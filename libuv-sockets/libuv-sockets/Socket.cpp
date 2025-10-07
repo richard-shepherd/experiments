@@ -3,7 +3,8 @@ using namespace MessagingMesh;
 
 // Constructor.
 // NOTE: The constructor is private. Use Socket::create() to create an instance.
-Socket::Socket()
+Socket::Socket(uv_loop_t* pLoop) :
+    m_pLoop(pLoop)
 {
 }
 
