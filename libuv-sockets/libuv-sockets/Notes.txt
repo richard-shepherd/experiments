@@ -3,6 +3,20 @@ Namespace
 - MessagingMesh::Network
   - eg, MessagingMesh::Network::Client
 
+UVLoopThread
+------------
+- Creates a thread and runs a uv loop on it
+
+- Lets you mashall actions to it
+  - An action could be a lambda: void(uv_loop_t* pLoop)
+  - The body of the lambda would do some action on the loop, eg:
+    - Writing data
+    - Registering a socket
+
+- Actions are stored in a thread-safe queue, and run in order when picked up
+
+- We use the asyc thing to poke the thread to wake up and process the queue
+
 Data
 ----
 - size (int32)
@@ -10,6 +24,8 @@ Data
 
 - This represents one network 'message', ie one lump of data
   sent from client to server or server to client.
+
+- RSSTODO: Think about the ownership of the memory
 
 Socket
 ------

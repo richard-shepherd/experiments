@@ -15,6 +15,7 @@ namespace MessagingMesh
     /// The size is an int32_t so the maximum size for the data is ~2GB.
     /// 
     /// NOTE: This structure does not manage the memory for the data it holds.
+    /// TODO: Think about ownership of memory. Should it be managed here?
     /// </summary>
     struct NetworkData
     {
