@@ -4,6 +4,8 @@
 #include "UVUtils.h"
 using namespace MessagingMesh;
 
+// TODO: delete the pointers (or use make_unique???)
+
 // Constructor.
 UVLoopThread::UVLoopThread(const std::string& threadName) :
     m_threadName(threadName),
