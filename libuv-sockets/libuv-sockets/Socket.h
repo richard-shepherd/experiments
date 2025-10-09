@@ -47,6 +47,9 @@ namespace MessagingMesh
         // NOTE: The constructor is private. Use Socket::create() to create an instance.
         Socket(uv_loop_t* pLoop, ICallback* pCallback);
 
+        // Called when a new client conection is received.
+        void onNewConnection(uv_stream_t* server, int status);
+
     // Private data...
     private:
         // The socket's name (made from its connection info).
@@ -55,8 +58,16 @@ namespace MessagingMesh
         // The uv loop managing the socket.
         uv_loop_t* m_pLoop;
 
-        // The object on which we call callbacks...
+        // The object on which we call callbacks.
         ICallback* m_pCallback;
+
+        // UV socket handle.
+        std::unique_ptr<uv_tcp_t> m_uvSocket;
+
+    // Constants...
+    private:
+        // The maximum backlog of unprocessed incoming connections.
+        const int MAX_INCOMING_CONNECTION_BACKLOG = 128;
     };
 
 } // namespace

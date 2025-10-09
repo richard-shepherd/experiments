@@ -14,6 +14,6 @@ int main()
     Logger::registerCallback(onMessageLogged);
 
     Gateway gateway(5050);
-    uv_sleep(100);
+    uv_sleep(1000);
 }
 
