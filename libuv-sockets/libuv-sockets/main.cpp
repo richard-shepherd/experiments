@@ -1,6 +1,6 @@
 #include <iostream>
 #include "Logger.h"
-#include "UVLoopThread.h"
+#include "Gateway.h"
 using namespace MessagingMesh;
 
 
@@ -13,8 +13,7 @@ int main()
 {
     Logger::registerCallback(onMessageLogged);
 
-    UVLoopThread loopThread("LOOP1");
-
-    //uv_sleep(1000);
+    Gateway gateway(5050);
+    uv_sleep(100);
 }
 

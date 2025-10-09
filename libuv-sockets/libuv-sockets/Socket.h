@@ -31,23 +31,32 @@ namespace MessagingMesh
     // Public methods...
     public:
         // Creates a Socket instance to be managed by the uv loop specified.
-        static SocketPtr create(uv_loop_t* pLoop) { return SocketPtr(new Socket(pLoop)); }
+        static SocketPtr create(uv_loop_t* pLoop, ICallback* pCallback) { return SocketPtr(new Socket(pLoop, pCallback)); }
 
         // Destructor.
         ~Socket();
 
-        // Connects a client socket to the IP address and port specified.
+        // Connects a server socket to listen on the specified port.
+        void listen(int port);
+
+        // Connects a client socket to the IP address and specified port.
         void connectIP(const std::string& ipAddress, int port);
 
     private:
         // Constructor.
         // NOTE: The constructor is private. Use Socket::create() to create an instance.
-        Socket(uv_loop_t* pLoop);
+        Socket(uv_loop_t* pLoop, ICallback* pCallback);
 
     // Private data...
     private:
+        // The socket's name (made from its connection info).
+        std::string m_name;
+
         // The uv loop managing the socket.
         uv_loop_t* m_pLoop;
+
+        // The object on which we call callbacks...
+        ICallback* m_pCallback;
     };
 
 } // namespace
