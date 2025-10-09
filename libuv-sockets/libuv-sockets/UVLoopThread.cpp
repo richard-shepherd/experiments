@@ -8,15 +8,13 @@ using namespace MessagingMesh;
 
 // Constructor.
 UVLoopThread::UVLoopThread(const std::string& threadName) :
-    m_threadName(threadName),
-    m_pLoop(nullptr),
-    m_pMarshalledEventsSignal(nullptr)
+    m_threadName(threadName)
 {
     Logger::info("Creating thread: " + m_threadName);
 
     // We create a mutex for the marshalled events vector...
-    m_pMarshalledEventsMutex = new uv_mutex_t;
-    uv_mutex_init(m_pMarshalledEventsMutex);
+    m_marshalledEventsMutex = std::make_unique<uv_mutex_t>();
+    uv_mutex_init(m_marshalledEventsMutex.get());
 
     // We create the thread...
     uv_thread_create(
@@ -56,15 +54,15 @@ void UVLoopThread::threadEntryPoint()
 
         // We create the uv loop and tell it that it is associated with 
         // this UVLoopThread object...
-        m_pLoop = new uv_loop_t;
-        m_pLoop->data = this;
-        uv_loop_init(m_pLoop);
+        m_loop = std::make_unique<uv_loop_t>();
+        m_loop->data = this;
+        uv_loop_init(m_loop.get());
 
         // We listen for marshalled events...
-        m_pMarshalledEventsSignal = new uv_async_t;
+        m_marshalledEventsSignal = std::make_unique<uv_async_t>();
         uv_async_init(
-            m_pLoop,
-            m_pMarshalledEventsSignal,
+            m_loop.get(),
+            m_marshalledEventsSignal.get(),
             [](uv_async_t* pHandle)
             {
                 auto self = (UVLoopThread*)pHandle->loop->data;
@@ -72,11 +70,11 @@ void UVLoopThread::threadEntryPoint()
             });
 
         // We signal the event in case there are already marshalled events...
-        uv_async_send(m_pMarshalledEventsSignal);
+        uv_async_send(m_marshalledEventsSignal.get());
 
         // We run the loop...
         Logger::info("Running event loop for thread: " + m_threadName);
-        uv_run(m_pLoop, UV_RUN_DEFAULT);
+        uv_run(m_loop.get(), UV_RUN_DEFAULT);
     }
     catch (const std::exception& ex)
     {
@@ -93,16 +91,16 @@ void UVLoopThread::marshallEvent(MarshalledEvent marshalledEvent)
     // This is done in a short-lived lock as the collection of events can
     // be accessed from the event thread.
     {
-        UVUtils::Lock lock(m_pMarshalledEventsMutex);
+        UVUtils::Lock lock(m_marshalledEventsMutex);
         m_marshalledEvents.push_back(marshalledEvent);
     }
 
     // We signal to the event loop that there is a new event.
     // Note: We check that the loop and signal have been set up. If not, we
     //       cannot signal, but the event has still been added to the queue.
-    if (m_pMarshalledEventsSignal)
+    if (m_marshalledEventsSignal)
     {
-        uv_async_send(m_pMarshalledEventsSignal);
+        uv_async_send(m_marshalledEventsSignal.get());
     }
 }
 
@@ -111,12 +109,12 @@ void UVLoopThread::processMarshalledEvents()
 {
     try
     {
-        // We get the marshalled events and clear the original collection.
+        // We take a copy of the marshalled events and clear the original collection.
         // This is done in a short-lived lock as the events collection can
         // be added to from other threads.
         VecMarshalledEvents marshalledEvents;
         {
-            UVUtils::Lock lock(m_pMarshalledEventsMutex);
+            UVUtils::Lock lock(m_marshalledEventsMutex);
             marshalledEvents = m_marshalledEvents;
             m_marshalledEvents.clear();
         }
@@ -124,7 +122,7 @@ void UVLoopThread::processMarshalledEvents()
         // We process the events...
         for (auto marshalledEvent : marshalledEvents)
         {
-            marshalledEvent(m_pLoop);
+            marshalledEvent(m_loop.get());
         }
     }
     catch (const std::exception& ex)

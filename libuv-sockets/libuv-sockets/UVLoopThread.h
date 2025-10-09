@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <memory>
 #include "uv.h"
 
 namespace MessagingMesh
@@ -48,15 +49,15 @@ namespace MessagingMesh
         uv_thread_t m_threadHandle;
 
         // UV message loop running on the thread.
-        uv_loop_t* m_pLoop;
+        std::unique_ptr<uv_loop_t> m_loop;
 
         // Signal sent to the event loop when there are new marshalled events.
-        uv_async_t* m_pMarshalledEventsSignal;
+        std::unique_ptr<uv_async_t> m_marshalledEventsSignal;
 
         // Vector of marshalled events and a lock for it.
         typedef std::vector<MarshalledEvent> VecMarshalledEvents;
         VecMarshalledEvents m_marshalledEvents;
-        uv_mutex_t* m_pMarshalledEventsMutex;
+        std::unique_ptr<uv_mutex_t> m_marshalledEventsMutex;
     };
 
 } // namespace

@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include "uv.h"
 
 namespace MessagingMesh
@@ -15,17 +16,17 @@ namespace MessagingMesh
         class Lock
         {
         public:
-            Lock(uv_mutex_t* pHandle) :
-                m_pHandle(pHandle)
+            Lock(const std::unique_ptr<uv_mutex_t>& handle) :
+                m_handle(handle)
             {
-                uv_mutex_lock(m_pHandle);
+                uv_mutex_lock(m_handle.get());
             }
             ~Lock()
             {
-                uv_mutex_unlock(m_pHandle);
+                uv_mutex_unlock(m_handle.get());
             }
         private:
-            uv_mutex_t* m_pHandle;
+            const std::unique_ptr<uv_mutex_t>& m_handle;
         };
         
         
