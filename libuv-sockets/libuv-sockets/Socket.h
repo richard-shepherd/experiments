@@ -22,22 +22,30 @@ namespace MessagingMesh
         {
         public:
             // Called when data has been received on the socket.
+            // Called on the UV loop thread.
             virtual void onDataReceived(const NetworkData& networkData) = 0;
 
             // Called when a new client connection has been made to a listening socket.
-            virtual void onNewConnection(const SocketPtr& clientSocket) = 0;
+            // Called on the UV loop thread.
+            virtual void onNewConnection(SocketPtr& clientSocket) = 0;
         };
 
     // Public methods...
     public:
         // Creates a Socket instance to be managed by the uv loop specified.
-        static SocketPtr create(uv_loop_t* pLoop, ICallback* pCallback) { return SocketPtr(new Socket(pLoop, pCallback)); }
+        static SocketPtr create(uv_loop_t* pLoop) { return SocketPtr(new Socket(pLoop)); }
 
         // Destructor.
         ~Socket();
 
+        // Sets the callback.
+        void setCallback(ICallback* pCallback);
+
         // Connects a server socket to listen on the specified port.
         void listen(int port);
+
+        // Connects the socket by accepting a listen request received by the server.
+        void accept(uv_stream_t* server);
 
         // Connects a client socket to the IP address and specified port.
         void connectIP(const std::string& ipAddress, int port);
@@ -45,11 +53,14 @@ namespace MessagingMesh
     private:
         // Constructor.
         // NOTE: The constructor is private. Use Socket::create() to create an instance.
-        Socket(uv_loop_t* pLoop, ICallback* pCallback);
+        Socket(uv_loop_t* pLoop);
 
         // Called when a new client conection is received.
         void onNewConnection(uv_stream_t* server, int status);
 
+        // Called when data has been received on a socket.
+        void onDataReceived(uv_stream_t* pClientStream, ssize_t nread, const uv_buf_t* pBuffer);
+            
     // Private data...
     private:
         // The socket's name (made from its connection info).

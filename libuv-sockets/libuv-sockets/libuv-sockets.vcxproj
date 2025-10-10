@@ -84,6 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Notes.txt" />
+    <Text Include="Snippets.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Exception.h" />

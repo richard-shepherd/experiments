@@ -4,8 +4,6 @@
 #include "UVUtils.h"
 using namespace MessagingMesh;
 
-// TODO: delete the pointers (or use make_unique???)
-
 // Constructor.
 UVLoopThread::UVLoopThread(const std::string& threadName) :
     m_threadName(threadName)
@@ -78,8 +76,7 @@ void UVLoopThread::threadEntryPoint()
     }
     catch (const std::exception& ex)
     {
-        auto message = Utils::format("UVLoopThread::threadEntryPoint - %s", ex.what());
-        Logger::error(message);
+        Logger::error(Utils::format("%s: %s", __func__, ex.what()));
     }
 }
 
@@ -127,7 +124,6 @@ void UVLoopThread::processMarshalledEvents()
     }
     catch (const std::exception& ex)
     {
-        auto message = Utils::format("UVLoopThread::processMarshalledEvents - %s", ex.what());
-        Logger::error(message);
+        Logger::error(Utils::format("%s: %s", __func__, ex.what()));
     }
 }

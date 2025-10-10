@@ -13,7 +13,8 @@ Gateway::Gateway(int port) :
     m_loopThread.marshallEvent(
         [this](uv_loop_t* pLoop)
         {
-            m_listeningSocket = Socket::create(pLoop, this);
+            m_listeningSocket = Socket::create(pLoop);
+            m_listeningSocket->setCallback(this);
             m_listeningSocket->listen(m_port);
         });
 }
@@ -23,15 +24,15 @@ Gateway::~Gateway()
 {
 }
 
-// Socket::ICallback implementation.
 // Called when data has been received on the socket.
+// Called on the UV loop thread.
 void Gateway::onDataReceived(const NetworkData& networkData)
 {
 }
 
-// Socket::ICallback implementation.
 // Called when a new client connection has been made to a listening socket.
-void Gateway::onNewConnection(const SocketPtr& clientSocket)
+// Called on the UV loop thread.
+void Gateway::onNewConnection(SocketPtr& clientSocket)
 {
 }
 
