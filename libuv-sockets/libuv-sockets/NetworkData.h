@@ -9,15 +9,18 @@ namespace MessagingMesh
     /// Data sent from the client to the server or from the server to the client.
     /// 
     /// This is a sort-of 'meta-protocol' for data sent across the network, just
-    /// consisting of the size of the data and a number of bytes to be sent.
-    /// 
-    /// When the client or server is receiving a stream of bytes it can split it
-    /// into individual messages based on the size.
+    /// consisting of the size of the data-buffer and the data-buffer itself.
     /// 
     /// The size is an int32_t so the maximum size for the data is ~2GB.
     /// 
-    /// NOTE: NetworkData owns the memory it holds. When it goes out of scope, the
-    ///       memory will be released.
+    /// NOTE 1: The size does not include the size of the size itself.
+    ///         For example a message containing an int32 will look like:
+    ///         - size: 4
+    ///         - data-buffer (int32): 4 bytes
+    /// 
+    /// NOTE 2: NetworkData owns the memory it holds. When it goes out of scope, the
+    ///         memory will be released.
+    /// RSSTODO: Do we want to own the memory when *sending* data?
     /// </summary>
     class NetworkData
     {
@@ -42,19 +45,26 @@ namespace MessagingMesh
         // NOTE: The constructor is private. Use NetworkData::create() to create an instance.
         NetworkData();
 
+        // Reads the message size (or as much as can be read) from the buffer.
+        int readSize(const uv_buf_t* pBuffer, int bufferSize, int bufferPosition);
+
     // Private data...
     private:
         // The network data size.
         int32_t m_size;
 
-        // Array of char of the size we are managing.
-        char* m_pData;
+        // The data buffer and the next position to read data into it.
+        // (We may receive the data across multiple network updates.)
+        char* m_pDataBuffer;
+        int m_dataBufferPosition;
 
         // True if we have all data for the message, false if not.
         bool m_hasAllData;
 
-        // Buffer when reading the size (which can comes across multiple network updates).
-        char m_sizeBuffer[4];
+        // Buffer when reading the size.
+        // (We may receive the size across multiple network updates.)
+        static const int SIZE_SIZE = 4;
+        char m_sizeBuffer[SIZE_SIZE];
         int m_sizeBufferPosition;
     };
 
