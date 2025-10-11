@@ -77,6 +77,7 @@
     <ClCompile Include="Gateway.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="NetworkData.cpp" />
     <ClCompile Include="Socket.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="UVLoopThread.cpp" />

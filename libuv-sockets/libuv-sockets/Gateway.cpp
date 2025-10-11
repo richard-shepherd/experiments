@@ -26,7 +26,7 @@ Gateway::~Gateway()
 
 // Called when data has been received on the socket.
 // Called on the UV loop thread.
-void Gateway::onDataReceived(const NetworkData& networkData)
+void Gateway::onDataReceived(const NetworkDataPtr& networkData)
 {
 }
 

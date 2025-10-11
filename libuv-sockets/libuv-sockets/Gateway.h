@@ -26,7 +26,7 @@ namespace MessagingMesh
     public:
         // Called when data has been received on the socket.
         // Called on the UV loop thread.
-        void onDataReceived(const NetworkData& networkData);
+        void onDataReceived(const NetworkDataPtr& networkData);
 
         // Called when a new client connection has been made to a listening socket.
         // Called on the UV loop thread.

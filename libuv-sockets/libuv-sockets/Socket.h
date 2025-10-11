@@ -23,7 +23,7 @@ namespace MessagingMesh
         public:
             // Called when data has been received on the socket.
             // Called on the UV loop thread.
-            virtual void onDataReceived(const NetworkData& networkData) = 0;
+            virtual void onDataReceived(const NetworkDataPtr& networkData) = 0;
 
             // Called when a new client connection has been made to a listening socket.
             // Called on the UV loop thread.
@@ -50,6 +50,7 @@ namespace MessagingMesh
         // Connects a client socket to the IP address and specified port.
         void connectIP(const std::string& ipAddress, int port);
 
+    // Private functions...
     private:
         // Constructor.
         // NOTE: The constructor is private. Use Socket::create() to create an instance.

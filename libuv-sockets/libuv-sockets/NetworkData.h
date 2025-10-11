@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include "SharedPointers.h"
 
 namespace MessagingMesh
 {
@@ -14,13 +15,31 @@ namespace MessagingMesh
     /// 
     /// The size is an int32_t so the maximum size for the data is ~2GB.
     /// 
-    /// NOTE: This structure does not manage the memory for the data it holds.
-    /// TODO: Think about ownership of memory. Should it be managed here?
+    /// NOTE: NetworkData owns the memory it holds. When it goes out of scope, the
+    ///       memory will be released.
     /// </summary>
-    struct NetworkData
+    class NetworkData
     {
-        int32_t size;
-        char* data;
+    // Public methods...
+    public:
+        // Creates a NetworkData instance.
+        static NetworkDataPtr create(int32_t size) { return NetworkDataPtr(new NetworkData(size)); }
+
+        // Destructor.
+        ~NetworkData();
+
+    private:
+        // Constructor.
+        // NOTE: The constructor is private. Use NetworkData::create() to create an instance.
+        NetworkData(int32_t size);
+
+    // Private data...
+    private:
+        // The network data size.
+        int32_t m_size;
+
+        // Array of char of the size we are managing.
+        char* m_pData;
     };
 
 }  // namespace
