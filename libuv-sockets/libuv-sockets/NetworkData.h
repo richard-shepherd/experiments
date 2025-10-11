@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include "uv.h"
 #include "SharedPointers.h"
 
 namespace MessagingMesh
@@ -23,15 +24,23 @@ namespace MessagingMesh
     // Public methods...
     public:
         // Creates a NetworkData instance.
-        static NetworkDataPtr create(int32_t size) { return NetworkDataPtr(new NetworkData(size)); }
+        static NetworkDataPtr create() { return NetworkDataPtr(new NetworkData()); }
 
         // Destructor.
         ~NetworkData();
 
+        // Returns true if we hold all data for the message, false if not.
+        bool hasAllData() const;
+
+        // Reads data from the buffer until we have all the data for this message
+        // or until we have consumed all the available data in the buffer.
+        // Returns the number of bytes read from the buffer.
+        int read(const uv_buf_t* pBuffer, int bufferSize, int bufferPosition);
+
     private:
         // Constructor.
         // NOTE: The constructor is private. Use NetworkData::create() to create an instance.
-        NetworkData(int32_t size);
+        NetworkData();
 
     // Private data...
     private:
@@ -40,6 +49,13 @@ namespace MessagingMesh
 
         // Array of char of the size we are managing.
         char* m_pData;
+
+        // True if we have all data for the message, false if not.
+        bool m_hasAllData;
+
+        // Buffer when reading the size (which can comes across multiple network updates).
+        char m_sizeBuffer[4];
+        int m_sizeBufferPosition;
     };
 
 }  // namespace

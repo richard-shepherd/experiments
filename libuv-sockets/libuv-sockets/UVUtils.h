@@ -34,10 +34,13 @@ namespace MessagingMesh
     public:
         // Gets peer IP info for a tcp handle.
         // (Peer info is the address and port of the remote end of the socket connection.)
-        static IPInfo getPeerIPInfo(uv_tcp_t* tcp_handle);
+        static IPInfo getPeerIPInfo(uv_tcp_t* pTCPHandle);
 
         // Allocates a buffer for a UV read from a socket.
-        static void allocBuffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf);
+        static void allocateBuffer(uv_handle_t* pHandle, size_t suggested_size, uv_buf_t* pBuffer);
+
+        // Releases memory for a buffer.
+        static void releaseBuffer(const uv_buf_t* pBuffer);
     };
 
 } // namespace

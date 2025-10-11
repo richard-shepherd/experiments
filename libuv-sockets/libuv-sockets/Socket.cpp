@@ -2,6 +2,7 @@
 #include "Logger.h"
 #include "Utils.h"
 #include "UVUtils.h"
+#include "NetworkData.h"
 using namespace MessagingMesh;
 
 // Constructor.
@@ -16,7 +17,7 @@ Socket::Socket(uv_loop_t* pLoop) :
 Socket::~Socket()
 {
     Logger::info("Closing socket: " + m_name);
-    // TODO: clean up the socket (if it was created)
+    // RSSTODO: clean up the socket (if it was created)
 }
 
 // Sets the callback.
@@ -61,14 +62,14 @@ void Socket::listen(int port)
 }
 
 // Connects the socket by accepting a listen request received by the server.
-void Socket::accept(uv_stream_t* server)
+void Socket::accept(uv_stream_t* pServer)
 {
     // We create the client socket...
     m_uvSocket = std::make_unique<uv_tcp_t>();
     uv_tcp_init(m_pLoop, m_uvSocket.get());
 
     // We accept the connection...
-    if (uv_accept(server, (uv_stream_t*)m_uvSocket.get()) == 0)
+    if (uv_accept(pServer, (uv_stream_t*)m_uvSocket.get()) == 0)
     {
         // We find the name of the client...
         auto peerInfo = UVUtils::getPeerIPInfo(m_uvSocket.get());
@@ -82,7 +83,7 @@ void Socket::accept(uv_stream_t* server)
         m_uvSocket->data = this;
         uv_read_start(
             (uv_stream_t*)m_uvSocket.get(),
-            UVUtils::allocBuffer,
+            UVUtils::allocateBuffer,
             [](uv_stream_t* s, ssize_t n, const uv_buf_t* b)
             {
                 auto self = (Socket*)s->data;
@@ -92,7 +93,7 @@ void Socket::accept(uv_stream_t* server)
     else
     {
         Logger::error("Accept error");
-        // TODO: Should we close the socket here? Or other notification?
+        // RSSTODO: Should we close the socket here? Or other notification?
     }
 }
 
@@ -103,7 +104,7 @@ void Socket::connectIP(const std::string& ipAddress, int port)
 }
 
 // Called when a new client conection is received.
-void Socket::onNewConnection(uv_stream_t* server, int status)
+void Socket::onNewConnection(uv_stream_t* pServer, int status)
 {
     try
     {
@@ -117,13 +118,10 @@ void Socket::onNewConnection(uv_stream_t* server, int status)
 
         // We create a client socket for the new connection...
         auto clientSocket = Socket::create(m_pLoop);
-        clientSocket->accept(server);
+        clientSocket->accept(pServer);
 
         // We pass the socket to the callback...
-        if (m_pCallback)
-        {
-            m_pCallback->onNewConnection(clientSocket);
-        }
+        if (m_pCallback) m_pCallback->onNewConnection(clientSocket);
     }
     catch (const std::exception& ex)
     {
@@ -132,13 +130,84 @@ void Socket::onNewConnection(uv_stream_t* server, int status)
 }
 
 // Called when data has been received on a socket.
-void Socket::onDataReceived(uv_stream_t* pClientStream, ssize_t nread, const uv_buf_t* pBuffer)
+void Socket::onDataReceived(uv_stream_t* pStream, ssize_t nread, const uv_buf_t* pBuffer)
 {
     try
     {
+        // All data we receive comes in the form of network-data messages.
+        // These look like:
+        // - size  (int32, little-endian)
+        // - bytes (size of these)
+        //
+        // There are different cases where we can get this callback:
+        // 
+        // 1. A data buffer containing all (and only) the data for one message.
+        //
+        // 2. A data buffer containing multiple messages.
+        // 
+        // 3. Partial data for a message. In particular this will be the case
+        //    for very large messages which do not fit into one data buffer.
+        //
+        // It could be that the buffer holds data for some combination of the
+        // types described above. For example:
+        // - Two complete messages followed by one partial message.
+        // - The remainder of a message from a previous update, plus one or more new messages.
+        // - Other permutations and combinations long these lines.
+        // 
+        // In all cases we only need to know two things:
+        // 
+        // a) Are we expecting a new message? 
+        //    If so, we read the size and then read that number of bytes.
+        // 
+        // b) Are we in the process of reading a message?
+        //    We have a message that started in a previous update and has data
+        //    continuing into this one.
+        // 
+        // We are always reading one message at a time into the m_currentMessage object.
+        // This is a shared pointer to a NetworkData object.
+        // - If this is null we are expecting a new message and need to read the size. 
+        // - If this is not null we are reading additional data for an existing message.
+        // 
+        // The NetworkData object knows the size we are expecting, so we can continue to
+        // read data until we have all the data we need for the message.
+        // 
+        // NOTE: We need to be careful when reading the size for a new message. It is
+        //       possible that the size itself may only be received across multiple of
+        //       these callbacks.
+
+        // We read the buffer...
+        int bufferSize = (int)nread;
+        int bufferPosition = 0;
+        while (bufferPosition < bufferPosition)
+        {
+            // If we do not have a current message we create one...
+            if (!m_currentMessage)
+            {
+                m_currentMessage = NetworkData::create();
+            }
+
+            // We read data into the current message...
+            int bytesRead = m_currentMessage->read(pBuffer, bufferSize, bufferPosition);
+
+            // If we have read all data for the current message we call back with it.
+            // We can then clear the message to start a new one.
+            if (m_currentMessage->hasAllData())
+            {
+                if (m_pCallback) m_pCallback->onDataReceived(m_currentMessage);
+                m_currentMessage = nullptr;
+            }
+
+            // We update the buffer position and loop to check if there is
+            // more data to read...
+            bufferPosition += bytesRead;
+        }
+
+        // We release the buffer...
+        UVUtils::releaseBuffer(pBuffer);
     }
     catch (const std::exception& ex)
     {
         Logger::error(Utils::format("%s: %s", __func__, ex.what()));
     }
 }
+

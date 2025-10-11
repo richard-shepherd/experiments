@@ -5,12 +5,12 @@ using namespace MessagingMesh;
 
 // Gets peer IP info for a tcp handle.
 // (Peer info is the address and port of the remote end of the socket connection.)
-UVUtils::IPInfo UVUtils::getPeerIPInfo(uv_tcp_t* tcp_handle)
+UVUtils::IPInfo UVUtils::getPeerIPInfo(uv_tcp_t* pTCPHandle)
 {
     // We get the socket info...
     sockaddr_storage peerInfo;
     int peerInfoSize = sizeof(sockaddr_storage);
-    uv_tcp_getpeername(tcp_handle, (sockaddr*)&peerInfo, &peerInfoSize);
+    uv_tcp_getpeername(pTCPHandle, (sockaddr*)&peerInfo, &peerInfoSize);
 
     // We find the hostname/ip-address and service/port...
     char hostname[NI_MAXHOST];
@@ -39,8 +39,14 @@ UVUtils::IPInfo UVUtils::getPeerIPInfo(uv_tcp_t* tcp_handle)
 }
 
 // Allocates a buffer for a UV read from a socket.
-void UVUtils::allocBuffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf)
+void UVUtils::allocateBuffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t* pBuffer)
 {
-    buf->base = new char[suggested_size];
-    buf->len = suggested_size;
+    pBuffer->base = new char[suggested_size];
+    pBuffer->len = suggested_size;
+}
+
+// Releases memory for a buffer.
+void UVUtils::releaseBuffer(const uv_buf_t* pBuffer)
+{
+    delete[] pBuffer->base;
 }

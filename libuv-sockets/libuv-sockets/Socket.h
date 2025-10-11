@@ -23,11 +23,11 @@ namespace MessagingMesh
         public:
             // Called when data has been received on the socket.
             // Called on the UV loop thread.
-            virtual void onDataReceived(const NetworkDataPtr& networkData) = 0;
+            virtual void onDataReceived(NetworkDataPtr networkData) = 0;
 
             // Called when a new client connection has been made to a listening socket.
             // Called on the UV loop thread.
-            virtual void onNewConnection(SocketPtr& clientSocket) = 0;
+            virtual void onNewConnection(SocketPtr clientSocket) = 0;
         };
 
     // Public methods...
@@ -60,8 +60,8 @@ namespace MessagingMesh
         void onNewConnection(uv_stream_t* server, int status);
 
         // Called when data has been received on a socket.
-        void onDataReceived(uv_stream_t* pClientStream, ssize_t nread, const uv_buf_t* pBuffer);
-            
+        void onDataReceived(uv_stream_t* pClientStream, ssize_t bufferSize, const uv_buf_t* pBuffer);
+
     // Private data...
     private:
         // The socket's name (made from its connection info).
@@ -80,6 +80,9 @@ namespace MessagingMesh
     private:
         // The maximum backlog of unprocessed incoming connections.
         const int MAX_INCOMING_CONNECTION_BACKLOG = 128;
+
+        // The message being currently read (possibly across multiple onDataReceived callbacks).
+        NetworkDataPtr m_currentMessage;
     };
 
 } // namespace

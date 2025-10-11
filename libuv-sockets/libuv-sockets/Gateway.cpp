@@ -26,13 +26,13 @@ Gateway::~Gateway()
 
 // Called when data has been received on the socket.
 // Called on the UV loop thread.
-void Gateway::onDataReceived(const NetworkDataPtr& networkData)
+void Gateway::onDataReceived(NetworkDataPtr networkData)
 {
 }
 
 // Called when a new client connection has been made to a listening socket.
 // Called on the UV loop thread.
-void Gateway::onNewConnection(SocketPtr& clientSocket)
+void Gateway::onNewConnection(SocketPtr clientSocket)
 {
 }
 
