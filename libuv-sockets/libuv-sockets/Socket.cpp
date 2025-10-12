@@ -83,7 +83,7 @@ void Socket::accept(uv_stream_t* pServer)
         m_uvSocket->data = this;
         uv_read_start(
             (uv_stream_t*)m_uvSocket.get(),
-            UVUtils::allocateBuffer,
+            UVUtils::allocateBufferMemory,
             [](uv_stream_t* s, ssize_t n, const uv_buf_t* b)
             {
                 auto self = (Socket*)s->data;
@@ -118,12 +118,12 @@ void Socket::connectIP(const std::string& ipAddress, int port)
         [](uv_connect_t* r, int s)
         {
             auto self = (Socket*)r->data;
-            self->onConnect(r, s);
+            self->onConnectCompleted(r, s);
         });
 }
 
 // Called at the client side when a client has connected to a server.
-void Socket::onConnect(uv_connect_t* pRequest, int status)
+void Socket::onConnectCompleted(uv_connect_t* pRequest, int status)
 {
     try
     {
@@ -140,12 +140,55 @@ void Socket::onConnect(uv_connect_t* pRequest, int status)
         m_uvSocket->data = this;
         uv_read_start(
             (uv_stream_t*)m_uvSocket.get(),
-            UVUtils::allocateBuffer,
+            UVUtils::allocateBufferMemory,
             [](uv_stream_t* s, ssize_t n, const uv_buf_t* b)
             {
                 auto self = (Socket*)s->data;
                 self->onDataReceived(s, n, b);
             });
+    }
+    catch (const std::exception& ex)
+    {
+        Logger::error(Utils::format("%s: %s", __func__, ex.what()));
+    }
+}
+
+// Writes data to the socket.
+void Socket::write(const uv_buf_t* pBuffer)
+{
+    auto pWriteRequest = UVUtils::allocateWriteRequest();
+    pWriteRequest->data = this;
+    uv_write(
+        (uv_write_t*)pWriteRequest, 
+        (uv_stream_t*)m_uvSocket.get(),
+        pBuffer, 
+        1, 
+        [](uv_write_t* r, int s)
+        {
+            auto self = (Socket*)r->data;
+            self->onWriteCompleted(r, s);
+        });
+}
+
+// Called when a write request has completed.
+void Socket::onWriteCompleted(uv_write_t* pRequest, int status)
+{
+    try
+    {
+        if (status < 0)
+        {
+            Logger::error(Utils::format("Write error: %s", uv_strerror(status)));
+        }
+
+        // RSSTODO: free the buffer!!!
+        //// We delete the buffer...
+        //UVUtils::deleteBuffer(&pRequest->write_buffer);
+
+        //// We release the buffer memory...
+        //UVUtils::releaseBufferMemory(&pRequest->write_buffer);
+
+        // We delete the write request...
+        UVUtils::releaseWriteRequest(pRequest);
     }
     catch (const std::exception& ex)
     {
@@ -252,8 +295,8 @@ void Socket::onDataReceived(uv_stream_t* pStream, ssize_t nread, const uv_buf_t*
             bufferPosition += bytesRead;
         }
 
-        // We release the buffer...
-        UVUtils::releaseBuffer(pBuffer);
+        // We release the buffer memory...
+        UVUtils::releaseBufferMemory(pBuffer);
     }
     catch (const std::exception& ex)
     {

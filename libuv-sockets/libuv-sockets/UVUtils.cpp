@@ -38,15 +38,44 @@ UVUtils::IPInfo UVUtils::getPeerIPInfo(uv_tcp_t* pTCPHandle)
     return ipInfo;
 }
 
-// Allocates a buffer for a UV read from a socket.
-void UVUtils::allocateBuffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t* pBuffer)
+// Creates a buffer. for example for writing to a socket.
+uv_buf_t* UVUtils::createBuffer(size_t size)
+{
+    auto pBuffer = new uv_buf_t;
+    pBuffer->base = new char[size];
+    pBuffer->len = size;
+    return pBuffer;
+}
+
+// Releases a buffer including both the buffer memory and the uv_buf_t itself.
+void UVUtils::deleteBuffer(const uv_buf_t* pBuffer)
+{
+    delete[] pBuffer->base;
+    delete pBuffer;
+}
+
+// Allocates buffer memory for a UV read from a socket.
+void UVUtils::allocateBufferMemory(uv_handle_t* handle, size_t suggested_size, uv_buf_t* pBuffer)
 {
     pBuffer->base = new char[suggested_size];
     pBuffer->len = suggested_size;
 }
 
 // Releases memory for a buffer.
-void UVUtils::releaseBuffer(const uv_buf_t* pBuffer)
+void UVUtils::releaseBufferMemory(const uv_buf_t* pBuffer)
 {
     delete[] pBuffer->base;
 }
+
+// Allocates a write request.
+uv_write_t* UVUtils::allocateWriteRequest()
+{
+    return new uv_write_t;
+}
+
+// Releases a write request.
+void UVUtils::releaseWriteRequest(uv_write_t* pWriteRequest)
+{
+    delete pWriteRequest;
+}
+

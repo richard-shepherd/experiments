@@ -50,20 +50,26 @@ namespace MessagingMesh
         // Connects a client socket to the IP address and specified port.
         void connectIP(const std::string& ipAddress, int port);
 
+        // Writes data to the socket.
+        void write(const uv_buf_t* pBuffer);
+
     // Private functions...
     private:
         // Constructor.
         // NOTE: The constructor is private. Use Socket::create() to create an instance.
         Socket(uv_loop_t* pLoop);
 
-        // Called at the client side when a client has connected to a server.
-        void onConnect(uv_connect_t* pRequest, int status);
+        // Called at the client side when a client connect request has completed.
+        void onConnectCompleted(uv_connect_t* pRequest, int status);
 
         // Called at the server side when a new client conection is received.
         void onNewConnection(uv_stream_t* server, int status);
 
         // Called when data has been received on a socket.
         void onDataReceived(uv_stream_t* pClientStream, ssize_t bufferSize, const uv_buf_t* pBuffer);
+
+        // Called when a write request has completed.
+        void onWriteCompleted(uv_write_t* pRequest, int status);
 
     // Private data...
     private:

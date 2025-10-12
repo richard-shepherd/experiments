@@ -14,6 +14,8 @@ void runClient()
 {
     SocketPtr clientSocket;
     std::unique_ptr<UVLoopThread> clientUVLoop = std::make_unique<UVLoopThread>("CLIENT");
+
+    // We connect to the server...
     clientUVLoop->marshallEvent(
         [&clientSocket](uv_loop_t* pLoop)
         {
@@ -21,6 +23,21 @@ void runClient()
             clientSocket->connectIP("127.0.0.1", 5050);
         }
     );
+
+    // RSSTODO: We need to wait for the socket to connect
+    uv_sleep(1000);
+
+    // We send some data...
+    clientUVLoop->marshallEvent(
+        [&clientSocket](uv_loop_t* pLoop)
+        {
+            int data[] =  { 4, 27 };
+            auto pBuffer = UVUtils::createBuffer(8);
+            memcpy(pBuffer->base, &data[0], sizeof(data));
+            clientSocket->write(pBuffer);
+        }
+    );
+
 
     Logger::info("Press Enter to exit");
     std::cin.get();

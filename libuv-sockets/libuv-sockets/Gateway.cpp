@@ -29,12 +29,14 @@ Gateway::~Gateway()
 // Called on the UV loop thread.
 void Gateway::onDataReceived(NetworkDataPtr networkData)
 {
+    Logger::info("Received data!!!");
 }
 
 // Called when a new client connection has been made to a listening socket.
 // Called on the UV loop thread.
 void Gateway::onNewConnection(SocketPtr clientSocket)
 {
+    clientSocket->setCallback(this);
     m_clientSockets.push_back(clientSocket);
 }
 

@@ -36,11 +36,23 @@ namespace MessagingMesh
         // (Peer info is the address and port of the remote end of the socket connection.)
         static IPInfo getPeerIPInfo(uv_tcp_t* pTCPHandle);
 
-        // Allocates a buffer for a UV read from a socket.
-        static void allocateBuffer(uv_handle_t* pHandle, size_t suggested_size, uv_buf_t* pBuffer);
+        // Creates a buffer. for example for writing to a socket.
+        static uv_buf_t* createBuffer(size_t size);
 
-        // Releases memory for a buffer.
-        static void releaseBuffer(const uv_buf_t* pBuffer);
+        // Releases a buffer including both the buffer memory and the uv_buf_t itself.
+        static void deleteBuffer(const uv_buf_t* pBuffer);
+
+        // Allocates a buffer for a UV read from a socket.
+        static void allocateBufferMemory(uv_handle_t* pHandle, size_t suggested_size, uv_buf_t* pBuffer);
+
+        // Releases a buffer.
+        static void releaseBufferMemory(const uv_buf_t* pBuffer);
+
+        // Allocates a write request.
+        static uv_write_t* allocateWriteRequest();
+
+        // Releases a write request.
+        static void releaseWriteRequest(uv_write_t* pWriteRequest);
     };
 
 } // namespace
