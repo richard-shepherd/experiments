@@ -1,6 +1,5 @@
 #pragma once
 #include <cstdint>
-#include "uv.h"
 #include "SharedPointers.h"
 
 namespace MessagingMesh
@@ -38,7 +37,7 @@ namespace MessagingMesh
         // Reads data from the buffer until we have all the data for this message
         // or until we have consumed all the available data in the buffer.
         // Returns the number of bytes read from the buffer.
-        int read(const uv_buf_t* pBuffer, int bufferSize, int bufferPosition);
+        int read(const char* pBuffer, int bufferSize, int bufferPosition);
 
     private:
         // Constructor.
@@ -46,7 +45,7 @@ namespace MessagingMesh
         NetworkData();
 
         // Reads the message size (or as much as can be read) from the buffer.
-        int readSize(const uv_buf_t* pBuffer, int bufferSize, int bufferPosition);
+        int readSize(const char* pBuffer, int bufferSize, int bufferPosition);
 
     // Private data...
     private:

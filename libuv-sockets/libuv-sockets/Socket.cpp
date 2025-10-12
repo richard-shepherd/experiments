@@ -178,7 +178,7 @@ void Socket::onDataReceived(uv_stream_t* pStream, ssize_t nread, const uv_buf_t*
         // We read the buffer...
         int bufferSize = (int)nread;
         int bufferPosition = 0;
-        while (bufferPosition < bufferPosition)
+        while (bufferPosition < bufferSize)
         {
             // If we do not have a current message we create one...
             if (!m_currentMessage)
@@ -187,7 +187,7 @@ void Socket::onDataReceived(uv_stream_t* pStream, ssize_t nread, const uv_buf_t*
             }
 
             // We read data into the current message...
-            int bytesRead = m_currentMessage->read(pBuffer, bufferSize, bufferPosition);
+            int bytesRead = m_currentMessage->read(pBuffer->base, bufferSize, bufferPosition);
 
             // If we have read all data for the current message we call back with it.
             // We can then clear the message to start a new one.

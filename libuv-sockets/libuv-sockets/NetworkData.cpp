@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "NetworkData.h"
 using namespace MessagingMesh;
 
@@ -6,7 +7,7 @@ using namespace MessagingMesh;
 NetworkData::NetworkData() :
     m_size(-1),
     m_pDataBuffer(nullptr),
-    m_dataBufferPosition(-1),
+    m_dataBufferPosition(0),
     m_hasAllData(false),
     m_sizeBuffer{},
     m_sizeBufferPosition(0)
@@ -28,8 +29,14 @@ bool NetworkData::hasAllData() const
 // Reads data from the buffer until we have all the data for this message
 // or until we have consumed all the available data in the buffer.
 // Returns the number of bytes read from the buffer.
-int NetworkData::read(const uv_buf_t* pBuffer, int bufferSize, int bufferPosition)
+int NetworkData::read(const char* pBuffer, int bufferSize, int bufferPosition)
 {
+    // If we already have all the data we need, there is nothing to do...
+    if (m_hasAllData)
+    {
+        return 0;
+    }
+
     // We make sure that we have the message size...
     int bytesRead = readSize(pBuffer, bufferSize, bufferPosition);
     if (m_size == -1)
@@ -39,17 +46,36 @@ int NetworkData::read(const uv_buf_t* pBuffer, int bufferSize, int bufferPositio
     }
     bufferPosition += bytesRead;
 
-    // 
+    // We find the number of bytes we need. This may not be the same as
+    // the size of the message, as we may have already read from of the
+    // data from previous updates.
+    int sizeRequired = m_size - m_dataBufferPosition;
 
+    // We find how much data there is available in the buffer and
+    // work out how many bytes to read from the buffer...
+    int sizeAvailable = bufferSize - bufferPosition;
+    int sizeToRead = std::min(sizeRequired, sizeAvailable);
 
+    // We copy the data into our buffer...
+    memcpy(m_pDataBuffer + m_dataBufferPosition, pBuffer + bufferPosition, sizeToRead);
+    bytesRead += sizeToRead;
 
+    // We update the data buffer position. It may be that we still have not read the
+    // whole message and we could need this position so we know where to append data
+    // from future updates...
+    m_dataBufferPosition += sizeToRead;
 
+    // We check if we have the whole message...
+    if (m_dataBufferPosition == m_size)
+    {
+        m_hasAllData = true;
+    }
 
-    return 0;
+    return bytesRead;
 }
 
 // Reads the message size (or as much as can be read) from the buffer.
-int NetworkData::readSize(const uv_buf_t* pBuffer, int bufferSize, int bufferPosition)
+int NetworkData::readSize(const char* pBuffer, int bufferSize, int bufferPosition)
 {
     // We check if we already have the size...
     if (m_size != -1)
@@ -62,7 +88,7 @@ int NetworkData::readSize(const uv_buf_t* pBuffer, int bufferSize, int bufferPos
     while (m_sizeBufferPosition < SIZE_SIZE)
     {
         if (bufferPosition >= bufferSize) break;
-        m_sizeBuffer[m_sizeBufferPosition++] = pBuffer->base[bufferPosition++];
+        m_sizeBuffer[m_sizeBufferPosition++] = pBuffer[bufferPosition++];
         bytesRead++;
     }
 
