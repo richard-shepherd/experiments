@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <vector>
 #include "UVLoopThread.h"
 #include "Socket.h"
 #include "SharedPointers.h"
@@ -42,6 +43,8 @@ namespace MessagingMesh
 
         // Socket listening for incoming connections.
         SocketPtr m_listeningSocket;
+
+        std::vector<SocketPtr> m_clientSockets;
     };
 
 } // namespace

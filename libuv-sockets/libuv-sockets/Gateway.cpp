@@ -13,6 +13,7 @@ Gateway::Gateway(int port) :
     m_loopThread.marshallEvent(
         [this](uv_loop_t* pLoop)
         {
+            // RSSTODO: Needs try-catch on this callback
             m_listeningSocket = Socket::create(pLoop);
             m_listeningSocket->setCallback(this);
             m_listeningSocket->listen(m_port);
@@ -34,5 +35,6 @@ void Gateway::onDataReceived(NetworkDataPtr networkData)
 // Called on the UV loop thread.
 void Gateway::onNewConnection(SocketPtr clientSocket)
 {
+    m_clientSockets.push_back(clientSocket);
 }
 

@@ -56,7 +56,10 @@ namespace MessagingMesh
         // NOTE: The constructor is private. Use Socket::create() to create an instance.
         Socket(uv_loop_t* pLoop);
 
-        // Called when a new client conection is received.
+        // Called at the client side when a client has connected to a server.
+        void onConnect(uv_connect_t* pRequest, int status);
+
+        // Called at the server side when a new client conection is received.
         void onNewConnection(uv_stream_t* server, int status);
 
         // Called when data has been received on a socket.

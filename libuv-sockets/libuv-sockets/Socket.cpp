@@ -100,10 +100,60 @@ void Socket::accept(uv_stream_t* pServer)
 // Connects a client socket to the IP address and port specified.
 void Socket::connectIP(const std::string& ipAddress, int port)
 {
+    Logger::info(Utils::format("Connecting to %s:%d", ipAddress.c_str(), port));
 
+    // We create a socket to listen for incoming connections...
+    m_uvSocket = std::make_unique<uv_tcp_t>();
+    uv_tcp_init(m_pLoop, m_uvSocket.get());
+
+    // We make the connection request...
+    struct sockaddr_in destination;
+    uv_ip4_addr(ipAddress.c_str(), port, &destination);
+    auto pConnect = new uv_connect_t;
+    pConnect->data = this;
+    uv_tcp_connect(
+        pConnect, 
+        m_uvSocket.get(), 
+        (const struct sockaddr*)&destination, 
+        [](uv_connect_t* r, int s)
+        {
+            auto self = (Socket*)r->data;
+            self->onConnect(r, s);
+        });
 }
 
-// Called when a new client conection is received.
+// Called at the client side when a client has connected to a server.
+void Socket::onConnect(uv_connect_t* pRequest, int status)
+{
+    try
+    {
+        if (status < 0)
+        {
+            Logger::error(Utils::format("Connection error: %s", uv_strerror(status)));
+            return;
+        }
+
+        // We disable Nagling...
+        uv_tcp_nodelay((uv_tcp_t*)m_uvSocket.get(), 1);
+
+        // We listen for data sent to us from the server...
+        m_uvSocket->data = this;
+        uv_read_start(
+            (uv_stream_t*)m_uvSocket.get(),
+            UVUtils::allocateBuffer,
+            [](uv_stream_t* s, ssize_t n, const uv_buf_t* b)
+            {
+                auto self = (Socket*)s->data;
+                self->onDataReceived(s, n, b);
+            });
+    }
+    catch (const std::exception& ex)
+    {
+        Logger::error(Utils::format("%s: %s", __func__, ex.what()));
+    }
+}
+
+// Called at the server side when a new client conection is received.
 void Socket::onNewConnection(uv_stream_t* pServer, int status)
 {
     try
