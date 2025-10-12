@@ -13,7 +13,7 @@ void onMessageLogged(Logger::LogLevel logLevel, const std::string& message)
 void runClient()
 {
     SocketPtr clientSocket;
-    std::unique_ptr<UVLoopThread> clientUVLoop = std::make_unique<UVLoopThread>("CLIENT");
+    auto clientUVLoop = std::make_unique<UVLoopThread>("CLIENT");
 
     // We connect to the server...
     clientUVLoop->marshallEvent(
@@ -28,15 +28,18 @@ void runClient()
     uv_sleep(1000);
 
     // We send some data...
-    clientUVLoop->marshallEvent(
-        [&clientSocket](uv_loop_t* pLoop)
-        {
-            int data[] =  { 4, 27 };
-            auto pBuffer = UVUtils::createBuffer(8);
-            memcpy(pBuffer->base, &data[0], sizeof(data));
-            clientSocket->write(pBuffer);
-        }
-    );
+    for (auto i = 0; i < 10; ++i)
+    {
+        clientUVLoop->marshallEvent(
+            [&clientSocket, i](uv_loop_t* pLoop)
+            {
+                int data[] = { 4, i };
+                auto pBuffer = UVUtils::createBuffer(8);
+                memcpy(pBuffer->base, &data[0], sizeof(data));
+                clientSocket->write(pBuffer);
+            }
+        );
+    }
 
 
     Logger::info("Press Enter to exit");
@@ -45,7 +48,7 @@ void runClient()
 
 void runServer()
 {
-    std::unique_ptr<Gateway> gateway = std::make_unique<Gateway>(5050);
+    auto gateway = std::make_unique<Gateway>(5050);
 
     Logger::info("Press Enter to exit");
     std::cin.get();
