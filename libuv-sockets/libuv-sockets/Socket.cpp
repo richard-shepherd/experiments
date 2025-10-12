@@ -137,7 +137,7 @@ void Socket::onDataReceived(uv_stream_t* pStream, ssize_t nread, const uv_buf_t*
         // All data we receive comes in the form of network-data messages.
         // These look like:
         // - size  (int32, little-endian)
-        // - bytes (size of these)
+        // - bytes[size]
         //
         // There are different cases where we can get this callback:
         // 
@@ -152,9 +152,9 @@ void Socket::onDataReceived(uv_stream_t* pStream, ssize_t nread, const uv_buf_t*
         // types described above. For example:
         // - Two complete messages followed by one partial message.
         // - The remainder of a message from a previous update, plus one or more new messages.
-        // - Other permutations and combinations long these lines.
+        // - Other permutations and combinations along these lines.
         // 
-        // In all cases we only need to know two things:
+        // In all cases we only really need to know two things:
         // 
         // a) Are we expecting a new message? 
         //    If so, we read the size and then read that number of bytes.

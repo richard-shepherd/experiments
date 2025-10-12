@@ -31,6 +31,9 @@ bool NetworkData::hasAllData() const
 // Returns the number of bytes read from the buffer.
 int NetworkData::read(const char* pBuffer, int bufferSize, int bufferPosition)
 {
+    // See also the comments in Socket::onDataReceived() about how data for a message
+    // can be received across multiple updates.
+
     // If we already have all the data we need, there is nothing to do...
     if (m_hasAllData)
     {
@@ -96,7 +99,7 @@ int NetworkData::readSize(const char* pBuffer, int bufferSize, int bufferPositio
     if (m_sizeBufferPosition == SIZE_SIZE)
     {
         // We copy the size buffer to the m_size field. (We can do this as
-        // the network protocol for the size is little-endian.)
+        // the messaging-mesh network protocol for int32 is little-endian.)
         memcpy(&m_size, &m_sizeBuffer[0], SIZE_SIZE);
 
         // We allocate the data buffer for the size...
