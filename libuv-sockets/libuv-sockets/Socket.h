@@ -59,7 +59,6 @@ namespace MessagingMesh
         // Called when a new client conection is received.
         void onNewConnection(uv_stream_t* server, int status);
 
-    public: // RSSTODO: REMOVE THIS!!!
         // Called when data has been received on a socket.
         void onDataReceived(uv_stream_t* pClientStream, ssize_t bufferSize, const uv_buf_t* pBuffer);
 
