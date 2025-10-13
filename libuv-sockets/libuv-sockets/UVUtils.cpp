@@ -1,7 +1,18 @@
 #include "UVUtils.h"
 #include "Utils.h"
 #include "Logger.h"
+#include "NetworkData.h"
 using namespace MessagingMesh;
+
+// WriteRequest constructor.
+UVUtils::WriteRequest::WriteRequest(const NetworkDataPtr& pNetworkData) :
+    write_request{},
+    buffer{},
+    m_pNetworkData(pNetworkData)
+{
+    buffer.base = pNetworkData->getData();
+    buffer.len = pNetworkData->getDataSize();
+}
 
 // Gets peer IP info for a tcp handle.
 // (Peer info is the address and port of the remote end of the socket connection.)
@@ -38,22 +49,6 @@ UVUtils::IPInfo UVUtils::getPeerIPInfo(uv_tcp_t* pTCPHandle)
     return ipInfo;
 }
 
-// Creates a buffer. for example for writing to a socket.
-uv_buf_t* UVUtils::createBuffer(size_t size)
-{
-    auto pBuffer = new uv_buf_t;
-    pBuffer->base = new char[size];
-    pBuffer->len = size;
-    return pBuffer;
-}
-
-// Releases a buffer including both the buffer memory and the uv_buf_t itself.
-void UVUtils::deleteBuffer(const uv_buf_t* pBuffer)
-{
-    delete[] pBuffer->base;
-    delete pBuffer;
-}
-
 // Allocates buffer memory for a UV read from a socket.
 void UVUtils::allocateBufferMemory(uv_handle_t* handle, size_t suggested_size, uv_buf_t* pBuffer)
 {
@@ -68,13 +63,13 @@ void UVUtils::releaseBufferMemory(const uv_buf_t* pBuffer)
 }
 
 // Allocates a write request.
-uv_write_t* UVUtils::allocateWriteRequest()
+UVUtils::WriteRequest* UVUtils::allocateWriteRequest(const NetworkDataPtr& pNetworkData)
 {
-    return new uv_write_t;
+    return new WriteRequest(pNetworkData);
 }
 
 // Releases a write request.
-void UVUtils::releaseWriteRequest(uv_write_t* pWriteRequest)
+void UVUtils::releaseWriteRequest(WriteRequest* pWriteRequest)
 {
     delete pWriteRequest;
 }

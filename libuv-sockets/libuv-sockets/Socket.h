@@ -51,7 +51,7 @@ namespace MessagingMesh
         void connectIP(const std::string& ipAddress, int port);
 
         // Writes data to the socket.
-        void write(const uv_buf_t* pBuffer);
+        void write(const NetworkDataPtr& pNetworkData);
 
     // Private functions...
     private:

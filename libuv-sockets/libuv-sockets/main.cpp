@@ -1,7 +1,9 @@
 #include <iostream>
+#include <ctime>
 #include "Logger.h"
 #include "Gateway.h"
-#include "UVUtils.h"
+#include "NetworkData.h"
+#include "Utils.h"
 using namespace MessagingMesh;
 
 
@@ -28,15 +30,14 @@ void runClient()
     uv_sleep(1000);
 
     // We send some data...
-    for (auto i = 0; i < 10; ++i)
+    for (auto i = 0; i < 10000000; ++i)
     {
         clientUVLoop->marshallEvent(
             [&clientSocket, i](uv_loop_t* pLoop)
             {
                 int data[] = { 4, i };
-                auto pBuffer = UVUtils::createBuffer(8);
-                memcpy(pBuffer->base, &data[0], sizeof(data));
-                clientSocket->write(pBuffer);
+                auto pNetworkData = NetworkData::create(&data[0], sizeof(data));
+                clientSocket->write(pNetworkData);
             }
         );
     }

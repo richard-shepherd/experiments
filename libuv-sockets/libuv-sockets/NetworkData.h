@@ -28,8 +28,17 @@ namespace MessagingMesh
         // Creates a NetworkData instance.
         static NetworkDataPtr create() { return NetworkDataPtr(new NetworkData()); }
 
+        // Creates a NetworkData instance.
+        static NetworkDataPtr create(void* pData, size_t dataSize) { return NetworkDataPtr(new NetworkData(pData, dataSize)); }
+
         // Destructor.
         ~NetworkData();
+
+        // Gets a pointer to the data.
+        char* getData() const;
+
+        // Gets the data size.
+        int32_t getDataSize() const;
 
         // Returns true if we hold all data for the message, false if not.
         bool hasAllData() const;
@@ -37,15 +46,19 @@ namespace MessagingMesh
         // Reads data from the buffer until we have all the data for this message
         // or until we have consumed all the available data in the buffer.
         // Returns the number of bytes read from the buffer.
-        int read(const char* pBuffer, int bufferSize, int bufferPosition);
+        size_t read(const char* pBuffer, size_t bufferSize, size_t bufferPosition);
 
     private:
         // Constructor.
         // NOTE: The constructor is private. Use NetworkData::create() to create an instance.
         NetworkData();
 
+        // Constructor.
+        // NOTE: The constructor is private. Use NetworkData::create(pData, dataSize) to create an instance.
+        NetworkData(void* pData, size_t dataSize);
+
         // Reads the message size (or as much as can be read) from the buffer.
-        int readSize(const char* pBuffer, int bufferSize, int bufferPosition);
+        size_t readSize(const char* pBuffer, size_t bufferSize, size_t bufferPosition);
 
     // Private data...
     private:
@@ -55,7 +68,7 @@ namespace MessagingMesh
         // The data buffer and the next position to read data into it.
         // (We may receive the data across multiple network updates.)
         char* m_pDataBuffer;
-        int m_dataBufferPosition;
+        size_t m_dataBufferPosition;
 
         // True if we have all data for the message, false if not.
         bool m_hasAllData;

@@ -154,14 +154,14 @@ void Socket::onConnectCompleted(uv_connect_t* pRequest, int status)
 }
 
 // Writes data to the socket.
-void Socket::write(const uv_buf_t* pBuffer)
+void Socket::write(const NetworkDataPtr& pNetworkData)
 {
-    auto pWriteRequest = UVUtils::allocateWriteRequest();
-    pWriteRequest->data = this;
+    auto pWriteRequest = UVUtils::allocateWriteRequest(pNetworkData);
+    pWriteRequest->write_request.data = this;
     uv_write(
-        (uv_write_t*)pWriteRequest, 
+        &pWriteRequest->write_request, 
         (uv_stream_t*)m_uvSocket.get(),
-        pBuffer, 
+        &pWriteRequest->buffer, 
         1, 
         [](uv_write_t* r, int s)
         {
@@ -175,20 +175,15 @@ void Socket::onWriteCompleted(uv_write_t* pRequest, int status)
 {
     try
     {
+        // We check the status...
         if (status < 0)
         {
             Logger::error(Utils::format("Write error: %s", uv_strerror(status)));
         }
 
-        // RSSTODO: free the buffer!!!
-        //// We delete the buffer...
-        //UVUtils::deleteBuffer(&pRequest->write_buffer);
-
-        //// We release the buffer memory...
-        //UVUtils::releaseBufferMemory(&pRequest->write_buffer);
-
-        // We delete the write request...
-        UVUtils::releaseWriteRequest(pRequest);
+        // We release the write request (including the buffer)...
+        auto pWriteRequest = (UVUtils::WriteRequest*)pRequest;
+        UVUtils::releaseWriteRequest(pWriteRequest);
     }
     catch (const std::exception& ex)
     {
@@ -269,8 +264,8 @@ void Socket::onDataReceived(uv_stream_t* pStream, ssize_t nread, const uv_buf_t*
         //       these callbacks.
 
         // We read the buffer...
-        int bufferSize = (int)nread;
-        int bufferPosition = 0;
+        size_t bufferSize = nread;
+        size_t bufferPosition = 0;
         while (bufferPosition < bufferSize)
         {
             // If we do not have a current message we create one...
@@ -280,7 +275,7 @@ void Socket::onDataReceived(uv_stream_t* pStream, ssize_t nread, const uv_buf_t*
             }
 
             // We read data into the current message...
-            int bytesRead = m_currentMessage->read(pBuffer->base, bufferSize, bufferPosition);
+            size_t bytesRead = m_currentMessage->read(pBuffer->base, bufferSize, bufferPosition);
 
             // If we have read all data for the current message we call back with it.
             // We can then clear the message to start a new one.

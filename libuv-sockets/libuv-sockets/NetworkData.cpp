@@ -14,10 +14,34 @@ NetworkData::NetworkData() :
 {
 }
 
+// Constructor.
+// NOTE: The constructor is private. Use NetworkData::create(pData, dataSize) to create an instance.
+NetworkData::NetworkData(void* pData, size_t dataSize) :
+    NetworkData()
+{
+    // We take ownership of the data passed in...
+    m_pDataBuffer = new char[dataSize];
+    memcpy(m_pDataBuffer, pData, dataSize);
+    m_size = dataSize;
+    m_hasAllData = true;
+}
+
 // Destructor.
 NetworkData::~NetworkData()
 {
     delete[] m_pDataBuffer;
+}
+
+// Gets a pointer to the data.
+char* NetworkData::getData() const
+{
+    return m_pDataBuffer;
+}
+
+// Gets the data size.
+int32_t NetworkData::getDataSize() const
+{
+    return m_size;
 }
 
 // Returns true if we hold all data for the message, false if not.
@@ -29,7 +53,7 @@ bool NetworkData::hasAllData() const
 // Reads data from the buffer until we have all the data for this message
 // or until we have consumed all the available data in the buffer.
 // Returns the number of bytes read from the buffer.
-int NetworkData::read(const char* pBuffer, int bufferSize, int bufferPosition)
+size_t NetworkData::read(const char* pBuffer, size_t bufferSize, size_t bufferPosition)
 {
     // See also the comments in Socket::onDataReceived() about how data for a message
     // can be received across multiple updates.
@@ -41,7 +65,7 @@ int NetworkData::read(const char* pBuffer, int bufferSize, int bufferPosition)
     }
 
     // We make sure that we have the message size...
-    int bytesRead = readSize(pBuffer, bufferSize, bufferPosition);
+    size_t bytesRead = readSize(pBuffer, bufferSize, bufferPosition);
     if (m_size == -1)
     {
         // We do not (yet) have the size...
@@ -52,12 +76,12 @@ int NetworkData::read(const char* pBuffer, int bufferSize, int bufferPosition)
     // We find the number of bytes we need. This may not be the same as
     // the size of the message, as we may have already read from of the
     // data from previous updates.
-    int sizeRequired = m_size - m_dataBufferPosition;
+    size_t sizeRequired = m_size - m_dataBufferPosition;
 
     // We find how much data there is available in the buffer and
     // work out how many bytes to read from the buffer...
-    int sizeAvailable = bufferSize - bufferPosition;
-    int sizeToRead = std::min(sizeRequired, sizeAvailable);
+    size_t sizeAvailable = bufferSize - bufferPosition;
+    size_t sizeToRead = std::min(sizeRequired, sizeAvailable);
 
     // We copy the data into our buffer...
     memcpy(m_pDataBuffer + m_dataBufferPosition, pBuffer + bufferPosition, sizeToRead);
@@ -78,7 +102,7 @@ int NetworkData::read(const char* pBuffer, int bufferSize, int bufferPosition)
 }
 
 // Reads the message size (or as much as can be read) from the buffer.
-int NetworkData::readSize(const char* pBuffer, int bufferSize, int bufferPosition)
+size_t NetworkData::readSize(const char* pBuffer, size_t bufferSize, size_t bufferPosition)
 {
     // We check if we already have the size...
     if (m_size != -1)
@@ -87,7 +111,7 @@ int NetworkData::readSize(const char* pBuffer, int bufferSize, int bufferPositio
     }
 
     // We read as many bytes as we can for the size from the buffer...
-    int bytesRead = 0;
+    size_t bytesRead = 0;
     while (m_sizeBufferPosition < SIZE_SIZE)
     {
         if (bufferPosition >= bufferSize) break;

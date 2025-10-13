@@ -29,7 +29,13 @@ Gateway::~Gateway()
 // Called on the UV loop thread.
 void Gateway::onDataReceived(NetworkDataPtr networkData)
 {
-    Logger::info("Received data!!!");
+    static int count = 0;
+
+    count++;
+    if (count % 100000 == 0)
+    {
+        Logger::info("Received data!!!");
+    }
 }
 
 // Called when a new client connection has been made to a listening socket.

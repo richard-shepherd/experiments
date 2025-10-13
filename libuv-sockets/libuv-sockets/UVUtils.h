@@ -2,6 +2,7 @@
 #include <memory>
 #include <string>
 #include "uv.h"
+#include "SharedPointers.h"
 
 namespace MessagingMesh
 {
@@ -29,18 +30,24 @@ namespace MessagingMesh
             std::string Hostname;  // Hostname or IP address
             std::string Service;   // Service or port
         };
-        
+
+        // A UV write request plus the buffer it is writing.
+        // The buffer points to the data in the network-message.
+        // We hold a reference to the network-message so that its
+        // lifetime will match the write-request.
+        struct WriteRequest
+        {
+            WriteRequest(const NetworkDataPtr& pNetworkData);
+            uv_write_t write_request;
+            uv_buf_t buffer;
+            const NetworkDataPtr& m_pNetworkData;
+        };
+
     // Public functions...
     public:
         // Gets peer IP info for a tcp handle.
         // (Peer info is the address and port of the remote end of the socket connection.)
         static IPInfo getPeerIPInfo(uv_tcp_t* pTCPHandle);
-
-        // Creates a buffer. for example for writing to a socket.
-        static uv_buf_t* createBuffer(size_t size);
-
-        // Releases a buffer including both the buffer memory and the uv_buf_t itself.
-        static void deleteBuffer(const uv_buf_t* pBuffer);
 
         // Allocates a buffer for a UV read from a socket.
         static void allocateBufferMemory(uv_handle_t* pHandle, size_t suggested_size, uv_buf_t* pBuffer);
@@ -49,10 +56,10 @@ namespace MessagingMesh
         static void releaseBufferMemory(const uv_buf_t* pBuffer);
 
         // Allocates a write request.
-        static uv_write_t* allocateWriteRequest();
+        static WriteRequest* allocateWriteRequest(const NetworkDataPtr& pNetworkData);
 
         // Releases a write request.
-        static void releaseWriteRequest(uv_write_t* pWriteRequest);
+        static void releaseWriteRequest(WriteRequest* pWriteRequest);
     };
 
 } // namespace
