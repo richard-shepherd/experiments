@@ -9,7 +9,7 @@ using namespace MessagingMesh;
 
 void onMessageLogged(Logger::LogLevel logLevel, const std::string& message)
 {
-    std::cout << "MessagingMesh: " + Logger::toString(logLevel) + ": " + message << std::endl;
+    std::cout << Utils::getTimeString() << ": " << "MessagingMesh: " + Logger::toString(logLevel) + ": " + message << std::endl;
 }
 
 void runClient()
@@ -30,7 +30,8 @@ void runClient()
     uv_sleep(1000);
 
     // We send some data...
-    for (auto i = 0; i < 10000000; ++i)
+    Logger::info("Sending data");
+    for (auto i = 0; i < 1000000; ++i)
     {
         clientUVLoop->marshallEvent(
             [&clientSocket, i](uv_loop_t* pLoop)

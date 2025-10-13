@@ -1,4 +1,9 @@
 #include <cstdarg>
+#include <chrono>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
+#include <string>
 #include "Utils.h"
 using namespace MessagingMesh;
 
@@ -29,4 +34,29 @@ std::string Utils::format(const char* format, ...)
     va_end(args);
 
     return result;
+}
+
+// Returns a time string in the format HH:MM:SS.mmm
+std::string Utils::getTimeString()
+{
+    using namespace std::chrono;
+
+    // get current time
+    auto now = system_clock::now();
+
+    // get number of milliseconds for the current second
+    // (remainder after division into seconds)
+    auto ms = duration_cast<milliseconds>(now.time_since_epoch()) % 1000;
+
+    // convert to std::time_t in order to convert to std::tm (broken time)
+    auto timer = system_clock::to_time_t(now);
+
+    // convert to broken time
+    std::tm bt;
+    localtime_s(&bt, &timer);
+
+    std::ostringstream oss;
+    oss << std::put_time(&bt, "%H:%M:%S"); // HH:MM:SS
+    oss << '.' << std::setfill('0') << std::setw(3) << ms.count();
+    return oss.str();
 }
