@@ -1,9 +1,8 @@
 #pragma once
 #include <string>
-#include <vector>
 #include <functional>
-#include <memory>
 #include "uv.h"
+#include "ThreadsafeConsumableVector.h"
 
 namespace MessagingMesh
 {
@@ -58,9 +57,7 @@ namespace MessagingMesh
         std::unique_ptr<uv_async_t> m_marshalledEventsSignal;
 
         // Vector of marshalled events and a lock for it.
-        typedef std::vector<MarshalledEvent> VecMarshalledEvents;
-        VecMarshalledEvents m_marshalledEvents;
-        std::unique_ptr<uv_mutex_t> m_marshalledEventsMutex;
+        ThreadsafeConsumableVector<MarshalledEvent> m_marshalledEvents;
     };
 
 } // namespace

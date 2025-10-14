@@ -53,7 +53,7 @@ UVUtils::IPInfo UVUtils::getPeerIPInfo(uv_tcp_t* pTCPHandle)
 void UVUtils::allocateBufferMemory(uv_handle_t* handle, size_t suggested_size, uv_buf_t* pBuffer)
 {
     pBuffer->base = new char[suggested_size];
-    pBuffer->len = suggested_size;
+    pBuffer->len = (ULONG)suggested_size;
 }
 
 // Releases memory for a buffer.

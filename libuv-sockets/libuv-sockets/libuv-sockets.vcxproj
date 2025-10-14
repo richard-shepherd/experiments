@@ -94,6 +94,7 @@
     <ClInclude Include="NetworkData.h" />
     <ClInclude Include="SharedPointers.h" />
     <ClInclude Include="Socket.h" />
+    <ClInclude Include="ThreadsafeConsumableVector.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="UVLoop.h" />
     <ClInclude Include="UVUtils.h" />

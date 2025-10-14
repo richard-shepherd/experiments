@@ -10,10 +10,6 @@ UVLoop::UVLoop(const std::string& threadName) :
 {
     Logger::info("Creating thread: " + m_threadName);
 
-    // We create a mutex for the marshalled events vector...
-    m_marshalledEventsMutex = std::make_unique<uv_mutex_t>();
-    uv_mutex_init(m_marshalledEventsMutex.get());
-
     // We create the thread...
     uv_thread_create(
         &m_threadHandle, 
@@ -85,12 +81,7 @@ void UVLoop::threadEntryPoint()
 void UVLoop::marshallEvent(MarshalledEvent marshalledEvent)
 {
     // We add the event to the collection of marshalled events.
-    // This is done in a short-lived lock as the collection of events can
-    // be accessed from the event thread.
-    {
-        UVUtils::Lock lock(m_marshalledEventsMutex);
-        m_marshalledEvents.push_back(marshalledEvent);
-    }
+    m_marshalledEvents.add(marshalledEvent);
 
     // We signal to the event loop that there is a new event.
     // Note: We check that the loop and signal have been set up. If not, we
@@ -106,18 +97,9 @@ void UVLoop::processMarshalledEvents()
 {
     try
     {
-        // We take a copy of the marshalled events and clear the original collection.
-        // This is done in a short-lived lock as the events collection can
-        // be added to from other threads.
-        VecMarshalledEvents marshalledEvents;
-        {
-            UVUtils::Lock lock(m_marshalledEventsMutex);
-            marshalledEvents = m_marshalledEvents;
-            m_marshalledEvents.clear();
-        }
-
-        // We process the events...
-        for (auto marshalledEvent : marshalledEvents)
+        // We get the marshalled events and process them...
+        auto marshalledEvents = m_marshalledEvents.get();
+        for (auto marshalledEvent : *marshalledEvents)
         {
             marshalledEvent(m_loop.get());
         }
