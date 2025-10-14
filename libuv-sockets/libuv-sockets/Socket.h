@@ -2,6 +2,7 @@
 #include <string>
 #include "uv.h"
 #include "SharedPointers.h"
+#include "ThreadsafeConsumableVector.h"
 
 namespace MessagingMesh
 {
@@ -52,12 +53,12 @@ namespace MessagingMesh
         void connectIP(const std::string& ipAddress, int port);
 
         // Writes data to the socket.
-        void write(const NetworkDataPtr& pNetworkData);
+        void write(NetworkDataPtr pNetworkData);
 
         // Queues data to be written to the socket.
         // Can be called from any thread, not just from the uv loop thread.
         // Queued writes will be coalesced into one network update.
-        void queueWrite(const NetworkDataPtr& pNetworkData);
+        void queueWrite(NetworkDataPtr pNetworkData);
 
     // Private functions...
     private:
@@ -76,6 +77,9 @@ namespace MessagingMesh
 
         // Called when a write request has completed.
         void onWriteCompleted(uv_write_t* pRequest, int status);
+
+        // Sends a coalesced network message for all queued writes.
+        void processQueuedWrites();
 
     // Private data...
     private:
@@ -98,6 +102,9 @@ namespace MessagingMesh
 
         // The message being currently read (possibly across multiple onDataReceived callbacks).
         NetworkDataPtr m_currentMessage;
+
+        // Data queued for writing.
+        ThreadsafeConsumableVector<NetworkDataPtr> m_queuedWrites;
     };
 
 } // namespace

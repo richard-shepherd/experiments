@@ -4,16 +4,6 @@
 #include "NetworkData.h"
 using namespace MessagingMesh;
 
-// WriteRequest constructor.
-UVUtils::WriteRequest::WriteRequest(const NetworkDataPtr& pNetworkData) :
-    write_request{},
-    buffer{},
-    m_pNetworkData(pNetworkData)
-{
-    buffer.base = pNetworkData->getData();
-    buffer.len = pNetworkData->getDataSize();
-}
-
 // Gets peer IP info for a tcp handle.
 // (Peer info is the address and port of the remote end of the socket connection.)
 UVUtils::IPInfo UVUtils::getPeerIPInfo(uv_tcp_t* pTCPHandle)
@@ -63,7 +53,7 @@ void UVUtils::releaseBufferMemory(const uv_buf_t* pBuffer)
 }
 
 // Allocates a write request.
-UVUtils::WriteRequest* UVUtils::allocateWriteRequest(const NetworkDataPtr& pNetworkData)
+UVUtils::WriteRequest* UVUtils::allocateWriteRequest(NetworkDataPtr pNetworkData)
 {
     return new WriteRequest(pNetworkData);
 }

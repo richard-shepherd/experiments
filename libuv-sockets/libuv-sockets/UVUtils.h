@@ -2,7 +2,7 @@
 #include <memory>
 #include <string>
 #include "uv.h"
-#include "SharedPointers.h"
+#include "NetworkData.h"
 
 namespace MessagingMesh
 {
@@ -37,10 +37,16 @@ namespace MessagingMesh
         // lifetime will match the write-request.
         struct WriteRequest
         {
-            WriteRequest(const NetworkDataPtr& pNetworkData);
+            WriteRequest(NetworkDataPtr pNetworkData) :
+                write_request{},
+                m_pNetworkData(pNetworkData)
+            {
+                buffer.base = pNetworkData->getData();
+                buffer.len = pNetworkData->getDataSize();
+            }
             uv_write_t write_request;
             uv_buf_t buffer;
-            const NetworkDataPtr& m_pNetworkData;
+            NetworkDataPtr m_pNetworkData;
         };
 
     // Public functions...
@@ -56,7 +62,7 @@ namespace MessagingMesh
         static void releaseBufferMemory(const uv_buf_t* pBuffer);
 
         // Allocates a write request.
-        static WriteRequest* allocateWriteRequest(const NetworkDataPtr& pNetworkData);
+        static WriteRequest* allocateWriteRequest(NetworkDataPtr pNetworkData);
 
         // Releases a write request.
         static void releaseWriteRequest(WriteRequest* pWriteRequest);

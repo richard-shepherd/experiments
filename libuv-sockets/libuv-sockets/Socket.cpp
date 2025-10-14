@@ -161,7 +161,7 @@ void Socket::onConnectCompleted(uv_connect_t* pRequest, int status)
 }
 
 // Writes data to the socket.
-void Socket::write(const NetworkDataPtr& pNetworkData)
+void Socket::write(NetworkDataPtr pNetworkData)
 {
     auto pWriteRequest = UVUtils::allocateWriteRequest(pNetworkData);
     pWriteRequest->write_request.data = this;
@@ -201,9 +201,32 @@ void Socket::onWriteCompleted(uv_write_t* pRequest, int status)
 // Queues data to be written to the socket.
 // Can be called from any thread, not just from the uv loop thread.
 // Queued writes will be coalesced into one network update.
-void Socket::queueWrite(const NetworkDataPtr& pNetworkData)
+void Socket::queueWrite(NetworkDataPtr pNetworkData)
 {
+    // We queue the data to write...
+    m_queuedWrites.add(pNetworkData);
 
+    // We marshall an event to write the data.
+    // As this does not take place straight away, this allows us to
+    // coalesce multiple queued writes...
+    m_uvLoop.marshallEvent(
+        [this](uv_loop_t* pLoop)
+        {
+            processQueuedWrites();
+        }
+    );
+}
+
+// Sends a coalesced network message for all queued writes.
+void Socket::processQueuedWrites()
+{
+    try
+    {
+    }
+    catch (const std::exception& ex)
+    {
+        Logger::error(Utils::format("%s: %s", __func__, ex.what()));
+    }
 }
 
 // Called at the server side when a new client conection is received.
