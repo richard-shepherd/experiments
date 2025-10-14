@@ -1,11 +1,11 @@
-#include "UVLoopThread.h"
+#include "UVLoop.h"
 #include "Logger.h"
 #include "Utils.h"
 #include "UVUtils.h"
 using namespace MessagingMesh;
 
 // Constructor.
-UVLoopThread::UVLoopThread(const std::string& threadName) :
+UVLoop::UVLoop(const std::string& threadName) :
     m_threadName(threadName)
 {
     Logger::info("Creating thread: " + m_threadName);
@@ -19,14 +19,14 @@ UVLoopThread::UVLoopThread(const std::string& threadName) :
         &m_threadHandle, 
         [](void* args)
         {
-            auto self = (UVLoopThread*)args;
+            auto self = (UVLoop*)args;
             self->threadEntryPoint();
         },
         this);
 }
 
 // Destructor.
-UVLoopThread::~UVLoopThread()
+UVLoop::~UVLoop()
 {
     // We marshall an event to the loop to tell it to stop...
     Logger::info("Signalling thread to stop: " + m_threadName);
@@ -43,7 +43,7 @@ UVLoopThread::~UVLoopThread()
 }
 
 // Thread entry point.
-void UVLoopThread::threadEntryPoint()
+void UVLoop::threadEntryPoint()
 {
     try
     {
@@ -63,7 +63,7 @@ void UVLoopThread::threadEntryPoint()
             m_marshalledEventsSignal.get(),
             [](uv_async_t* pHandle)
             {
-                auto self = (UVLoopThread*)pHandle->loop->data;
+                auto self = (UVLoop*)pHandle->loop->data;
                 self->processMarshalledEvents();
             });
 
@@ -82,7 +82,7 @@ void UVLoopThread::threadEntryPoint()
 
 // Marshalls an 'event' to the uv loop we are managing. This event (function)
 // will be called from within the event loop.
-void UVLoopThread::marshallEvent(MarshalledEvent marshalledEvent)
+void UVLoop::marshallEvent(MarshalledEvent marshalledEvent)
 {
     // We add the event to the collection of marshalled events.
     // This is done in a short-lived lock as the collection of events can
@@ -102,7 +102,7 @@ void UVLoopThread::marshallEvent(MarshalledEvent marshalledEvent)
 }
 
 // Processes marshalled events.
-void UVLoopThread::processMarshalledEvents()
+void UVLoop::processMarshalledEvents()
 {
     try
     {

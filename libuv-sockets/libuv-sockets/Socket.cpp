@@ -2,13 +2,14 @@
 #include "Logger.h"
 #include "Utils.h"
 #include "UVUtils.h"
+#include "UVLoop.h"
 #include "NetworkData.h"
 using namespace MessagingMesh;
 
 // Constructor.
 // NOTE: The constructor is private. Use Socket::create() to create an instance.
-Socket::Socket(uv_loop_t* pLoop) :
-    m_pLoop(pLoop),
+Socket::Socket(UVLoop& uvLoop) :
+    m_uvLoop(uvLoop),
     m_pCallback(nullptr)
 {
 }
@@ -35,7 +36,9 @@ void Socket::listen(int port)
 
     // We create a socket to listen for incoming connections...
     m_uvSocket = std::make_unique<uv_tcp_t>();
-    uv_tcp_init(m_pLoop, m_uvSocket.get());
+    uv_tcp_init(
+        m_uvLoop.getUVLoop(),
+        m_uvSocket.get());
 
     // We bind to the specified port on all network interfaces...
     struct sockaddr_in addr;
@@ -66,7 +69,9 @@ void Socket::accept(uv_stream_t* pServer)
 {
     // We create the client socket...
     m_uvSocket = std::make_unique<uv_tcp_t>();
-    uv_tcp_init(m_pLoop, m_uvSocket.get());
+    uv_tcp_init(
+        m_uvLoop.getUVLoop(),
+        m_uvSocket.get());
 
     // We accept the connection...
     if (uv_accept(pServer, (uv_stream_t*)m_uvSocket.get()) == 0)
@@ -104,7 +109,9 @@ void Socket::connectIP(const std::string& ipAddress, int port)
 
     // We create a socket to listen for incoming connections...
     m_uvSocket = std::make_unique<uv_tcp_t>();
-    uv_tcp_init(m_pLoop, m_uvSocket.get());
+    uv_tcp_init(
+        m_uvLoop.getUVLoop(),
+        m_uvSocket.get());
 
     // We make the connection request...
     struct sockaddr_in destination;
@@ -191,6 +198,14 @@ void Socket::onWriteCompleted(uv_write_t* pRequest, int status)
     }
 }
 
+// Queues data to be written to the socket.
+// Can be called from any thread, not just from the uv loop thread.
+// Queued writes will be coalesced into one network update.
+void Socket::queueWrite(const NetworkDataPtr& pNetworkData)
+{
+
+}
+
 // Called at the server side when a new client conection is received.
 void Socket::onNewConnection(uv_stream_t* pServer, int status)
 {
@@ -205,7 +220,7 @@ void Socket::onNewConnection(uv_stream_t* pServer, int status)
         }
 
         // We create a client socket for the new connection...
-        auto clientSocket = Socket::create(m_pLoop);
+        auto clientSocket = Socket::create(m_uvLoop);
         clientSocket->accept(pServer);
 
         // We pass the socket to the callback...

@@ -13,7 +13,7 @@ namespace MessagingMesh
     /// You can marshall events to the loop which will be picked up
     /// and run on the loop's thread.
     /// </summary>
-    class UVLoopThread
+    class UVLoop
     {
     // Public types...
     public:
@@ -23,10 +23,13 @@ namespace MessagingMesh
     // Public methods...
     public:
         // Constructor.
-        UVLoopThread(const std::string& threadName);
+        UVLoop(const std::string& threadName);
 
         // Destructor.
-        ~UVLoopThread();
+        ~UVLoop();
+
+        // Gets the UV loop.
+        uv_loop_t* getUVLoop() const { return m_loop.get();  }
 
         // Marshalls an 'event' to the uv loop we are managing. This event (function)
         // will be called from within the event loop.

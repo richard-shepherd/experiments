@@ -1,14 +1,14 @@
 #pragma once
 #include <memory>
 #include <vector>
-#include "UVLoopThread.h"
+#include "UVLoop.h"
 #include "Socket.h"
 #include "SharedPointers.h"
 
 namespace MessagingMesh
 {
     // Forward declarations...
-    class UVLoopThread;
+    class UVLoop;
 
     /// <summary>
     /// Manages a messaging-mesh gateway.
@@ -38,8 +38,8 @@ namespace MessagingMesh
         // The port on which we listen for client connections.
         int m_port;
 
-        // Thread managing the main uv loop for the gateway.
-        UVLoopThread m_loopThread;
+        // UV loop for the gateway, running on its own thread.
+        UVLoop m_uvLoop;
 
         // Socket listening for incoming connections.
         SocketPtr m_listeningSocket;

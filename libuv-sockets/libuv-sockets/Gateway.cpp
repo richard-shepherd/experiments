@@ -7,14 +7,14 @@ using namespace MessagingMesh;
 // Constructor.
 Gateway::Gateway(int port) :
     m_port(port),
-    m_loopThread("GATEWAY")
+    m_uvLoop("GATEWAY")
 {
     // We create a socket to listen to client connections, managed by the uv loop...
-    m_loopThread.marshallEvent(
+    m_uvLoop.marshallEvent(
         [this](uv_loop_t* pLoop)
         {
             // RSSTODO: Needs try-catch on this callback
-            m_listeningSocket = Socket::create(pLoop);
+            m_listeningSocket = Socket::create(m_uvLoop);
             m_listeningSocket->setCallback(this);
             m_listeningSocket->listen(m_port);
         });

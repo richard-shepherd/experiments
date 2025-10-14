@@ -7,6 +7,7 @@ namespace MessagingMesh
 {
     // Forward declarations...
     class NetworkData;
+    class UVLoop;
 
     /// <summary>
     /// Manages a socket.
@@ -33,7 +34,7 @@ namespace MessagingMesh
     // Public methods...
     public:
         // Creates a Socket instance to be managed by the uv loop specified.
-        static SocketPtr create(uv_loop_t* pLoop) { return SocketPtr(new Socket(pLoop)); }
+        static SocketPtr create(UVLoop& uvLoop) { return SocketPtr(new Socket(uvLoop)); }
 
         // Destructor.
         ~Socket();
@@ -53,11 +54,16 @@ namespace MessagingMesh
         // Writes data to the socket.
         void write(const NetworkDataPtr& pNetworkData);
 
+        // Queues data to be written to the socket.
+        // Can be called from any thread, not just from the uv loop thread.
+        // Queued writes will be coalesced into one network update.
+        void queueWrite(const NetworkDataPtr& pNetworkData);
+
     // Private functions...
     private:
         // Constructor.
         // NOTE: The constructor is private. Use Socket::create() to create an instance.
-        Socket(uv_loop_t* pLoop);
+        Socket(UVLoop& uvLoop);
 
         // Called at the client side when a client connect request has completed.
         void onConnectCompleted(uv_connect_t* pRequest, int status);
@@ -77,7 +83,7 @@ namespace MessagingMesh
         std::string m_name;
 
         // The uv loop managing the socket.
-        uv_loop_t* m_pLoop;
+        UVLoop& m_uvLoop;
 
         // The object on which we call callbacks.
         ICallback* m_pCallback;

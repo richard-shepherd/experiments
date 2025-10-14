@@ -14,14 +14,14 @@ void onMessageLogged(Logger::LogLevel logLevel, const std::string& message)
 
 void runClient()
 {
+    UVLoop clientUVLoop("CLIENT");
     SocketPtr clientSocket;
-    auto clientUVLoop = std::make_unique<UVLoopThread>("CLIENT");
 
     // We connect to the server...
-    clientUVLoop->marshallEvent(
-        [&clientSocket](uv_loop_t* pLoop)
+    clientUVLoop.marshallEvent(
+        [&clientSocket, &clientUVLoop](uv_loop_t* pLoop)
         {
-            clientSocket = Socket::create(pLoop);
+            clientSocket = Socket::create(clientUVLoop);
             clientSocket->connectIP("127.0.0.1", 5050);
         }
     );
@@ -31,10 +31,10 @@ void runClient()
 
     // We send some data...
     Logger::info("Sending data");
-    for (auto i = 0; i < 1000000; ++i)
+    for (auto i = 0; i < 500000; ++i)
     {
-        clientUVLoop->marshallEvent(
-            [&clientSocket, i](uv_loop_t* pLoop)
+        clientUVLoop.marshallEvent(
+            [i, &clientSocket](uv_loop_t* pLoop)
             {
                 int data[] = { 4, i };
                 auto pNetworkData = NetworkData::create(&data[0], sizeof(data));
@@ -42,7 +42,6 @@ void runClient()
             }
         );
     }
-
 
     Logger::info("Press Enter to exit");
     std::cin.get();

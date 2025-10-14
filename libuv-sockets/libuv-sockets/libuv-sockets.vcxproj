@@ -80,7 +80,7 @@
     <ClCompile Include="NetworkData.cpp" />
     <ClCompile Include="Socket.cpp" />
     <ClCompile Include="Utils.cpp" />
-    <ClCompile Include="UVLoopThread.cpp" />
+    <ClCompile Include="UVLoop.cpp" />
     <ClCompile Include="UVUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -95,7 +95,7 @@
     <ClInclude Include="SharedPointers.h" />
     <ClInclude Include="Socket.h" />
     <ClInclude Include="Utils.h" />
-    <ClInclude Include="UVLoopThread.h" />
+    <ClInclude Include="UVLoop.h" />
     <ClInclude Include="UVUtils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
