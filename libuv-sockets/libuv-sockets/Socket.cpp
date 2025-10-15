@@ -209,6 +209,7 @@ void Socket::onWriteCompleted(uv_write_t* pRequest, int status)
 // Queues data to be written to the socket.
 // Can be called from any thread, not just from the uv loop thread.
 // Queued writes will be coalesced into one network update.
+// RSSTODO: We need some way to slow down the client if it publishes too much too fast.
 void Socket::queueWrite(NetworkDataPtr pNetworkData)
 {
     // We queue the data to write...
