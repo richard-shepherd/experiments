@@ -76,7 +76,7 @@ void UVLoop::threadEntryPoint()
     }
 }
 
-// Marshalls an 'event' to the uv loop we are managing. This event (function)
+// Marshalls an event to the UV loop we are managing. This event (function)
 // will be called from within the event loop.
 void UVLoop::marshallEvent(MarshalledEvent marshalledEvent)
 {
@@ -92,13 +92,30 @@ void UVLoop::marshallEvent(MarshalledEvent marshalledEvent)
     }
 }
 
+// Marshalls an event to the UV loop we are managing. 
+// Only one event for the given key will be marshalled until events
+// are processed in the UV loop thread.
+void UVLoop::marshallUniqueEvent(const UniqueEventKey& key, MarshalledEvent marshalledEvent)
+{
+    // We add the event to the collection of marshalled events.
+    auto itemAdded = m_marshalledEvents.addUnique(key, marshalledEvent);
+
+    // We signal to the event loop that there is a new event.
+    // Note: We check that the loop and signal have been set up. If not, we
+    //       cannot signal, but the event has still been added to the queue.
+    if (itemAdded && m_marshalledEventsSignal)
+    {
+        uv_async_send(m_marshalledEventsSignal.get());
+    }
+}
+
 // Processes marshalled events.
 void UVLoop::processMarshalledEvents()
 {
     try
     {
         // We get the marshalled events and process them...
-        auto marshalledEvents = m_marshalledEvents.get();
+        auto marshalledEvents = m_marshalledEvents.getItems();
         for (auto marshalledEvent : *marshalledEvents)
         {
             marshalledEvent(m_loop.get());

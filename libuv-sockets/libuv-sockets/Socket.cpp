@@ -38,7 +38,8 @@ void Socket::listen(int port)
     m_uvSocket = std::make_unique<uv_tcp_t>();
     uv_tcp_init(
         m_uvLoop.getUVLoop(),
-        m_uvSocket.get());
+        m_uvSocket.get()
+    );
 
     // We bind to the specified port on all network interfaces...
     struct sockaddr_in addr;
@@ -57,7 +58,8 @@ void Socket::listen(int port)
         {
             auto self = (Socket*)p->data;
             self->onNewConnection(p, s);
-        });
+        }
+    );
     if (listenResult)
     {
         Logger::error(Utils::format("uv_listen error: %s", uv_strerror(listenResult)));
@@ -71,7 +73,8 @@ void Socket::accept(uv_stream_t* pServer)
     m_uvSocket = std::make_unique<uv_tcp_t>();
     uv_tcp_init(
         m_uvLoop.getUVLoop(),
-        m_uvSocket.get());
+        m_uvSocket.get()
+    );
 
     // We accept the connection...
     if (uv_accept(pServer, (uv_stream_t*)m_uvSocket.get()) == 0)
@@ -93,7 +96,8 @@ void Socket::accept(uv_stream_t* pServer)
             {
                 auto self = (Socket*)s->data;
                 self->onDataReceived(s, n, b);
-            });
+            }
+        );
     }
     else
     {
@@ -111,7 +115,8 @@ void Socket::connectIP(const std::string& ipAddress, int port)
     m_uvSocket = std::make_unique<uv_tcp_t>();
     uv_tcp_init(
         m_uvLoop.getUVLoop(),
-        m_uvSocket.get());
+        m_uvSocket.get()
+    );
 
     // We make the connection request...
     struct sockaddr_in destination;
@@ -126,7 +131,8 @@ void Socket::connectIP(const std::string& ipAddress, int port)
         {
             auto self = (Socket*)r->data;
             self->onConnectCompleted(r, s);
-        });
+        }
+    );
 }
 
 // Called at the client side when a client has connected to a server.
@@ -152,7 +158,8 @@ void Socket::onConnectCompleted(uv_connect_t* pRequest, int status)
             {
                 auto self = (Socket*)s->data;
                 self->onDataReceived(s, n, b);
-            });
+            }
+        );
     }
     catch (const std::exception& ex)
     {
@@ -174,7 +181,8 @@ void Socket::write(NetworkDataPtr pNetworkData)
         {
             auto self = (Socket*)r->data;
             self->onWriteCompleted(r, s);
-        });
+        }
+    );
 }
 
 // Called when a write request has completed.
@@ -206,11 +214,10 @@ void Socket::queueWrite(NetworkDataPtr pNetworkData)
     // We queue the data to write...
     m_queuedWrites.add(pNetworkData);
 
-    // We marshall an event to write the data.
-    // As this does not take place straight away, this allows us to
-    // coalesce multiple queued writes...
-    // RSSTODO: Are we creating too many 'wake-up' events here? Only do it for the first item in the queue???
-    m_uvLoop.marshallEvent(
+    // We marshall an event to write the data. As this does not take place straight 
+    // away, this allows us to coalesce multiple queued writes...
+    m_uvLoop.marshallUniqueEvent(
+        UVLoop::UniqueEventKey::SOCKET_QUEUE_WRITE,
         [this](uv_loop_t* pLoop)
         {
             processQueuedWrites();
@@ -223,14 +230,8 @@ void Socket::processQueuedWrites()
 {
     try
     {
-        auto queuedWrites = m_queuedWrites.get();
-        //auto queueSize = queuedWrites->size();
-        //if (queueSize != 0)
-        //{
-        //    Logger::info(Utils::format("Queued writes: %d", queueSize));
-        //}
-
         // We find the combined size of the queued writes...
+        auto queuedWrites = m_queuedWrites.getItems();
         size_t totalSize = 0;
         for (auto queuedWrite : *queuedWrites)
         {
@@ -261,8 +262,8 @@ void Socket::processQueuedWrites()
             {
                 auto self = (Socket*)r->data;
                 self->onWriteCompleted(r, s);
-            });
-
+            }
+        );
     }
     catch (const std::exception& ex)
     {
