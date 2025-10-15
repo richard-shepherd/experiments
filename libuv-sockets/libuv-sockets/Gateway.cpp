@@ -32,9 +32,9 @@ void Gateway::onDataReceived(NetworkDataPtr networkData)
     static int count = 0;
 
     count++;
-    if (count % 100000 == 0)
+    if (count % 1000000 == 0)
     {
-        Logger::info("Received data!!!");
+        Logger::info(Utils::format("Received data: %d", count));
     }
 }
 

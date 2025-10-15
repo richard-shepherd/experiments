@@ -32,11 +32,11 @@ namespace MessagingMesh
         };
 
         // A UV write request plus the buffer it is writing.
-        // The buffer points to the data in the network-message.
-        // We hold a reference to the network-message so that its
-        // lifetime will match the write-request.
         struct WriteRequest
         {
+            // Constructor from NetworkData. 
+            // The buffer points to the data in the NetworkData, and we hold a reference
+            // to the NetworkData to ensure that its lifetime matches the write request.
             WriteRequest(NetworkDataPtr pNetworkData) :
                 write_request{},
                 m_pNetworkData(pNetworkData)
@@ -44,6 +44,28 @@ namespace MessagingMesh
                 buffer.base = pNetworkData->getData();
                 buffer.len = pNetworkData->getDataSize();
             }
+
+            // Constructor specifying a buffer size.
+            // We allocate the buffer and release it in the destructor.
+            WriteRequest(size_t bufferSize) :
+                write_request{},
+                m_pNetworkData(nullptr)
+            {
+                buffer.base = new char[bufferSize];
+                buffer.len = (ULONG)bufferSize;
+            }
+
+            // Destructor.
+            ~WriteRequest()
+            {
+                // If we allocated the buffer (ie, if we are not using the
+                // buffer from a NetworkData), we release it.
+                if (!m_pNetworkData)
+                {
+                    delete[] buffer.base;
+                }
+            }
+
             uv_write_t write_request;
             uv_buf_t buffer;
             NetworkDataPtr m_pNetworkData;
@@ -63,6 +85,9 @@ namespace MessagingMesh
 
         // Allocates a write request.
         static WriteRequest* allocateWriteRequest(NetworkDataPtr pNetworkData);
+
+        // Allocates a write request.
+        static WriteRequest* allocateWriteRequest(size_t bufferSize);
 
         // Releases a write request.
         static void releaseWriteRequest(WriteRequest* pWriteRequest);

@@ -58,6 +58,12 @@ UVUtils::WriteRequest* UVUtils::allocateWriteRequest(NetworkDataPtr pNetworkData
     return new WriteRequest(pNetworkData);
 }
 
+// Allocates a write request.
+UVUtils::WriteRequest* UVUtils::allocateWriteRequest(size_t bufferSize)
+{
+    return new WriteRequest(bufferSize);
+}
+
 // Releases a write request.
 void UVUtils::releaseWriteRequest(WriteRequest* pWriteRequest)
 {

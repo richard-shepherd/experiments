@@ -209,6 +209,7 @@ void Socket::queueWrite(NetworkDataPtr pNetworkData)
     // We marshall an event to write the data.
     // As this does not take place straight away, this allows us to
     // coalesce multiple queued writes...
+    // RSSTODO: Are we creating too many 'wake-up' events here? Only do it for the first item in the queue???
     m_uvLoop.marshallEvent(
         [this](uv_loop_t* pLoop)
         {
@@ -222,6 +223,46 @@ void Socket::processQueuedWrites()
 {
     try
     {
+        auto queuedWrites = m_queuedWrites.get();
+        //auto queueSize = queuedWrites->size();
+        //if (queueSize != 0)
+        //{
+        //    Logger::info(Utils::format("Queued writes: %d", queueSize));
+        //}
+
+        // We find the combined size of the queued writes...
+        size_t totalSize = 0;
+        for (auto queuedWrite : *queuedWrites)
+        {
+            totalSize += queuedWrite->getDataSize();
+        }
+
+        // We create a write-request with a buffer to hold all the queued items...
+        auto pWriteRequest = UVUtils::allocateWriteRequest(totalSize);
+        pWriteRequest->write_request.data = this;
+
+        // We copy the data into the buffer...
+        size_t bufferPosition = 0;
+        for (auto queuedWrite : *queuedWrites)
+        {
+            auto itemSize = queuedWrite->getDataSize();
+            auto itemData = queuedWrite->getData();
+            memcpy(pWriteRequest->buffer.base + bufferPosition, itemData, itemSize);
+            bufferPosition += itemSize;
+        }
+
+        // We write the combined buffer...
+        uv_write(
+            &pWriteRequest->write_request,
+            (uv_stream_t*)m_uvSocket.get(),
+            &pWriteRequest->buffer,
+            1,
+            [](uv_write_t* r, int s)
+            {
+                auto self = (Socket*)r->data;
+                self->onWriteCompleted(r, s);
+            });
+
     }
     catch (const std::exception& ex)
     {

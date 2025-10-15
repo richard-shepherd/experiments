@@ -31,16 +31,11 @@ void runClient()
 
     // We send some data...
     Logger::info("Sending data");
-    for (auto i = 0; i < 500000; ++i)
+    for (auto i = 0; i < 50000000; ++i)
     {
-        clientUVLoop.marshallEvent(
-            [i, &clientSocket](uv_loop_t* pLoop)
-            {
-                int data[] = { 4, i };
-                auto pNetworkData = NetworkData::create(&data[0], sizeof(data));
-                clientSocket->write(pNetworkData);
-            }
-        );
+        int data[] = { 4, i };
+        auto pNetworkData = NetworkData::create(&data[0], sizeof(data));
+        clientSocket->queueWrite(pNetworkData);
     }
 
     Logger::info("Press Enter to exit");
