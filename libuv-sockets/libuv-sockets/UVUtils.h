@@ -94,12 +94,12 @@ namespace MessagingMesh
 
         // Duplicates the socket.
         // Note: This has different implementations depending on the OS.
-        static uv_os_sock_t duplicateSocket(const uv_os_sock_t& socket);
+        static int duplicateSocket(const uv_os_sock_t& socket, uv_os_sock_t& duplicate);
 
     // Private functions...
     private:
         // Duplicates the socket when compiling for Windows.
-        static uv_os_sock_t duplicateSocket_Windows(const uv_os_sock_t& socket);
+        static int duplicateSocket_Windows(const uv_os_sock_t& socket, uv_os_sock_t& duplicate);
     };
 
 } // namespace

@@ -71,17 +71,44 @@ void UVUtils::releaseWriteRequest(WriteRequest* pWriteRequest)
 }
 
 // Duplicates the socket.
+// Returns 0 for success, a non-zero code for an error.
 // Note: This has different implementations depending on the OS.
-uv_os_sock_t UVUtils::duplicateSocket(const uv_os_sock_t& socket)
+int UVUtils::duplicateSocket(const uv_os_sock_t& socket, uv_os_sock_t& duplicate)
 {
 #ifdef WIN32
-    return duplicateSocket_Windows(socket);
+    return duplicateSocket_Windows(socket, duplicate);
 #endif
 }
 
 // Duplicates the socket when compiling for Windows.
-uv_os_sock_t UVUtils::duplicateSocket_Windows(const uv_os_sock_t& socket)
+int UVUtils::duplicateSocket_Windows(const uv_os_sock_t& socket, uv_os_sock_t& duplicate)
 {
-    uv_os_sock_t sock = {};
-    return sock;
+    // We get the socket info...
+    WSAPROTOCOL_INFO info;
+    auto duplicateSocketStatus = WSADuplicateSocket(socket, GetCurrentProcessId(), &info);
+    if (duplicateSocketStatus != 0)
+    {
+        auto error = WSAGetLastError();
+        Logger::error(Utils::format("WSADuplicateSocket failed: %d", error));
+        return error;
+    }
+
+    // We duplicate the socket...
+    auto newSocket = WSASocket(
+        FROM_PROTOCOL_INFO,
+        FROM_PROTOCOL_INFO,
+        FROM_PROTOCOL_INFO,
+        &info, 
+        0, 
+        WSA_FLAG_OVERLAPPED);
+    if (newSocket == INVALID_SOCKET)
+    {
+        auto error = WSAGetLastError();
+        Logger::error(Utils::format("WSASocket (dup) failed: %d", error));
+        return error;
+    }
+
+    // We set the result...
+    duplicate = (uv_os_sock_t)newSocket;
+    return 0;
 }
