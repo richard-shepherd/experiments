@@ -38,8 +38,12 @@ namespace MessagingMesh
         // The port on which we listen for client connections.
         int m_port;
 
-        // UV loop for the gateway, running on its own thread.
+        // UV loop for listening for new client connections.
         UVLoop m_uvLoop;
+
+        // UV loop to manage client sockets.
+        // RSSTODO: In the real thing we will have one of these per MM service.
+        UVLoop m_uvClientLoop;
 
         // Socket listening for incoming connections.
         SocketPtr m_listeningSocket;

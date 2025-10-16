@@ -70,3 +70,18 @@ void UVUtils::releaseWriteRequest(WriteRequest* pWriteRequest)
     delete pWriteRequest;
 }
 
+// Duplicates the socket.
+// Note: This has different implementations depending on the OS.
+uv_os_sock_t UVUtils::duplicateSocket(const uv_os_sock_t& socket)
+{
+#ifdef WIN32
+    return duplicateSocket_Windows(socket);
+#endif
+}
+
+// Duplicates the socket when compiling for Windows.
+uv_os_sock_t UVUtils::duplicateSocket_Windows(const uv_os_sock_t& socket)
+{
+    uv_os_sock_t sock = {};
+    return sock;
+}

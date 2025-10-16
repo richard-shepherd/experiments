@@ -91,6 +91,15 @@ namespace MessagingMesh
 
         // Releases a write request.
         static void releaseWriteRequest(WriteRequest* pWriteRequest);
+
+        // Duplicates the socket.
+        // Note: This has different implementations depending on the OS.
+        static uv_os_sock_t duplicateSocket(const uv_os_sock_t& socket);
+
+    // Private functions...
+    private:
+        // Duplicates the socket when compiling for Windows.
+        static uv_os_sock_t duplicateSocket_Windows(const uv_os_sock_t& socket);
     };
 
 } // namespace

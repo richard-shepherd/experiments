@@ -226,6 +226,12 @@ void Socket::queueWrite(NetworkDataPtr pNetworkData)
     );
 }
 
+// Gets the socket handle.
+int Socket::getSocketHandle() const
+{
+    return 0;
+}
+
 // Sends a coalesced network message for all queued writes.
 void Socket::processQueuedWrites()
 {

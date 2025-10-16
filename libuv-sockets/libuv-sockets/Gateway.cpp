@@ -7,7 +7,8 @@ using namespace MessagingMesh;
 // Constructor.
 Gateway::Gateway(int port) :
     m_port(port),
-    m_uvLoop("GATEWAY")
+    m_uvLoop("GATEWAY"),
+    m_uvClientLoop("CLIENT-LOOP")
 {
     // We create a socket to listen to client connections, managed by the uv loop...
     m_uvLoop.marshallEvent(
@@ -43,6 +44,9 @@ void Gateway::onDataReceived(NetworkDataPtr networkData)
 // Called on the UV loop thread.
 void Gateway::onNewConnection(SocketPtr clientSocket)
 {
+    // We get the socket handle and move the socket to the client loop...
+
+
     clientSocket->setCallback(this);
     m_clientSockets.push_back(clientSocket);
 }

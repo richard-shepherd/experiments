@@ -60,6 +60,9 @@ namespace MessagingMesh
         // Queued writes will be coalesced into one network update.
         void queueWrite(NetworkDataPtr pNetworkData);
 
+        // Gets the socket handle.
+        int getSocketHandle() const;
+
     // Private functions...
     private:
         // Constructor.
