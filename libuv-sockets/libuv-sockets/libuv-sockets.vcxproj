@@ -79,7 +79,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NetworkData.cpp" />
     <ClCompile Include="Socket.cpp" />
-    <ClCompile Include="OSSocketHolder.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="UVLoop.cpp" />
     <ClCompile Include="UVUtils.cpp" />

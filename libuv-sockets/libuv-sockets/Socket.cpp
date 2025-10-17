@@ -26,6 +26,7 @@ Socket::Socket(UVLoop& uvLoop) :
 // Destructor.
 Socket::~Socket()
 {
+    //uv_sleep(500);  // RSSTODO: REMOVE THIS!!!
     Logger::info("Closing socket: " + m_name);
     uv_close(
         (uv_handle_t*)m_pSocket,
