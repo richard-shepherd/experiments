@@ -39,6 +39,9 @@
     <ClCompile Include="NetworkData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="OSSocketHolder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Notes.txt" />
@@ -73,6 +76,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ThreadsafeConsumableVector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OSSocketHolder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

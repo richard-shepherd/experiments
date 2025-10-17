@@ -2,6 +2,7 @@
 #include "Socket.h"
 #include "Utils.h"
 #include "Logger.h"
+#include "OSSocketHolder.h"
 using namespace MessagingMesh;
 
 // Constructor.
@@ -29,7 +30,7 @@ Gateway::~Gateway()
 
 // Called when data has been received on the socket.
 // Called on the UV loop thread.
-void Gateway::onDataReceived(NetworkDataPtr networkData)
+void Gateway::onDataReceived(NetworkDataPtr pNetworkData)
 {
     static int count = 0;
 
@@ -42,12 +43,22 @@ void Gateway::onDataReceived(NetworkDataPtr networkData)
 
 // Called when a new client connection has been made to a listening socket.
 // Called on the UV loop thread.
-void Gateway::onNewConnection(SocketPtr clientSocket)
+void Gateway::onNewConnection(SocketPtr pClientSocket)
 {
-    // We get the socket handle and move the socket to the client loop...
+    //// We duplicate the socket and run it on the client loop...
+    //auto pSocketHolder = pClientSocket->detachSocket();
+    //auto pMovedSocket = Socket::create(m_uvClientLoop);
+    //m_uvClientLoop.marshallEvent(
+    //    [&pSocketHolder, &pMovedSocket](uv_loop_t*)
+    //    {
+    //        auto socket = pSocketHolder->getSocket();
+    //        pMovedSocket->connectSocket(socket);
+    //    }
+    //);
+    //pMovedSocket->setCallback(this);
+    //m_clientSockets.push_back(pMovedSocket);
 
-
-    clientSocket->setCallback(this);
-    m_clientSockets.push_back(clientSocket);
+    pClientSocket->setCallback(this);
+    m_clientSockets.push_back(pClientSocket);
 }
 

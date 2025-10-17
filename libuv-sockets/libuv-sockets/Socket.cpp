@@ -4,6 +4,7 @@
 #include "UVUtils.h"
 #include "UVLoop.h"
 #include "NetworkData.h"
+#include "OSSocketHolder.h"
 using namespace MessagingMesh;
 
 // Constructor.
@@ -12,13 +13,28 @@ Socket::Socket(UVLoop& uvLoop) :
     m_uvLoop(uvLoop),
     m_pCallback(nullptr)
 {
+    // We create the socket and associate it with the loop.
+    // We set its data to point to 'this' so that callbacks can invoke class methods.
+    m_pSocket = new uv_tcp_t;
+    m_pSocket->data = this;
+    uv_tcp_init(
+        m_uvLoop.getUVLoop(),
+        m_pSocket
+    );
 }
 
 // Destructor.
 Socket::~Socket()
 {
     Logger::info("Closing socket: " + m_name);
-    // RSSTODO: clean up the socket (if it was created)
+    uv_close(
+        (uv_handle_t*)m_pSocket,
+        [](uv_handle_t* pHandle)
+        {
+            auto pSocket = (uv_tcp_t*)pHandle;
+            delete pSocket;
+        }
+    );
 }
 
 // Sets the callback.
@@ -34,25 +50,17 @@ void Socket::listen(int port)
     m_name = Utils::format("LISTENING-SOCKET:%d", port);
     Logger::info("Creating socket: " + m_name);
 
-    // We create a socket to listen for incoming connections...
-    m_uvSocket = std::make_unique<uv_tcp_t>();
-    uv_tcp_init(
-        m_uvLoop.getUVLoop(),
-        m_uvSocket.get()
-    );
-
     // We bind to the specified port on all network interfaces...
     struct sockaddr_in addr;
     uv_ip4_addr("0.0.0.0", port, &addr);
-    uv_tcp_bind(m_uvSocket.get(), (const struct sockaddr*)&addr, 0);
+    uv_tcp_bind(m_pSocket, (const struct sockaddr*)&addr, 0);
 
     // We turn of Nagling...
-    uv_tcp_nodelay(m_uvSocket.get(), 1);
+    uv_tcp_nodelay(m_pSocket, 1);
 
     // We listen for connections, calling onNewConnection() when a connection is received...
-    m_uvSocket->data = this;
     int listenResult = uv_listen(
-        (uv_stream_t*)m_uvSocket.get(),
+        (uv_stream_t*)m_pSocket,
         MAX_INCOMING_CONNECTION_BACKLOG,
         [](uv_stream_t* p, int s)
         {
@@ -69,28 +77,20 @@ void Socket::listen(int port)
 // Connects the socket by accepting a listen request received by the server.
 void Socket::accept(uv_stream_t* pServer)
 {
-    // We create the client socket...
-    m_uvSocket = std::make_unique<uv_tcp_t>();
-    uv_tcp_init(
-        m_uvLoop.getUVLoop(),
-        m_uvSocket.get()
-    );
-
     // We accept the connection...
-    if (uv_accept(pServer, (uv_stream_t*)m_uvSocket.get()) == 0)
+    if (uv_accept(pServer, (uv_stream_t*)m_pSocket) == 0)
     {
         // We find the name of the client...
-        auto peerInfo = UVUtils::getPeerIPInfo(m_uvSocket.get());
+        auto peerInfo = UVUtils::getPeerIPInfo(m_pSocket);
         m_name = Utils::format("CLIENT-SOCKET:%s:%s", peerInfo.Hostname, peerInfo.Service);
         Logger::info("Accepted socket: " + m_name);
 
         // We disable Nagling...
-        uv_tcp_nodelay(m_uvSocket.get(), 1);
+        uv_tcp_nodelay(m_pSocket, 1);
 
         // We start reading data from the socket...
-        m_uvSocket->data = this;
         uv_read_start(
-            (uv_stream_t*)m_uvSocket.get(),
+            (uv_stream_t*)m_pSocket,
             UVUtils::allocateBufferMemory,
             [](uv_stream_t* s, ssize_t n, const uv_buf_t* b)
             {
@@ -111,13 +111,6 @@ void Socket::connectIP(const std::string& ipAddress, int port)
 {
     Logger::info(Utils::format("Connecting to %s:%d", ipAddress.c_str(), port));
 
-    // We create a socket to listen for incoming connections...
-    m_uvSocket = std::make_unique<uv_tcp_t>();
-    uv_tcp_init(
-        m_uvLoop.getUVLoop(),
-        m_uvSocket.get()
-    );
-
     // We make the connection request...
     struct sockaddr_in destination;
     uv_ip4_addr(ipAddress.c_str(), port, &destination);
@@ -125,12 +118,40 @@ void Socket::connectIP(const std::string& ipAddress, int port)
     pConnect->data = this;
     uv_tcp_connect(
         pConnect, 
-        m_uvSocket.get(), 
+        m_pSocket,
         (const struct sockaddr*)&destination, 
         [](uv_connect_t* r, int s)
         {
             auto self = (Socket*)r->data;
             self->onConnectCompleted(r, s);
+        }
+    );
+}
+
+// Connects to the socket specified.
+void Socket::connectSocket(uv_os_sock_t socket)
+{
+    Logger::info(Utils::format("Connecting to specified socket %d", socket));
+
+    // We open the socket, connecting to the socket passed in...
+    auto status = uv_tcp_open(m_pSocket, socket);
+    if (status != 0)
+    {
+        Logger::error(Utils::format("uv_tcp_open failed: %s", uv_strerror(status)));
+        return;
+    }
+
+    // We disable Nagling...
+    uv_tcp_nodelay(m_pSocket, 1);
+
+    // We start reading data from the socket...
+    uv_read_start(
+        (uv_stream_t*)m_pSocket,
+        UVUtils::allocateBufferMemory,
+        [](uv_stream_t* s, ssize_t n, const uv_buf_t* b)
+        {
+            auto self = (Socket*)s->data;
+            self->onDataReceived(s, n, b);
         }
     );
 }
@@ -147,12 +168,11 @@ void Socket::onConnectCompleted(uv_connect_t* pRequest, int status)
         }
 
         // We disable Nagling...
-        uv_tcp_nodelay((uv_tcp_t*)m_uvSocket.get(), 1);
+        uv_tcp_nodelay((uv_tcp_t*)m_pSocket, 1);
 
         // We listen for data sent to us from the server...
-        m_uvSocket->data = this;
         uv_read_start(
-            (uv_stream_t*)m_uvSocket.get(),
+            (uv_stream_t*)m_pSocket,
             UVUtils::allocateBufferMemory,
             [](uv_stream_t* s, ssize_t n, const uv_buf_t* b)
             {
@@ -174,7 +194,7 @@ void Socket::write(NetworkDataPtr pNetworkData)
     pWriteRequest->write_request.data = this;
     uv_write(
         &pWriteRequest->write_request, 
-        (uv_stream_t*)m_uvSocket.get(),
+        (uv_stream_t*)m_pSocket,
         &pWriteRequest->buffer, 
         1, 
         [](uv_write_t* r, int s)
@@ -226,10 +246,20 @@ void Socket::queueWrite(NetworkDataPtr pNetworkData)
     );
 }
 
-// Gets the socket handle.
-int Socket::getSocketHandle() const
+// Detaches the socket and returns a copy (dup) of it.
+OSSocketHolderPtr Socket::detachSocket()
 {
-    return 0;
+    // We duplicate the socket...
+    auto duplicateSocket = UVUtils::duplicateSocket(m_pSocket->socket);
+
+    // Note: We do not close the original socket here. It will be closed when
+    //       this socket object is destructed.
+
+    // We return the socket in an OSSocketHolder. This helps with
+    // its visibility across threads...
+    auto pSocketHolder = OSSocketHolder::create();
+    pSocketHolder->setSocket(duplicateSocket);
+    return pSocketHolder;
 }
 
 // Sends a coalesced network message for all queued writes.
@@ -262,7 +292,7 @@ void Socket::processQueuedWrites()
         // We write the combined buffer...
         uv_write(
             &pWriteRequest->write_request,
-            (uv_stream_t*)m_uvSocket.get(),
+            (uv_stream_t*)m_pSocket,
             &pWriteRequest->buffer,
             1,
             [](uv_write_t* r, int s)

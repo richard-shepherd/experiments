@@ -2,6 +2,7 @@
 #include "Utils.h"
 #include "Logger.h"
 #include "NetworkData.h"
+#include "Exception.h"
 using namespace MessagingMesh;
 
 // Gets peer IP info for a tcp handle.
@@ -73,15 +74,15 @@ void UVUtils::releaseWriteRequest(WriteRequest* pWriteRequest)
 // Duplicates the socket.
 // Returns 0 for success, a non-zero code for an error.
 // Note: This has different implementations depending on the OS.
-int UVUtils::duplicateSocket(const uv_os_sock_t& socket, uv_os_sock_t& duplicate)
+uv_os_sock_t UVUtils::duplicateSocket(const uv_os_sock_t& socket)
 {
 #ifdef WIN32
-    return duplicateSocket_Windows(socket, duplicate);
+    return duplicateSocket_Windows(socket);
 #endif
 }
 
 // Duplicates the socket when compiling for Windows.
-int UVUtils::duplicateSocket_Windows(const uv_os_sock_t& socket, uv_os_sock_t& duplicate)
+uv_os_sock_t UVUtils::duplicateSocket_Windows(const uv_os_sock_t& socket)
 {
     // We get the socket info...
     WSAPROTOCOL_INFO info;
@@ -89,8 +90,7 @@ int UVUtils::duplicateSocket_Windows(const uv_os_sock_t& socket, uv_os_sock_t& d
     if (duplicateSocketStatus != 0)
     {
         auto error = WSAGetLastError();
-        Logger::error(Utils::format("WSADuplicateSocket failed: %d", error));
-        return error;
+        throw Exception(Utils::format("WSADuplicateSocket failed: %d", error));
     }
 
     // We duplicate the socket...
@@ -104,11 +104,9 @@ int UVUtils::duplicateSocket_Windows(const uv_os_sock_t& socket, uv_os_sock_t& d
     if (newSocket == INVALID_SOCKET)
     {
         auto error = WSAGetLastError();
-        Logger::error(Utils::format("WSASocket (dup) failed: %d", error));
-        return error;
+        throw Exception(Utils::format("WSASocket (dup) failed: %d", error));
     }
 
-    // We set the result...
-    duplicate = (uv_os_sock_t)newSocket;
-    return 0;
+    // We return the duplicated socket...
+    return (uv_os_sock_t)newSocket;
 }

@@ -79,6 +79,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NetworkData.cpp" />
     <ClCompile Include="Socket.cpp" />
+    <ClCompile Include="OSSocketHolder.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="UVLoop.cpp" />
     <ClCompile Include="UVUtils.cpp" />
@@ -94,6 +95,7 @@
     <ClInclude Include="NetworkData.h" />
     <ClInclude Include="SharedPointers.h" />
     <ClInclude Include="Socket.h" />
+    <ClInclude Include="OSSocketHolder.h" />
     <ClInclude Include="ThreadsafeConsumableVector.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="UVLoop.h" />

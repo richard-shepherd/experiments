@@ -52,6 +52,9 @@ namespace MessagingMesh
         // Connects a client socket to the IP address and specified port.
         void connectIP(const std::string& ipAddress, int port);
 
+        // Connects to the socket specified.
+        void connectSocket(uv_os_sock_t socket);
+
         // Writes data to the socket.
         void write(NetworkDataPtr pNetworkData);
 
@@ -60,8 +63,8 @@ namespace MessagingMesh
         // Queued writes will be coalesced into one network update.
         void queueWrite(NetworkDataPtr pNetworkData);
 
-        // Gets the socket handle.
-        int getSocketHandle() const;
+        // Detaches the socket and returns a copy (dup) of it.
+        OSSocketHolderPtr detachSocket();
 
     // Private functions...
     private:
@@ -96,7 +99,9 @@ namespace MessagingMesh
         ICallback* m_pCallback;
 
         // UV socket handle.
-        std::unique_ptr<uv_tcp_t> m_uvSocket;
+        // Note: This is not a unique_ptr as we need to delete it
+        //       asynchronously from the Socket destructor.
+        uv_tcp_t* m_pSocket;
 
     // Constants...
     private:
