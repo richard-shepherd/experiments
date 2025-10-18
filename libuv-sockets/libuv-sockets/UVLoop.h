@@ -35,6 +35,9 @@ namespace MessagingMesh
         // Destructor.
         ~UVLoop();
 
+        // Gets the loop's name.
+        const std::string& getName() const { return m_name; }
+
         // Gets the UV loop.
         uv_loop_t* getUVLoop() const { return m_loop.get();  }
 

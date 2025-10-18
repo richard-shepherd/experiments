@@ -45,17 +45,11 @@ void Gateway::onDataReceived(NetworkDataPtr pNetworkData)
 // Called on the UV loop thread.
 void Gateway::onNewConnection(SocketPtr pClientSocket)
 {
-    // We duplicate the socket and run it on the client loop...
-    auto pSocketHolder = pClientSocket->detachSocket();
-    auto pMovedSocket = Socket::create(m_pUVClientLoop);
-    m_pUVClientLoop->marshallEvent(
-        [pSocketHolder, pMovedSocket](uv_loop_t*)
-        {
-            auto socket = pSocketHolder->getSocket();
-            pMovedSocket->connectSocket(socket);
-        }
-    );
-    pMovedSocket->setCallback(this);
-    m_clientSockets.push_back(pMovedSocket);
+    // We observe the socket...
+    pClientSocket->setCallback(this);
+    m_clientSockets.push_back(pClientSocket);
+
+    // We move the socket to the client loop...
+    pClientSocket->moveToLoop(m_pUVClientLoop);
 }
 

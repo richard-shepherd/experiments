@@ -52,16 +52,22 @@ namespace MessagingMesh
         // Connects a client socket to the IP address and specified port.
         void connectIP(const std::string& ipAddress, int port);
 
-        // Connects to the socket specified.
-        void connectSocket(uv_os_sock_t socket);
-
         // Queues data to be written to the socket.
         // Can be called from any thread, not just from the uv loop thread.
         // Queued writes will be coalesced into one network update.
         void write(NetworkDataPtr pNetworkData);
 
-        // Detaches the socket and returns a copy (dup) of it.
-        OSSocketHolderPtr detachSocket();
+        // Moves the socket to be managed by the UV loop specified.
+        void moveToLoop(UVLoopPtr pLoop);
+
+    // Private types...
+    private:
+        struct move_socket_t
+        {
+            Socket* self;
+            OSSocketHolderPtr pNewOSSocket;
+            UVLoopPtr pNewUVLoop;
+        };
 
     // Private functions...
     private:
@@ -93,6 +99,13 @@ namespace MessagingMesh
         // Sends a coalesced network message for all queued writes.
         void processQueuedWrites();
 
+        // Called after the original socket is closed as part of moving the socket to another UV loop.
+        void moveToLoop_onSocketClosed(move_socket_t* pMoveInfo);
+
+        // Connects to the (duplicated) socket specified.
+        // Note: This is called on the thread for the UVLoop to which we are moving the socket.
+        void registerDuplicatedSocket(UVLoopPtr pUVLoop, OSSocketHolderPtr pOSSocketHolder);
+
     // Private data...
     private:
         // The socket's name (made from its connection info).
@@ -116,7 +129,7 @@ namespace MessagingMesh
 
         // Data queued for writing.
         ThreadsafeConsumableVector<NetworkDataPtr> m_queuedWrites;
-        
+
     // Constants...
     private:
         // The maximum backlog of unprocessed incoming connections.

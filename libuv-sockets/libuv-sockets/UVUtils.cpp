@@ -3,6 +3,7 @@
 #include "Logger.h"
 #include "NetworkData.h"
 #include "Exception.h"
+#include "OSSocketHolder.h"
 using namespace MessagingMesh;
 
 // Gets peer IP info for a tcp handle.
@@ -72,12 +73,13 @@ void UVUtils::releaseWriteRequest(WriteRequest* pWriteRequest)
 }
 
 // Duplicates the socket.
-// Returns 0 for success, a non-zero code for an error.
 // Note: This has different implementations depending on the OS.
-uv_os_sock_t UVUtils::duplicateSocket(const uv_os_sock_t& socket)
+OSSocketHolderPtr UVUtils::duplicateSocket(const uv_os_sock_t& socket)
 {
 #ifdef WIN32
-    return duplicateSocket_Windows(socket);
+    auto pSocketHolder = OSSocketHolder::create();
+    pSocketHolder->setSocket(duplicateSocket_Windows(socket));
+    return pSocketHolder;
 #endif
 }
 

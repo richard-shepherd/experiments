@@ -5,11 +5,25 @@ TODO
 
 Move socket to a different UV loop
 ----------------------------------
+- *** Think about cross thread visibility ***
+
+- When we move a socket, we should keep the name name for it
+
 - Client observer onNewConnection() is called from the listening loop when a socket has been created
 
 - This could call moveToLoop(UVLoop)
+  - Create a duplicate socket
+  - Mark the socket as not connected (so that writes are queued)
+  - Close the original UV socket handle
+  - Wait for close to complete
+  - Change the Socket's UVLoop to the new one
+  - Register the duplicated socket on the new loop
+    - Including starting read and write
 
-- When we move a socket, we should keep the name name for it
+- *** The Socket has to stay alive while we do this ***
+  - So we need to keep a reference to the SocketPtr
+  - Maybe have a callback when the move is complete?
+  - Can the callback include data to indicate which Service it is associated with?
 
 
 

@@ -94,7 +94,7 @@ namespace MessagingMesh
 
         // Duplicates the socket.
         // Note: This has different implementations depending on the OS.
-        static uv_os_sock_t duplicateSocket(const uv_os_sock_t& socket);
+        static OSSocketHolderPtr duplicateSocket(const uv_os_sock_t& socket);
 
         // Sets the thread name.
         static void setThreadName(const std::string& threadName);

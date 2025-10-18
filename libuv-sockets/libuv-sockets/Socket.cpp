@@ -161,26 +161,6 @@ void Socket::connectIP(const std::string& ipAddress, int port)
     );
 }
 
-// Connects to the socket specified.
-void Socket::connectSocket(uv_os_sock_t socket)
-{
-    Logger::info(Utils::format("Connecting to specified socket %d", socket));
-
-    // We create the UV socket...
-    createSocket();
-
-    // We open the socket, connecting to the socket passed in...
-    auto status = uv_tcp_open(m_pSocket, socket);
-    if (status != 0)
-    {
-        Logger::error(Utils::format("uv_tcp_open failed: %s", uv_strerror(status)));
-        return;
-    }
-
-    // We start reading and writing...
-    onSocketConnected();
-}
-
 // Called at the client side when a client has connected to a server.
 void Socket::onConnectCompleted(uv_connect_t* pRequest, int status)
 {
@@ -201,20 +181,100 @@ void Socket::onConnectCompleted(uv_connect_t* pRequest, int status)
     }
 }
 
-// Called when a write request has completed.
-void Socket::onWriteCompleted(uv_write_t* pRequest, int status)
+// Moves the socket to be managed by the UV loop specified.
+void Socket::moveToLoop(UVLoopPtr pLoop)
+{
+    // To move a socket to a new loop we:
+    // - Create a duplicate socket
+    // - Mark the socket as not connected(so that writes are queued)
+    // - Close the original UV socket handle
+    // - Wait for close to complete
+    // - Change the Socket's UVLoop to the new one
+    // - Register the duplicated socket on the new loop
+
+    Logger::info("Moving socket to loop: " + pLoop->getName());
+
+    // We duplicate the socket...
+    Logger::info("Duplicating socket");
+    auto pNewOSSocket = UVUtils::duplicateSocket(m_pSocket->socket);
+
+    // We mark the socket as not connected...
+    m_connected = false;
+
+    // We close the socket...
+    Logger::info("Closing original socket");
+    auto pMoveInfo = new move_socket_t;
+    pMoveInfo->self = this;
+    pMoveInfo->pNewOSSocket = pNewOSSocket;
+    pMoveInfo->pNewUVLoop = pLoop;
+    m_pSocket->data = pMoveInfo;
+    uv_close(
+        (uv_handle_t*)m_pSocket,
+        [](uv_handle_t* pHandle)
+        {
+            // The rest of the move continues in moveToLoop_onSocketClosed()...
+            auto pMoveInfo = (move_socket_t*)pHandle->data;
+            pMoveInfo->self->moveToLoop_onSocketClosed(pMoveInfo);
+        }
+    );
+}
+
+// Called after the original socket is closed as part of moving the socket to another UV loop.
+void Socket::moveToLoop_onSocketClosed(move_socket_t* pMoveInfo)
 {
     try
     {
-        // We check the status...
-        if (status < 0)
+        // We delete the original UV socket handle...
+        Logger::info("Deleting original socket handle");
+        delete m_pSocket;
+        m_pSocket = nullptr;
+
+        // We are currently still running in the original UV loop.
+        // We marshall the registration of the new (duplicated) socket to the new loop...
+        auto pNewUVLoop = pMoveInfo->pNewUVLoop;
+        auto pNewOSSocket = pMoveInfo->pNewOSSocket;
+        Logger::info("Marshalling duplicate socket registration to UV loop: " + pNewUVLoop->getName());
+        pMoveInfo->pNewUVLoop->marshallEvent(
+            [this, pNewUVLoop, pNewOSSocket](uv_loop_t* pLoop)
+            {
+                registerDuplicatedSocket(pNewUVLoop, pNewOSSocket);
+            }
+        );
+
+        // We clean up the move-info...
+        delete pMoveInfo;
+    }
+    catch (const std::exception& ex)
+    {
+        Logger::error(Utils::format("%s: %s", __func__, ex.what()));
+    }
+}
+
+// Connects to the (duplicated) socket specified.
+// Note: This is called on the thread for the UVLoop to which we are moving the socket.
+void Socket::registerDuplicatedSocket(UVLoopPtr pUVLoop, OSSocketHolderPtr pOSSocket)
+{
+    try
+    {
+        auto socket = pOSSocket->getSocket();
+        Logger::info(Utils::format("Connecting to duplicated socket %d", socket));
+
+        // We switch to the new UV loop...
+        m_pUVLoop = pUVLoop;
+
+        // We create the UV socket...
+        createSocket();
+
+        // We open the socket, connecting to the socket passed in...
+        auto status = uv_tcp_open(m_pSocket, socket);
+        if (status != 0)
         {
-            Logger::error(Utils::format("Write error: %s", uv_strerror(status)));
+            Logger::error(Utils::format("uv_tcp_open failed: %s", uv_strerror(status)));
+            return;
         }
 
-        // We release the write request (including the buffer)...
-        auto pWriteRequest = (UVUtils::WriteRequest*)pRequest;
-        UVUtils::releaseWriteRequest(pWriteRequest);
+        // We start reading and writing...
+        onSocketConnected();
     }
     catch (const std::exception& ex)
     {
@@ -240,22 +300,6 @@ void Socket::write(NetworkDataPtr pNetworkData)
             processQueuedWrites();
         }
     );
-}
-
-// Detaches the socket and returns a copy (dup) of it.
-OSSocketHolderPtr Socket::detachSocket()
-{
-    // We duplicate the socket...
-    auto duplicateSocket = UVUtils::duplicateSocket(m_pSocket->socket);
-
-    // Note: We do not close the original socket here. It will be closed when
-    //       this socket object is destructed.
-
-    // We return the socket in an OSSocketHolder. This helps with
-    // its visibility across threads...
-    auto pSocketHolder = OSSocketHolder::create();
-    pSocketHolder->setSocket(duplicateSocket);
-    return pSocketHolder;
 }
 
 // Sends a coalesced network message for all queued writes.
@@ -303,6 +347,27 @@ void Socket::processQueuedWrites()
                 self->onWriteCompleted(r, s);
             }
         );
+    }
+    catch (const std::exception& ex)
+    {
+        Logger::error(Utils::format("%s: %s", __func__, ex.what()));
+    }
+}
+
+// Called when a write request has completed.
+void Socket::onWriteCompleted(uv_write_t* pRequest, int status)
+{
+    try
+    {
+        // We check the status...
+        if (status < 0)
+        {
+            Logger::error(Utils::format("Write error: %s", uv_strerror(status)));
+        }
+
+        // We release the write request (including the buffer)...
+        auto pWriteRequest = (UVUtils::WriteRequest*)pRequest;
+        UVUtils::releaseWriteRequest(pWriteRequest);
     }
     catch (const std::exception& ex)
     {
