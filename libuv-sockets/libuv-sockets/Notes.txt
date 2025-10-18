@@ -1,3 +1,8 @@
+TODO
+----
+- 
+
+
 Namespace
 ---------
 - MessagingMesh::Network
@@ -40,7 +45,8 @@ Socket
 - disconnect()
 - send(Data data)
 - registerCallback(callback) -> returns callback-handler, destructor removes it
-- unregisterCallback(callback-handler)
+
+
 
 
 

@@ -72,6 +72,11 @@ namespace MessagingMesh
         // NOTE: The constructor is private. Use Socket::create() to create an instance.
         Socket(UVLoop& uvLoop);
 
+        // Creates the UV socket.
+        // Note: This is not done in the constructor, as that can be called outside
+        //       the UV loop. It is only called from functions inside the loop.
+        void createSocket();
+
         // Called at the client side when a client connect request has completed.
         void onConnectCompleted(uv_connect_t* pRequest, int status);
 
@@ -95,6 +100,9 @@ namespace MessagingMesh
         // The uv loop managing the socket.
         UVLoop& m_uvLoop;
 
+        // True when the socket is connected.
+        bool m_connected;
+
         // The object on which we call callbacks.
         ICallback* m_pCallback;
 
@@ -103,16 +111,16 @@ namespace MessagingMesh
         //       asynchronously from the Socket destructor.
         uv_tcp_t* m_pSocket;
 
+        // The message being currently read (possibly across multiple onDataReceived callbacks).
+        NetworkDataPtr m_pCurrentMessage;
+
+        // Data queued for writing.
+        ThreadsafeConsumableVector<NetworkDataPtr> m_queuedWrites;
+        
     // Constants...
     private:
         // The maximum backlog of unprocessed incoming connections.
         const int MAX_INCOMING_CONNECTION_BACKLOG = 128;
-
-        // The message being currently read (possibly across multiple onDataReceived callbacks).
-        NetworkDataPtr m_currentMessage;
-
-        // Data queued for writing.
-        ThreadsafeConsumableVector<NetworkDataPtr> m_queuedWrites;
     };
 
 } // namespace

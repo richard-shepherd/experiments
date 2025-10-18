@@ -11,7 +11,34 @@ using namespace MessagingMesh;
 // NOTE: The constructor is private. Use Socket::create() to create an instance.
 Socket::Socket(UVLoop& uvLoop) :
     m_uvLoop(uvLoop),
-    m_pCallback(nullptr)
+    m_connected(false),
+    m_pCallback(nullptr),
+    m_pSocket(nullptr),
+    m_pCurrentMessage(nullptr)
+{
+}
+
+// Destructor.
+Socket::~Socket()
+{
+    Logger::info("Closing socket: " + m_name);
+    if (m_pSocket)
+    {
+        uv_close(
+            (uv_handle_t*)m_pSocket,
+            [](uv_handle_t* pHandle)
+            {
+                auto pSocket = (uv_tcp_t*)pHandle;
+                delete pSocket;
+            }
+        );
+    }
+}
+
+// Creates the UV socket.
+// Note: This is not done in the constructor, as that can be called outside
+//       the UV loop. It is only called from functions inside the loop.
+void Socket::createSocket()
 {
     // We create the socket and associate it with the loop.
     // We set its data to point to 'this' so that callbacks can invoke class methods.
@@ -20,21 +47,6 @@ Socket::Socket(UVLoop& uvLoop) :
     uv_tcp_init(
         m_uvLoop.getUVLoop(),
         m_pSocket
-    );
-}
-
-// Destructor.
-Socket::~Socket()
-{
-    //uv_sleep(500);  // RSSTODO: REMOVE THIS!!!
-    Logger::info("Closing socket: " + m_name);
-    uv_close(
-        (uv_handle_t*)m_pSocket,
-        [](uv_handle_t* pHandle)
-        {
-            auto pSocket = (uv_tcp_t*)pHandle;
-            delete pSocket;
-        }
     );
 }
 
@@ -50,6 +62,9 @@ void Socket::listen(int port)
     // We create a name for the socket from its connection info...
     m_name = Utils::format("LISTENING-SOCKET:%d", port);
     Logger::info("Creating socket: " + m_name);
+
+    // We create the UV socket...
+    createSocket();
 
     // We bind to the specified port on all network interfaces...
     struct sockaddr_in addr;
@@ -78,6 +93,9 @@ void Socket::listen(int port)
 // Connects the socket by accepting a listen request received by the server.
 void Socket::accept(uv_stream_t* pServer)
 {
+    // We create the UV socket...
+    createSocket();
+
     // We accept the connection...
     if (uv_accept(pServer, (uv_stream_t*)m_pSocket) == 0)
     {
@@ -88,6 +106,10 @@ void Socket::accept(uv_stream_t* pServer)
 
         // We disable Nagling...
         uv_tcp_nodelay(m_pSocket, 1);
+
+        // We note the the socket is connected and process any queued writes...
+        m_connected = true;
+        processQueuedWrites();
 
         // We start reading data from the socket...
         uv_read_start(
@@ -112,6 +134,9 @@ void Socket::connectIP(const std::string& ipAddress, int port)
 {
     Logger::info(Utils::format("Connecting to %s:%d", ipAddress.c_str(), port));
 
+    // We create the UV socket...
+    createSocket();
+
     // We make the connection request...
     struct sockaddr_in destination;
     uv_ip4_addr(ipAddress.c_str(), port, &destination);
@@ -134,6 +159,9 @@ void Socket::connectSocket(uv_os_sock_t socket)
 {
     Logger::info(Utils::format("Connecting to specified socket %d", socket));
 
+    // We create the UV socket...
+    createSocket();
+
     // We open the socket, connecting to the socket passed in...
     auto status = uv_tcp_open(m_pSocket, socket);
     if (status != 0)
@@ -144,6 +172,10 @@ void Socket::connectSocket(uv_os_sock_t socket)
 
     // We disable Nagling...
     uv_tcp_nodelay(m_pSocket, 1);
+
+    // We note the the socket is connected and process any queued writes...
+    m_connected = true;
+    processQueuedWrites();
 
     // We start reading data from the socket...
     uv_read_start(
@@ -170,6 +202,10 @@ void Socket::onConnectCompleted(uv_connect_t* pRequest, int status)
 
         // We disable Nagling...
         uv_tcp_nodelay((uv_tcp_t*)m_pSocket, 1);
+
+        // We note the the socket is connected and process any queued writes...
+        m_connected = true;
+        processQueuedWrites();
 
         // We listen for data sent to us from the server...
         uv_read_start(
@@ -268,6 +304,12 @@ void Socket::processQueuedWrites()
 {
     try
     {
+        // We check if the socket is connected...
+        if (!m_connected)
+        {
+            return;
+        }
+
         // We find the combined size of the queued writes...
         auto queuedWrites = m_queuedWrites.getItems();
         size_t totalSize = 0;
@@ -387,20 +429,20 @@ void Socket::onDataReceived(uv_stream_t* pStream, ssize_t nread, const uv_buf_t*
         while (bufferPosition < bufferSize)
         {
             // If we do not have a current message we create one...
-            if (!m_currentMessage)
+            if (!m_pCurrentMessage)
             {
-                m_currentMessage = NetworkData::create();
+                m_pCurrentMessage = NetworkData::create();
             }
 
             // We read data into the current message...
-            size_t bytesRead = m_currentMessage->read(pBuffer->base, bufferSize, bufferPosition);
+            size_t bytesRead = m_pCurrentMessage->read(pBuffer->base, bufferSize, bufferPosition);
 
             // If we have read all data for the current message we call back with it.
             // We can then clear the message to start a new one.
-            if (m_currentMessage->hasAllData())
+            if (m_pCurrentMessage->hasAllData())
             {
-                if (m_pCallback) m_pCallback->onDataReceived(m_currentMessage);
-                m_currentMessage = nullptr;
+                if (m_pCallback) m_pCallback->onDataReceived(m_pCurrentMessage);
+                m_pCurrentMessage = nullptr;
             }
 
             // We update the buffer position and loop to check if there is
