@@ -60,9 +60,6 @@ namespace MessagingMesh
         // Queued writes will be coalesced into one network update.
         void write(NetworkDataPtr pNetworkData);
 
-        // Writes data to the socket.
-        void immediateWrite(NetworkDataPtr pNetworkData);
-
         // Detaches the socket and returns a copy (dup) of it.
         OSSocketHolderPtr detachSocket();
 
@@ -111,8 +108,7 @@ namespace MessagingMesh
         ICallback* m_pCallback;
 
         // UV socket handle.
-        // Note: This is not a unique_ptr as we need to delete it
-        //       asynchronously from the Socket destructor.
+        // Note: This is not a unique_ptr as we need to delete it asynchronously from the Socket destructor.
         uv_tcp_t* m_pSocket;
 
         // The message being currently read (possibly across multiple onDataReceived callbacks).

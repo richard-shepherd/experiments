@@ -201,24 +201,6 @@ void Socket::onConnectCompleted(uv_connect_t* pRequest, int status)
     }
 }
 
-// Writes data to the socket.
-void Socket::immediateWrite(NetworkDataPtr pNetworkData)
-{
-    auto pWriteRequest = UVUtils::allocateWriteRequest(pNetworkData);
-    pWriteRequest->write_request.data = this;
-    uv_write(
-        &pWriteRequest->write_request, 
-        (uv_stream_t*)m_pSocket,
-        &pWriteRequest->buffer, 
-        1, 
-        [](uv_write_t* r, int s)
-        {
-            auto self = (Socket*)r->data;
-            self->onWriteCompleted(r, s);
-        }
-    );
-}
-
 // Called when a write request has completed.
 void Socket::onWriteCompleted(uv_write_t* pRequest, int status)
 {
