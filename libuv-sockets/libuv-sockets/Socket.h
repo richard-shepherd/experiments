@@ -55,13 +55,13 @@ namespace MessagingMesh
         // Connects to the socket specified.
         void connectSocket(uv_os_sock_t socket);
 
-        // Writes data to the socket.
-        void write(NetworkDataPtr pNetworkData);
-
         // Queues data to be written to the socket.
         // Can be called from any thread, not just from the uv loop thread.
         // Queued writes will be coalesced into one network update.
-        void queueWrite(NetworkDataPtr pNetworkData);
+        void write(NetworkDataPtr pNetworkData);
+
+        // Writes data to the socket.
+        void immediateWrite(NetworkDataPtr pNetworkData);
 
         // Detaches the socket and returns a copy (dup) of it.
         OSSocketHolderPtr detachSocket();

@@ -202,7 +202,7 @@ void Socket::onConnectCompleted(uv_connect_t* pRequest, int status)
 }
 
 // Writes data to the socket.
-void Socket::write(NetworkDataPtr pNetworkData)
+void Socket::immediateWrite(NetworkDataPtr pNetworkData)
 {
     auto pWriteRequest = UVUtils::allocateWriteRequest(pNetworkData);
     pWriteRequest->write_request.data = this;
@@ -244,7 +244,7 @@ void Socket::onWriteCompleted(uv_write_t* pRequest, int status)
 // Can be called from any thread, not just from the uv loop thread.
 // Queued writes will be coalesced into one network update.
 // RSSTODO: We need some way to slow down the client if it publishes too much too fast.
-void Socket::queueWrite(NetworkDataPtr pNetworkData)
+void Socket::write(NetworkDataPtr pNetworkData)
 {
     // We queue the data to write...
     m_queuedWrites.add(pNetworkData);

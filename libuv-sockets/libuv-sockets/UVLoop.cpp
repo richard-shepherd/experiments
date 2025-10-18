@@ -44,7 +44,7 @@ void UVLoop::threadEntryPoint()
     try
     {
         // We set the thread's name...
-        uv_thread_setname(m_threadName.c_str());
+        UVUtils::setThreadName(m_threadName);
 
         // We create the uv loop and tell it that it is associated with 
         // this UVLoopThread object...

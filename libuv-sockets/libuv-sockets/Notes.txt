@@ -1,6 +1,7 @@
 TODO
 ----
 - Handle disconnections
+- Logger should be thread safe
 
 
 Namespace

@@ -12,7 +12,8 @@ void onMessageLogged(Logger::LogLevel logLevel, const std::string& message)
 {
     auto time = Utils::getTimeString();
     auto threadID = std::this_thread::get_id();
-    std::cout << time << ": (" << threadID << "): " << "MessagingMesh: " + Logger::toString(logLevel) + ": " + message << std::endl;
+    auto threadName = UVUtils::getThreadName();
+    std::cout << time << ": (" << threadName << "," << threadID << "): " << "MessagingMesh: " + Logger::toString(logLevel) + ": " + message << std::endl;
 }
 
 void runClient()
@@ -28,9 +29,6 @@ void runClient()
         }
     );
 
-    // RSSTODO: We need to wait for the socket to connect
-    //uv_sleep(1000);
-
     // We send some data...
     Logger::info("Sending data");
     const int size = 10;
@@ -39,7 +37,7 @@ void runClient()
         int data[size];
         data[0] = size * 4 - 4;
         auto pNetworkData = NetworkData::create(&data[0], sizeof(data));
-        pSocket->queueWrite(pNetworkData);
+        pSocket->write(pNetworkData);
     }
 
     Logger::info("Press Enter to exit");
@@ -56,6 +54,7 @@ void runServer()
 
 int main(int argc, char* argv[])
 {
+    UVUtils::setThreadName("MAIN");
     Logger::registerCallback(onMessageLogged);
 
     const char CLIENT[] = "-client";

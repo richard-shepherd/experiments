@@ -110,3 +110,18 @@ uv_os_sock_t UVUtils::duplicateSocket_Windows(const uv_os_sock_t& socket)
     // We return the duplicated socket...
     return (uv_os_sock_t)newSocket;
 }
+
+// Sets the thread name.
+void UVUtils::setThreadName(const std::string& threadName)
+{
+    uv_thread_setname(threadName.c_str());
+}
+
+// Gets the name of the current thread.
+std::string UVUtils::getThreadName()
+{
+    char threadName[128];
+    auto threadID = uv_thread_self();
+    uv_thread_getname(&threadID, &threadName[0], sizeof(threadName));
+    return std::string(threadName);
+}
