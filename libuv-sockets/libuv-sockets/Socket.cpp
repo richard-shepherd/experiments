@@ -212,7 +212,7 @@ void Socket::moveToLoop(UVLoopPtr pLoop)
         (uv_handle_t*)m_pSocket,
         [](uv_handle_t* pHandle)
         {
-            // The rest of the move continues in moveToLoop_onSocketClosed()...
+            // The move continues in moveToLoop_onSocketClosed()...
             auto pMoveInfo = (move_socket_t*)pHandle->data;
             pMoveInfo->self->moveToLoop_onSocketClosed(pMoveInfo);
         }
@@ -237,7 +237,8 @@ void Socket::moveToLoop_onSocketClosed(move_socket_t* pMoveInfo)
         pMoveInfo->pNewUVLoop->marshallEvent(
             [this, pNewUVLoop, pNewOSSocket](uv_loop_t* pLoop)
             {
-                registerDuplicatedSocket(pNewUVLoop, pNewOSSocket);
+                // The move continues in moveToLoop_registerDuplicatedSocket()...
+                moveToLoop_registerDuplicatedSocket(pNewUVLoop, pNewOSSocket);
             }
         );
 
@@ -252,7 +253,7 @@ void Socket::moveToLoop_onSocketClosed(move_socket_t* pMoveInfo)
 
 // Connects to the (duplicated) socket specified.
 // Note: This is called on the thread for the UVLoop to which we are moving the socket.
-void Socket::registerDuplicatedSocket(UVLoopPtr pUVLoop, OSSocketHolderPtr pOSSocket)
+void Socket::moveToLoop_registerDuplicatedSocket(UVLoopPtr pUVLoop, OSSocketHolderPtr pOSSocket)
 {
     try
     {

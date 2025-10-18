@@ -104,7 +104,7 @@ namespace MessagingMesh
 
         // Connects to the (duplicated) socket specified.
         // Note: This is called on the thread for the UVLoop to which we are moving the socket.
-        void registerDuplicatedSocket(UVLoopPtr pUVLoop, OSSocketHolderPtr pOSSocketHolder);
+        void moveToLoop_registerDuplicatedSocket(UVLoopPtr pUVLoop, OSSocketHolderPtr pOSSocketHolder);
 
     // Private data...
     private:
