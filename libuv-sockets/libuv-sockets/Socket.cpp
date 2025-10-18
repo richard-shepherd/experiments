@@ -56,6 +56,28 @@ void Socket::setCallback(ICallback* pCallback)
     m_pCallback = pCallback;
 }
 
+// Called when a socket is connected to set up reading and writing.
+void Socket::onSocketConnected()
+{
+    // We disable Nagling...
+    uv_tcp_nodelay(m_pSocket, 1);
+
+    // We note the the socket is connected and process any queued writes...
+    m_connected = true;
+    processQueuedWrites();
+
+    // We start reading data from the socket...
+    uv_read_start(
+        (uv_stream_t*)m_pSocket,
+        UVUtils::allocateBufferMemory,
+        [](uv_stream_t* s, ssize_t n, const uv_buf_t* b)
+        {
+            auto self = (Socket*)s->data;
+            self->onDataReceived(s, n, b);
+        }
+    );
+}
+
 // Connects a server socket to listen on the specified port.
 void Socket::listen(int port)
 {
@@ -104,23 +126,8 @@ void Socket::accept(uv_stream_t* pServer)
         m_name = Utils::format("CLIENT-SOCKET:%s:%s", peerInfo.Hostname, peerInfo.Service);
         Logger::info("Accepted socket: " + m_name);
 
-        // We disable Nagling...
-        uv_tcp_nodelay(m_pSocket, 1);
-
-        // We note the the socket is connected and process any queued writes...
-        m_connected = true;
-        processQueuedWrites();
-
-        // We start reading data from the socket...
-        uv_read_start(
-            (uv_stream_t*)m_pSocket,
-            UVUtils::allocateBufferMemory,
-            [](uv_stream_t* s, ssize_t n, const uv_buf_t* b)
-            {
-                auto self = (Socket*)s->data;
-                self->onDataReceived(s, n, b);
-            }
-        );
+        // We start reading and writing...
+        onSocketConnected();
     }
     else
     {
@@ -170,23 +177,8 @@ void Socket::connectSocket(uv_os_sock_t socket)
         return;
     }
 
-    // We disable Nagling...
-    uv_tcp_nodelay(m_pSocket, 1);
-
-    // We note the the socket is connected and process any queued writes...
-    m_connected = true;
-    processQueuedWrites();
-
-    // We start reading data from the socket...
-    uv_read_start(
-        (uv_stream_t*)m_pSocket,
-        UVUtils::allocateBufferMemory,
-        [](uv_stream_t* s, ssize_t n, const uv_buf_t* b)
-        {
-            auto self = (Socket*)s->data;
-            self->onDataReceived(s, n, b);
-        }
-    );
+    // We start reading and writing...
+    onSocketConnected();
 }
 
 // Called at the client side when a client has connected to a server.
@@ -200,23 +192,8 @@ void Socket::onConnectCompleted(uv_connect_t* pRequest, int status)
             return;
         }
 
-        // We disable Nagling...
-        uv_tcp_nodelay((uv_tcp_t*)m_pSocket, 1);
-
-        // We note the the socket is connected and process any queued writes...
-        m_connected = true;
-        processQueuedWrites();
-
-        // We listen for data sent to us from the server...
-        uv_read_start(
-            (uv_stream_t*)m_pSocket,
-            UVUtils::allocateBufferMemory,
-            [](uv_stream_t* s, ssize_t n, const uv_buf_t* b)
-            {
-                auto self = (Socket*)s->data;
-                self->onDataReceived(s, n, b);
-            }
-        );
+        // We start reading and writing...
+        onSocketConnected();
     }
     catch (const std::exception& ex)
     {
@@ -351,7 +328,8 @@ void Socket::processQueuedWrites()
     }
 }
 
-// Called at the server side when a new client conection is received.
+// Called at the server side when a new client connection has been received
+// on a listening socket.
 void Socket::onNewConnection(uv_stream_t* pServer, int status)
 {
     try

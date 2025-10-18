@@ -77,10 +77,14 @@ namespace MessagingMesh
         //       the UV loop. It is only called from functions inside the loop.
         void createSocket();
 
+        // Called when a socket is connected to set up reading and writing.
+        void onSocketConnected();
+
         // Called at the client side when a client connect request has completed.
         void onConnectCompleted(uv_connect_t* pRequest, int status);
 
-        // Called at the server side when a new client conection is received.
+        // Called at the server side when a new client connection has been received
+        // on a listening socket.
         void onNewConnection(uv_stream_t* server, int status);
 
         // Called when data has been received on a socket.
