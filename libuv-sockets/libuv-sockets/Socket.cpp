@@ -9,8 +9,8 @@ using namespace MessagingMesh;
 
 // Constructor.
 // NOTE: The constructor is private. Use Socket::create() to create an instance.
-Socket::Socket(UVLoop& uvLoop) :
-    m_uvLoop(uvLoop),
+Socket::Socket(UVLoopPtr pUVLoop) :
+    m_pUVLoop(pUVLoop),
     m_connected(false),
     m_pCallback(nullptr),
     m_pSocket(nullptr),
@@ -45,7 +45,7 @@ void Socket::createSocket()
     m_pSocket = new uv_tcp_t;
     m_pSocket->data = this;
     uv_tcp_init(
-        m_uvLoop.getUVLoop(),
+        m_pUVLoop->getUVLoop(),
         m_pSocket
     );
 }
@@ -233,7 +233,7 @@ void Socket::write(NetworkDataPtr pNetworkData)
 
     // We marshall an event to write the data. As this does not take place straight 
     // away, this allows us to coalesce multiple queued writes...
-    m_uvLoop.marshallUniqueEvent(
+    m_pUVLoop->marshallUniqueEvent(
         UVLoop::UniqueEventKey::SOCKET_QUEUE_WRITE,
         [this](uv_loop_t* pLoop)
         {
@@ -325,7 +325,7 @@ void Socket::onNewConnection(uv_stream_t* pServer, int status)
         }
 
         // We create a client socket for the new connection...
-        auto clientSocket = Socket::create(m_uvLoop);
+        auto clientSocket = Socket::create(m_pUVLoop);
         clientSocket->accept(pServer);
 
         // We pass the socket to the callback...

@@ -18,11 +18,11 @@ void onMessageLogged(Logger::LogLevel logLevel, const std::string& message)
 
 void runClient()
 {
-    UVLoop clientUVLoop("CLIENT");
-    auto pSocket = Socket::create(clientUVLoop);
+    auto pUVLoop = UVLoop::create("CLIENT");
+    auto pSocket = Socket::create(pUVLoop);
 
     // We connect to the server...
-    clientUVLoop.marshallEvent(
+    pUVLoop->marshallEvent(
         [pSocket](uv_loop_t* pLoop)
         {
             pSocket->connectIP("127.0.0.1", 5050);

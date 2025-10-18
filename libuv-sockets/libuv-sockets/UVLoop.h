@@ -2,6 +2,7 @@
 #include <string>
 #include <functional>
 #include "uv.h"
+#include "SharedPointers.h"
 #include "ThreadsafeConsumableVector.h"
 
 namespace MessagingMesh
@@ -28,8 +29,8 @@ namespace MessagingMesh
 
     // Public methods...
     public:
-        // Constructor.
-        UVLoop(const std::string& threadName);
+        // Creates a Socket instance to be managed by the uv loop specified.
+        static UVLoopPtr create(const std::string& name) { return UVLoopPtr(new UVLoop(name)); }
 
         // Destructor.
         ~UVLoop();
@@ -48,6 +49,10 @@ namespace MessagingMesh
 
     // Private functions...
     private:
+        // Constructor.
+        // NOTE: The constructor is private. Use UVLoop::create() to create an instance.
+        UVLoop(const std::string& name);
+
         // Thread entry point.
         void threadEntryPoint();
 
@@ -56,8 +61,8 @@ namespace MessagingMesh
 
     // Private data...
     private:
-        // The thread name...
-        std::string m_threadName;
+        // The loop name. This will also be set as the name of the thread running the loop.
+        std::string m_name;
 
         // Thread handle.
         uv_thread_t m_threadHandle;

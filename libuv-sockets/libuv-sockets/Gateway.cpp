@@ -8,15 +8,15 @@ using namespace MessagingMesh;
 // Constructor.
 Gateway::Gateway(int port) :
     m_port(port),
-    m_uvLoop("GATEWAY"),
-    m_uvClientLoop("CLIENT-LOOP")
+    m_pUVLoop(UVLoop::create("GATEWAY")),
+    m_pUVClientLoop(UVLoop::create("CLIENT-LOOP"))
 {
     // We create a socket to listen to client connections, managed by the uv loop...
-    m_uvLoop.marshallEvent(
+    m_pUVLoop->marshallEvent(
         [this](uv_loop_t* pLoop)
         {
             // RSSTODO: Needs try-catch on this callback
-            m_listeningSocket = Socket::create(m_uvLoop);
+            m_listeningSocket = Socket::create(m_pUVLoop);
             m_listeningSocket->setCallback(this);
             m_listeningSocket->listen(m_port);
         }
@@ -47,8 +47,8 @@ void Gateway::onNewConnection(SocketPtr pClientSocket)
 {
     // We duplicate the socket and run it on the client loop...
     auto pSocketHolder = pClientSocket->detachSocket();
-    auto pMovedSocket = Socket::create(m_uvClientLoop);
-    m_uvClientLoop.marshallEvent(
+    auto pMovedSocket = Socket::create(m_pUVClientLoop);
+    m_pUVClientLoop->marshallEvent(
         [pSocketHolder, pMovedSocket](uv_loop_t*)
         {
             auto socket = pSocketHolder->getSocket();

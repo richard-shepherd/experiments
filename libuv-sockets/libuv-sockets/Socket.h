@@ -35,7 +35,7 @@ namespace MessagingMesh
     // Public methods...
     public:
         // Creates a Socket instance to be managed by the uv loop specified.
-        static SocketPtr create(UVLoop& uvLoop) { return SocketPtr(new Socket(uvLoop)); }
+        static SocketPtr create(UVLoopPtr pUVLoop) { return SocketPtr(new Socket(pUVLoop)); }
 
         // Destructor.
         ~Socket();
@@ -67,7 +67,7 @@ namespace MessagingMesh
     private:
         // Constructor.
         // NOTE: The constructor is private. Use Socket::create() to create an instance.
-        Socket(UVLoop& uvLoop);
+        Socket(UVLoopPtr pUVLoop);
 
         // Creates the UV socket.
         // Note: This is not done in the constructor, as that can be called outside
@@ -99,7 +99,7 @@ namespace MessagingMesh
         std::string m_name;
 
         // The uv loop managing the socket.
-        UVLoop& m_uvLoop;
+        UVLoopPtr m_pUVLoop;
 
         // True when the socket is connected.
         bool m_connected;

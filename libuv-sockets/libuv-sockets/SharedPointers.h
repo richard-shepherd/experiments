@@ -7,6 +7,7 @@ namespace MessagingMesh
     class NetworkData;
     class Socket;
     class OSSocketHolder;
+    class UVLoop;
 
     // Shared pointer to a NetworkData.
     typedef std::shared_ptr<NetworkData> NetworkDataPtr;
@@ -16,5 +17,8 @@ namespace MessagingMesh
 
     // Shared pointer to an OSSocketHolder.
     typedef std::shared_ptr<OSSocketHolder> OSSocketHolderPtr;
+
+    // Shared pointer to a UVLoop.
+    typedef std::shared_ptr<UVLoop> UVLoopPtr;
 
 } // namespace

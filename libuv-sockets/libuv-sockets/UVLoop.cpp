@@ -5,10 +5,10 @@
 using namespace MessagingMesh;
 
 // Constructor.
-UVLoop::UVLoop(const std::string& threadName) :
-    m_threadName(threadName)
+UVLoop::UVLoop(const std::string& name) :
+    m_name(name)
 {
-    Logger::info("Creating thread: " + m_threadName);
+    Logger::info("Creating UV loop: " + m_name);
 
     // We create the thread...
     uv_thread_create(
@@ -25,7 +25,7 @@ UVLoop::UVLoop(const std::string& threadName) :
 UVLoop::~UVLoop()
 {
     // We marshall an event to the loop to tell it to stop...
-    Logger::info("Signalling thread to stop: " + m_threadName);
+    Logger::info("Signalling UV loop to stop: " + m_name);
     marshallEvent(
         [](uv_loop_t* pLoop)
         {
@@ -33,9 +33,8 @@ UVLoop::~UVLoop()
         });
 
     // We wait for the thread to end...
-    Logger::info("Waiting for thread to stop: " + m_threadName);
     uv_thread_join(&m_threadHandle);
-    Logger::info("Thread stopped: " + m_threadName);
+    Logger::info("UV loop stopped: " + m_name);
 }
 
 // Thread entry point.
@@ -44,7 +43,7 @@ void UVLoop::threadEntryPoint()
     try
     {
         // We set the thread's name...
-        UVUtils::setThreadName(m_threadName);
+        UVUtils::setThreadName(m_name);
 
         // We create the uv loop and tell it that it is associated with 
         // this UVLoopThread object...
@@ -67,7 +66,7 @@ void UVLoop::threadEntryPoint()
         uv_async_send(m_marshalledEventsSignal.get());
 
         // We run the loop...
-        Logger::info("Running event loop for thread: " + m_threadName);
+        Logger::info("Running UV event loop for: " + m_name);
         uv_run(m_loop.get(), UV_RUN_DEFAULT);
     }
     catch (const std::exception& ex)

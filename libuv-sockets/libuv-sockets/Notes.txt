@@ -3,49 +3,13 @@ TODO
 - Handle disconnections
 - Logger should be thread safe
 
+Move socket to a different UV loop
+----------------------------------
+- Client observer onNewConnection() is called from the listening loop when a socket has been created
 
-Namespace
----------
-- MessagingMesh::Network
-  - eg, MessagingMesh::Network::Client
+- This could call moveToLoop(UVLoop)
 
-UVLoopThread
-------------
-- Creates a thread and runs a uv loop on it
-
-- Lets you mashall actions to it
-  - An action could be a lambda: void(uv_loop_t* pLoop)
-  - The body of the lambda would do some action on the loop, eg:
-    - Writing data
-    - Registering a socket
-
-- Actions are stored in a thread-safe queue, and run in order when picked up
-
-- We use the asyc thing to poke the thread to wake up and process the queue
-
-Data
-----
-- size (int32)
-- payload (size bytes)
-
-- This represents one network 'message', ie one lump of data
-  sent from client to server or server to client.
-
-- RSSTODO: Think about the ownership of the memory
-
-Socket
-------
-- ICallback: interface for callbacks
-  - onDataReceived(Data data)
-  - onNewConnection(Socket clientSocket)
-- Constructor
-- Destructor: calls disconnect()
-- connectIP(string ipaddress, int port)
-- connectHostname(string hostname, int port)
-- listen()
-- disconnect()
-- send(Data data)
-- registerCallback(callback) -> returns callback-handler, destructor removes it
+- When we move a socket, we should keep the name name for it
 
 
 
