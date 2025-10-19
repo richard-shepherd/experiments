@@ -1,7 +1,6 @@
 TODO
 ----
 - Connect using hostname
-- Handle disconnections
 
 
 

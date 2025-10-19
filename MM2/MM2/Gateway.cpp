@@ -47,9 +47,16 @@ void Gateway::onNewConnection(SocketPtr pClientSocket)
 {
     // We observe the socket...
     pClientSocket->setCallback(this);
-    m_clientSockets.push_back(pClientSocket);
+    m_clientSockets[pClientSocket->getName()] = pClientSocket;
 
     // We move the socket to the client loop...
     pClientSocket->moveToLoop(m_pUVClientLoop);
 }
 
+// Called when a socket has been disconnected.
+        // Called when a socket has been disconnected.
+        // Called on the socket's thread.
+void Gateway::onDisconnected(const std::string& socketName)
+{
+    m_clientSockets.erase(socketName);
+}

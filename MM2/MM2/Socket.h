@@ -29,7 +29,10 @@ namespace MessagingMesh
 
             // Called when a new client connection has been made to a listening socket.
             // Called on the UV loop thread.
-            virtual void onNewConnection(SocketPtr clientSocket) = 0;
+            virtual void onNewConnection(SocketPtr pClientSocket) = 0;
+
+            // Called when a socket has been disconnected.
+            virtual void onDisconnected(const std::string& socketName) = 0;
         };
 
     // Public methods...
@@ -39,6 +42,9 @@ namespace MessagingMesh
 
         // Destructor.
         ~Socket();
+
+        // Gets the socket's name.
+        const std::string& getName() const { return m_name; }
 
         // Sets the callback.
         void setCallback(ICallback* pCallback);

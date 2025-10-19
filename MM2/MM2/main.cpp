@@ -32,10 +32,11 @@ void runClient()
     const int size = 10;
     for (auto i = 0; i < 50000000; ++i)
     {
-        int data[size];
-        data[0] = size * 4 - 4;
+        int data[size + 1];
+        data[0] = size * 4;
         auto pNetworkData = NetworkData::create(&data[0], sizeof(data));
         pSocket->write(pNetworkData);
+        //if (i % 100000 == 0) uv_sleep(100);
     }
 
     Logger::info("Press Enter to exit");

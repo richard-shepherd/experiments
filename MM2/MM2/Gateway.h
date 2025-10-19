@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include <vector>
+#include <map>
 #include "UVLoop.h"
 #include "Socket.h"
 #include "SharedPointers.h"
@@ -27,11 +27,15 @@ namespace MessagingMesh
     public:
         // Called when data has been received on the socket.
         // Called on the thread of the client socket.
-        void onDataReceived(NetworkDataPtr networkData);
+        void onDataReceived(NetworkDataPtr pNetworkData);
 
         // Called when a new client connection has been made to a listening socket.
         // Called on the GATEWAY thread.
-        void onNewConnection(SocketPtr clientSocket);
+        void onNewConnection(SocketPtr pClientSocket);
+
+        // Called when a socket has been disconnected.
+        // Called on the socket's thread.
+        void onDisconnected(const std::string& socketName);
 
     // Private data...
     private:
@@ -48,7 +52,8 @@ namespace MessagingMesh
         // Socket listening for incoming connections.
         SocketPtr m_listeningSocket;
 
-        std::vector<SocketPtr> m_clientSockets;
+        // Client sockets.
+        std::map<std::string, SocketPtr> m_clientSockets;
     };
 
 } // namespace

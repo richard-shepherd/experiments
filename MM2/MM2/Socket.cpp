@@ -22,17 +22,25 @@ Socket::Socket(UVLoopPtr pUVLoop) :
 Socket::~Socket()
 {
     Logger::info("Closing socket: " + m_name);
-    if (m_pSocket)
-    {
-        uv_close(
-            (uv_handle_t*)m_pSocket,
-            [](uv_handle_t* pHandle)
-            {
-                auto pSocket = (uv_tcp_t*)pHandle;
-                delete pSocket;
-            }
-        );
-    }
+
+    // The destructor could be called from a different thread than the
+    // one running the UV loop, so we marshall the socket close event
+    // to the socket's UV loop.
+    auto pSocket = m_pSocket;
+    m_pUVLoop->marshallEvent(
+        [pSocket](uv_loop_t* pLoop)
+        {
+            if (!pSocket) return;
+            uv_close(
+                (uv_handle_t*)pSocket,
+                [](uv_handle_t* pHandle)
+                {
+                    auto pSocket = (uv_tcp_t*)pHandle;
+                    delete pSocket;
+                }
+            );
+        }
+    );
 }
 
 // Creates the UV socket.
@@ -139,6 +147,7 @@ void Socket::accept(uv_stream_t* pServer)
 // Connects a client socket to the IP address and port specified.
 void Socket::connectIP(const std::string& ipAddress, int port)
 {
+    m_name = Utils::format("CLIENT-SOCKET:%s:%d", ipAddress.c_str(), port);
     Logger::info(Utils::format("Connecting to %s:%d", ipAddress.c_str(), port));
 
     // We create the UV socket...
@@ -195,14 +204,12 @@ void Socket::moveToLoop(UVLoopPtr pLoop)
     Logger::info("Moving socket to loop: " + pLoop->getName());
 
     // We duplicate the socket...
-    Logger::info("Duplicating socket");
     auto pNewOSSocket = UVUtils::duplicateSocket(m_pSocket->socket);
 
     // We mark the socket as not connected...
     m_connected = false;
 
     // We close the socket...
-    Logger::info("Closing original socket");
     auto pMoveInfo = new move_socket_t;
     pMoveInfo->self = this;
     pMoveInfo->pNewOSSocket = pNewOSSocket;
@@ -225,7 +232,6 @@ void Socket::moveToLoop_onSocketClosed(move_socket_t* pMoveInfo)
     try
     {
         // We delete the original UV socket handle...
-        Logger::info("Deleting original socket handle");
         delete m_pSocket;
         m_pSocket = nullptr;
 
@@ -233,7 +239,6 @@ void Socket::moveToLoop_onSocketClosed(move_socket_t* pMoveInfo)
         // We marshall the registration of the new (duplicated) socket to the new loop...
         auto pNewUVLoop = pMoveInfo->pNewUVLoop;
         auto pNewOSSocket = pMoveInfo->pNewOSSocket;
-        Logger::info("Marshalling duplicate socket registration to UV loop: " + pNewUVLoop->getName());
         pMoveInfo->pNewUVLoop->marshallEvent(
             [this, pNewUVLoop, pNewOSSocket](uv_loop_t* pLoop)
             {
@@ -408,6 +413,17 @@ void Socket::onDataReceived(uv_stream_t* pStream, ssize_t nread, const uv_buf_t*
 {
     try
     {
+        // We check for errors...
+        if (nread < 1)
+        {
+            Logger::info(Utils::format("onDataReceived: %s", uv_strerror(nread)));
+            if (nread == UV_EOF)
+            {
+                if (m_pCallback) m_pCallback->onDisconnected(m_name);
+            }
+            return;
+        }
+
         // All data we receive comes in the form of network-data messages.
         // These look like:
         // - size  (int32, little-endian)
