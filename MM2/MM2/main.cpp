@@ -11,9 +11,7 @@ using namespace MessagingMesh;
 void onMessageLogged(Logger::LogLevel logLevel, const std::string& message)
 {
     auto time = Utils::getTimeString();
-    auto threadID = std::this_thread::get_id();
-    auto threadName = UVUtils::getThreadName();
-    std::cout << time << ": (" << threadName << "," << threadID << "): " << "MessagingMesh: " + Logger::toString(logLevel) + ": " + message << std::endl;
+    std::cout << time << ": " << Logger::toString(logLevel) << ": " << message << std::endl;
 }
 
 void runClient()

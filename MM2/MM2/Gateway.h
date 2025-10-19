@@ -26,11 +26,11 @@ namespace MessagingMesh
     // Socket::ICallback implementation...
     public:
         // Called when data has been received on the socket.
-        // Called on the UV loop thread.
+        // Called on the thread of the client socket.
         void onDataReceived(NetworkDataPtr networkData);
 
         // Called when a new client connection has been made to a listening socket.
-        // Called on the UV loop thread.
+        // Called on the GATEWAY thread.
         void onNewConnection(SocketPtr clientSocket);
 
     // Private data...

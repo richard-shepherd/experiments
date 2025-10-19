@@ -29,7 +29,7 @@ Gateway::~Gateway()
 }
 
 // Called when data has been received on the socket.
-// Called on the UV loop thread.
+// Called on the thread of the client socket.
 void Gateway::onDataReceived(NetworkDataPtr pNetworkData)
 {
     static int count = 0;
@@ -42,7 +42,7 @@ void Gateway::onDataReceived(NetworkDataPtr pNetworkData)
 }
 
 // Called when a new client connection has been made to a listening socket.
-// Called on the UV loop thread.
+// Called on the GATEWAY thread.
 void Gateway::onNewConnection(SocketPtr pClientSocket)
 {
     // We observe the socket...
