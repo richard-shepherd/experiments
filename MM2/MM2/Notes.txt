@@ -1,7 +1,10 @@
 TODO
 ----
+- Connect using hostname
 - Handle disconnections
 - Logger should be thread safe
+- Include thread name in log messages (in the logger itself)
+
 
 Move socket to a different UV loop
 ----------------------------------
