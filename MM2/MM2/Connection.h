@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <string>
 
 namespace MessagingMesh
 {
@@ -14,7 +15,7 @@ namespace MessagingMesh
     // Public methods...
     public:
         // Constructor.
-        Connection();
+        Connection(const std::string& hostname, int port, const std::string& service);
         
     // Private data...
     private:

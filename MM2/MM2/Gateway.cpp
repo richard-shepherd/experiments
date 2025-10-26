@@ -35,10 +35,11 @@ void Gateway::onDataReceived(NetworkDataPtr pNetworkData)
     static int count = 0;
 
     count++;
-    if (count % 1000000 == 0)
-    {
-        Logger::info(Utils::format("Received data: %d", count));
-    }
+    Logger::info(Utils::format("Received data: %d", count));
+    //if (count % 1000000 == 0)
+    //{
+    //    Logger::info(Utils::format("Received data: %d", count));
+    //}
 }
 
 // Called when a new client connection has been made to a listening socket.

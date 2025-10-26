@@ -30,7 +30,7 @@ void runClient()
     // We send some data...
     Logger::info("Sending data");
     const int size = 10;
-    for (auto i = 0; i < 50000000; ++i)
+    for (auto i = 0; i < 500; ++i)
     {
         int data[size + 1];
         data[0] = size * 4;

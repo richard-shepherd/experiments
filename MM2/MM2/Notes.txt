@@ -1,6 +1,7 @@
 TODO
 ----
-- Connect using hostname
+- There's too much overlap between Buffer and NetworkData
+  - I thik=nk we only need one of them!!!
 
 - Handle client connection failure, eg if gateway is not running
 

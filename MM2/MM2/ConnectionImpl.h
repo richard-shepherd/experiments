@@ -1,7 +1,12 @@
 #pragma once
+#include <string>
+#include "SharedPointers.h"
 
 namespace MessagingMesh
 {
+    // Forward declarations...
+    class NetworkMessage;
+
     /// <summary>
     /// Implementation of the Connection class, ie a client connection
     /// to the messaging-mesh.
@@ -11,7 +16,25 @@ namespace MessagingMesh
     // Public methods...
     public:
         // Constructor.
-        ConnectionImpl();
+        ConnectionImpl(const std::string& hostname, int port, const std::string& service);
+
+    // Private functions...
+    private:
+        // Sends a network-message to the gateway.
+        void sendNetworkMessage(const NetworkMessage& networkMessage);
+
+    // Private data...
+    private:
+        // Construction params...
+        std::string m_hostname;
+        int m_port;
+        std::string m_service;
+
+        // UV loop for client messaging...
+        UVLoopPtr m_pUVLoop;
+
+        // Socket connection to the gateway...
+        SocketPtr m_pSocket;
     };
 } // namespace
 

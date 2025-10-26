@@ -16,6 +16,12 @@ namespace MessagingMesh
         // Constructor.
         NetworkMessage();
 
+        // Gets a reference to the header.
+        NetworkMessageHeader& getHeader() { return m_header; }
+
+        // Gets a reference to the message.
+        MessagePtr& getMessage() { return m_pMessage; }
+
         // Serializes the network message to the current position of the buffer.
         void serialize(Buffer& buffer) const;
 

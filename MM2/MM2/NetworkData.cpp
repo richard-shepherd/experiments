@@ -1,5 +1,6 @@
-#include <algorithm>
 #include "NetworkData.h"
+#include <algorithm>
+#include "Buffer.h"
 using namespace MessagingMesh;
 
 // Constructor.
@@ -23,6 +24,27 @@ NetworkData::NetworkData(void* pData, size_t dataSize) :
     m_pDataBuffer = new char[dataSize];
     memcpy(m_pDataBuffer, pData, dataSize);
     m_size = (int32_t)dataSize;
+    m_hasAllData = true;
+}
+
+// Constructor.
+// NOTE: The constructor is private. Use NetworkData::create() to create an instance.
+NetworkData::NetworkData(const Buffer& buffer) :
+    NetworkData()
+{
+    // We take ownership of the data...
+    auto data = buffer.getData();
+    m_size = buffer.getDataSize();
+
+    // We create our buffer large enough to hold the data plus the data size...
+    auto sizeOfSize = sizeof(int32_t);
+    m_pDataBuffer = new char[m_size + sizeOfSize];
+
+    // We store the data size...
+    memcpy(m_pDataBuffer, &m_size, sizeOfSize);
+
+    // We store the data...
+    memcpy(m_pDataBuffer + sizeOfSize, &data[0], m_size);
     m_hasAllData = true;
 }
 

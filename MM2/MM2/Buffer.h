@@ -21,6 +21,11 @@ namespace MessagingMesh
     // of bytes in the buffer, regardless of where the position is set.
     class Buffer
     {
+    // Public types...
+    public:
+        // Typedef for the vecotr of data held in the buffer.
+        typedef std::vector<unsigned char> VecData;
+
     // Public methods...
     public:
         // Creates a Buffer instance.
@@ -36,6 +41,14 @@ namespace MessagingMesh
 
         // Sets the position in the buffer where data will be written.
         void setPosition(size_t position) { m_position = position; }
+
+        // Gets the data.
+        // NOTE: The vector may be larger than the data stored in it. Use getDataSize()
+        //       to get the data size.
+        const VecData& getData() const { return m_data; }
+
+        // Gets the size of data stored in the buffer.
+        size_t getDataSize() const { return m_dataSize; }
 
     // write() method for various types...
     public:
@@ -123,7 +136,7 @@ namespace MessagingMesh
         const size_t INITIAL_SIZE = 8192;
 
         // The vector of bytes...
-        std::vector<unsigned char> m_data;
+        VecData m_data;
 
         // The current position...
         size_t m_position = 0;
