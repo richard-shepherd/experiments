@@ -11,9 +11,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Buffer.h" />
     <ClInclude Include="Exception.h" />
+    <ClInclude Include="Field.h" />
+    <ClInclude Include="FieldImpl.h" />
     <ClInclude Include="Gateway.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="Message.h" />
+    <ClInclude Include="MessageImpl.h" />
     <ClInclude Include="NetworkData.h" />
     <ClInclude Include="OSSocketHolder.h" />
     <ClInclude Include="SharedPointers.h" />
@@ -24,9 +29,14 @@
     <ClInclude Include="UVUtils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Buffer.cpp" />
+    <ClCompile Include="Field.cpp" />
+    <ClCompile Include="FieldImpl.cpp" />
     <ClCompile Include="Gateway.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Message.cpp" />
+    <ClCompile Include="MessageImpl.cpp" />
     <ClCompile Include="NetworkData.cpp" />
     <ClCompile Include="Socket.cpp" />
     <ClCompile Include="Utils.cpp" />
