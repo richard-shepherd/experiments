@@ -2,6 +2,8 @@ TODO
 ----
 - Connect using hostname
 
+- Handle client connection failure, eg if gateway is not running
+
 - Think about use of std::string. We want to encode strings as UTF-8
 
 - Add getField() methods to Message

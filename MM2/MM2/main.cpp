@@ -23,7 +23,7 @@ void runClient()
     pUVLoop->marshallEvent(
         [pSocket](uv_loop_t* pLoop)
         {
-            pSocket->connectIP("127.0.0.1", 5050);
+            pSocket->connect("localhost", 5050);
         }
     );
 

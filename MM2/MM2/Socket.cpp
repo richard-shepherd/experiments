@@ -5,6 +5,7 @@
 #include "UVLoop.h"
 #include "NetworkData.h"
 #include "OSSocketHolder.h"
+#include "Exception.h"
 using namespace MessagingMesh;
 
 // Constructor.
@@ -168,6 +169,77 @@ void Socket::connectIP(const std::string& ipAddress, int port)
             self->onConnectCompleted(r, s);
         }
     );
+}
+
+// Connects a client socket to the hostname and port specified.
+void Socket::connect(const std::string& hostname, int port)
+{
+    Logger::info(Utils::format("Connecting to: %s:%d", hostname.c_str(), port));
+
+    // We create a context to use in callbacks...
+    auto pContext = new connect_hostname_t;
+    pContext->self = this;
+    pContext->port = port;
+
+    // We create a DNS resolution request...
+    auto pRequest = new uv_getaddrinfo_t;
+    pRequest->data = pContext;
+
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;        // IPv4
+    hints.ai_socktype = SOCK_STREAM;  // TCP
+
+    auto status = uv_getaddrinfo(
+        m_pUVLoop->getUVLoop(),
+        pRequest, 
+        [](uv_getaddrinfo_t* r, int s, struct addrinfo* a)
+        {
+            auto pContext = (connect_hostname_t*)r->data;
+            pContext->self->onDNSResolution(r, s, a);
+        },
+        hostname.c_str(),
+        NULL, 
+        &hints);
+    if (status) 
+    {
+        // An error has occurred...
+        auto error = uv_strerror(status);
+        Logger::error(Utils::format("Hostname resolution error: %s", error));
+        delete pContext;
+        delete pRequest;
+    }
+}
+
+// Called when DNS resolution has completed for a hostname.
+void Socket::onDNSResolution(uv_getaddrinfo_t* pRequest, int status, struct addrinfo* pAddressInfo)
+{
+    try
+    {
+        auto pContext = (connect_hostname_t*)pRequest->data;
+        auto port = pContext->port;
+
+        // We check if the resolution was successful...
+        if (status < 0) 
+        {
+            // An error occurred...
+            auto error = uv_strerror(status);
+            Logger::error(Utils::format("Hostname resolution error: %s", error));
+            delete pContext;
+            delete pRequest;
+            return;
+        }
+
+        // We get the first resolved IP address and connect to it...
+        char ipAddress[17] = { '\0' };
+        uv_ip4_name((struct sockaddr_in*)pAddressInfo->ai_addr, ipAddress, 16);
+        auto strIPAddress = std::string(ipAddress);
+        connectIP(strIPAddress, port);
+    }
+    catch (const std::exception& ex)
+    {
+        Logger::error(Utils::format("%s: %s", __func__, ex.what()));
+    }
 }
 
 // Called at the client side when a client has connected to a server.

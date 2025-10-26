@@ -55,8 +55,8 @@ namespace MessagingMesh
         // Connects the socket by accepting a listen request received by the server.
         void accept(uv_stream_t* server);
 
-        // Connects a client socket to the IP address and specified port.
-        void connectIP(const std::string& ipAddress, int port);
+        // Connects a client socket to the hostname and port specified.
+        void connect(const std::string& hostname, int port);
 
         // Queues data to be written to the socket.
         // Can be called from any thread, not just from the uv loop thread.
@@ -68,11 +68,21 @@ namespace MessagingMesh
 
     // Private types...
     private:
+
+        // Context information used when moving a socket from one
+        // UVLoop to another.
         struct move_socket_t
         {
             Socket* self = nullptr;
             OSSocketHolderPtr pNewOSSocket;
             UVLoopPtr pNewUVLoop;
+        };
+
+        // Context information used when connecting to a socket using (hostname, port).
+        struct connect_hostname_t
+        {
+            Socket* self = nullptr;
+            int port;
         };
 
     // Private functions...
@@ -85,6 +95,12 @@ namespace MessagingMesh
         // Note: This is not done in the constructor, as that can be called outside
         //       the UV loop. It is only called from functions inside the loop.
         void createSocket();
+
+        // Connects a client socket to the IP address and port specified.
+        void connectIP(const std::string& ipAddress, int port);
+
+        // Called when DNS resolution has completed for a hostname.
+        void onDNSResolution(uv_getaddrinfo_t* pRequest, int status, struct addrinfo* pAddressInfo);
 
         // Called when a socket is connected to set up reading and writing.
         void onSocketConnected();

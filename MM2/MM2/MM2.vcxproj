@@ -12,6 +12,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Buffer.h" />
+    <ClInclude Include="Connection.h" />
+    <ClInclude Include="ConnectionImpl.h" />
     <ClInclude Include="Exception.h" />
     <ClInclude Include="Field.h" />
     <ClInclude Include="FieldImpl.h" />
@@ -32,6 +34,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Buffer.cpp" />
+    <ClCompile Include="Connection.cpp" />
+    <ClCompile Include="ConnectionImpl.cpp" />
     <ClCompile Include="Field.cpp" />
     <ClCompile Include="FieldImpl.cpp" />
     <ClCompile Include="Gateway.cpp" />
