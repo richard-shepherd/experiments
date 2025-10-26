@@ -416,7 +416,8 @@ void Socket::onDataReceived(uv_stream_t* pStream, ssize_t nread, const uv_buf_t*
         // We check for errors...
         if (nread < 1)
         {
-            Logger::info(Utils::format("onDataReceived: %s", uv_strerror(nread)));
+            auto error = uv_strerror((int)nread);
+            Logger::info(Utils::format("onDataReceived: %s", error));
             if (nread == UV_EOF)
             {
                 if (m_pCallback) m_pCallback->onDisconnected(m_name);

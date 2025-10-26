@@ -70,7 +70,7 @@ namespace MessagingMesh
     private:
         struct move_socket_t
         {
-            Socket* self;
+            Socket* self = nullptr;
             OSSocketHolderPtr pNewOSSocket;
             UVLoopPtr pNewUVLoop;
         };
