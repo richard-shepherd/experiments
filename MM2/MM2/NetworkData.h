@@ -78,7 +78,6 @@ namespace MessagingMesh
         char m_sizeBuffer[SIZE_SIZE];
         int m_sizeBufferPosition;
     };
-
 }  // namespace
 
 

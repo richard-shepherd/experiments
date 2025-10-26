@@ -49,6 +49,5 @@ namespace MessagingMesh
         // Mutex.
         std::unique_ptr<uv_mutex_t> m_mutex;
     };
-
 } // namespace
 

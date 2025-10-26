@@ -107,6 +107,5 @@ namespace MessagingMesh
         // Duplicates the socket when compiling for Windows.
         static uv_os_sock_t duplicateSocket_Windows(const uv_os_sock_t& socket);
     };
-
 } // namespace
 

@@ -55,6 +55,5 @@ namespace MessagingMesh
         // Client sockets.
         std::map<std::string, SocketPtr> m_clientSockets;
     };
-
 } // namespace
 

@@ -79,6 +79,5 @@ namespace MessagingMesh
         // Vector of marshalled events and a lock for it.
         ThreadsafeConsumableVector<MarshalledEvent, UniqueEventKey> m_marshalledEvents;
     };
-
 } // namespace
 

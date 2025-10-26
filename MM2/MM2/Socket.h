@@ -141,5 +141,4 @@ namespace MessagingMesh
         // The maximum backlog of unprocessed incoming connections.
         const int MAX_INCOMING_CONNECTION_BACKLOG = 128;
     };
-
 } // namespace

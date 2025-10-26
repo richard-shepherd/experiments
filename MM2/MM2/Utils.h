@@ -16,7 +16,6 @@ namespace MessagingMesh
         // Returns a time string in the format HH:MM:SS.mmm
         static std::string getTimeString();
     };
-
 } // namespace
 
 

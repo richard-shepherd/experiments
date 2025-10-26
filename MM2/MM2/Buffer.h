@@ -45,6 +45,9 @@ namespace MessagingMesh
         // Writes a signed int32 to the buffer.
         void write(int32_t item);
 
+        // Writes an unsigned int32 to the buffer.
+        void write(uint32_t item);
+
         // Writes a double to the buffer.
         void write(double item);
 
@@ -67,6 +70,9 @@ namespace MessagingMesh
 
         // Reads an int32 from the buffer.
         int32_t readInt32();
+
+        // Reads a uint32 from the buffer.
+        uint32_t readUInt32();
 
         // Reads a double from the buffer.
         double readDouble();

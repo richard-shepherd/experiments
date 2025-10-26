@@ -39,6 +39,18 @@ void Buffer::write(int32_t item)
     writeCopyable(item);
 }
 
+// UINT32
+uint32_t Buffer::readUInt32()
+{
+    uint32_t result;
+    readCopyable(result);
+    return result;
+}
+void Buffer::write(uint32_t item)
+{
+    writeCopyable(item);
+}
+
 // DOUBLE
 double Buffer::readDouble()
 {
