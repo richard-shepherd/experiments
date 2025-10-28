@@ -103,7 +103,7 @@ void Buffer::read(void* p, size_t size)
     checkBufferSize_Read(size);
 
     // We read the data from the buffer...
-    memcpy(p, &m_data[m_position], size);
+    std::memcpy(p, &m_data[m_position], size);
 
     // We update the position... 
     updatePosition_Read(size);
@@ -115,7 +115,7 @@ void Buffer::write(const void* p, size_t size)
     checkBufferSize_Write(size);
 
     // We write the data to the buffer...
-    memcpy(&m_data[m_position], p, size);
+    std::memcpy(&m_data[m_position], p, size);
 
     // We update the position and data size... 
     updatePosition_Write(size);
@@ -161,7 +161,7 @@ void Buffer::readCopyable(T& item)
     checkBufferSize_Read(size);
 
     // We read the data from the buffer...
-    memcpy(&item, &m_data[m_position], size);
+    std::memcpy(&item, &m_data[m_position], size);
 
     // We update the position...
     updatePosition_Read(size);
@@ -175,7 +175,7 @@ void Buffer::writeCopyable(const T& item)
     checkBufferSize_Write(size);
 
     // We write the data to the buffer...
-    memcpy(&m_data[m_position], &item, size);
+    std::memcpy(&m_data[m_position], &item, size);
 
     // We update the position and data size... 
     updatePosition_Write(size);

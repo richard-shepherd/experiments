@@ -416,7 +416,7 @@ void Socket::processQueuedWrites()
         {
             auto itemSize = queuedWrite->getDataSize();
             auto itemData = queuedWrite->getData();
-            memcpy(pWriteRequest->buffer.base + bufferPosition, itemData, itemSize);
+            std::memcpy(pWriteRequest->buffer.base + bufferPosition, itemData, itemSize);
             bufferPosition += itemSize;
         }
 

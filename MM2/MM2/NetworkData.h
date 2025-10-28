@@ -33,9 +33,6 @@ namespace MessagingMesh
         // Creates a NetworkData instance.
         static NetworkDataPtr create(void* pData, size_t dataSize) { return NetworkDataPtr(new NetworkData(pData, dataSize)); }
 
-        // Creates a NetworkData instance.
-        static NetworkDataPtr create(const Buffer& buffer) { return NetworkDataPtr(new NetworkData(buffer)); }
-
         // Destructor.
         ~NetworkData();
 
@@ -61,10 +58,6 @@ namespace MessagingMesh
         // Constructor.
         // NOTE: The constructor is private. Use NetworkData::create() to create an instance.
         NetworkData(void* pData, size_t dataSize);
-
-        // Constructor.
-        // NOTE: The constructor is private. Use NetworkData::create() to create an instance.
-        NetworkData(const Buffer& buffer);
 
         // Reads the message size (or as much as can be read) from the buffer.
         size_t readSize(const char* pBuffer, size_t bufferSize, size_t bufferPosition);
