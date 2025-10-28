@@ -6,22 +6,29 @@
 
 namespace MessagingMesh
 {
-    // A binary buffer managing a vector of bytes (unsigned char), holding
-    // for example the network serialization of a NetworkMessage.
-    //
-    // The buffer starts at an initial size which will be expanded if data 
-    // is written to the buffer that would go beyond that size.
-    //
-    // Data is written to the buffer at the current position. By default this
-    // will be updated to the next available position as data is written to the 
-    // buffer. You can change the position manually if you need to write into 
-    // the buffer at a point other than the end.
-    //
-    // You can request the data size from the buffer which will return the number 
-    // of bytes in the buffer, regardless of where the position is set.
-    //
-    // The buffer includes the size
-    // ----------------------------
+    /// <summary>
+    /// A binary buffer managing a vector of bytes (unsigned char), holding
+    /// for example the network serialization of a NetworkMessage.
+    ///
+    /// The buffer starts at an initial size which will be expanded if data 
+    /// is written to the buffer that would go beyond that size.
+    ///
+    /// Data is written to the buffer at the current position. By default this
+    /// will be updated to the next available position as data is written to the 
+    /// buffer. You can change the position manually if you need to write into 
+    /// the buffer at a point other than the end.
+    ///
+    /// You can request the data size from the buffer which will return the number 
+    /// of bytes in the buffer, regardless of where the position is set.
+    ///
+    /// The buffer includes the size
+    /// ----------------------------
+    /// The first four bytes of the buffer is the buffer size stored in a little-endian
+    /// format. This helps when sending buffers over the network as receiving code can
+    /// see how much data to expect.
+    /// 
+    /// The size is added to the buffer when the getBuffer() method is called.
+    /// </summary>
     class Buffer
     {
     // Public methods...
@@ -32,7 +39,9 @@ namespace MessagingMesh
         // Destructor.
         ~Buffer();
 
-        // void clear(); TODO does not reset the size of the buffer (create a new instance to do this)
+        // Resets the position to the initial position for reading data.
+        // Note: This is the position after the size.
+        void resetPosition() { m_position = INITIAL_POSITION; }
 
         // Gets the position in the buffer where data will be written.
         int32_t getPosition() const { return m_position; }
@@ -128,12 +137,16 @@ namespace MessagingMesh
         // The initial size of the vector...
         const int32_t INITIAL_SIZE = 8192;
 
+        // We reserve the first four bytes of the buffer for the size.
+        // (See heading comment.)
+        const int32_t INITIAL_POSITION = 4;
+
         // The buffer...
         char* m_pBuffer;
         int32_t m_bufferSize;
 
         // The current position...
-        int32_t m_position = 0;
+        int32_t m_position = INITIAL_POSITION;
 
         // The size of all data written to the buffer...
         int32_t m_dataSize = 0;

@@ -30,7 +30,7 @@ void Tests::messageSerialization()
     pPerson->serialize(*pBuffer);
 
     // We deserialize the message...
-    pBuffer->setPosition(0);
+    pBuffer->resetPosition();
     auto pResult = Message::create();
     pResult->deserialize(*pBuffer);
 
