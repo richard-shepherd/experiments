@@ -2,15 +2,19 @@
 #include "Field.h"
 #include "Message.h"
 #include "Exception.h"
+#include "Logger.h"
+#include "Utils.h"
 using namespace MessagingMesh;
 
 Buffer::Buffer()
 {
-    m_data.resize(INITIAL_SIZE);
+    m_pBuffer = new char[INITIAL_SIZE];
+    m_bufferSize = INITIAL_SIZE;
 }
 
 Buffer::~Buffer()
 {
+    delete[] m_pBuffer;
 }
 
 // INT8
@@ -76,7 +80,7 @@ std::string Buffer::readString()
     checkBufferSize_Read(length);
 
     // We create a string and read the data into it...
-    std::string result(&m_data[m_position], &m_data[m_position] + length);
+    std::string result(m_pBuffer + m_position, m_pBuffer + m_position + length);
 
     // We update the position...
     updatePosition_Read(length);
@@ -97,25 +101,25 @@ void Buffer::write(const std::string& item)
 }
 
 // BYTE ARRAY
-void Buffer::read(void* p, size_t size)
+void Buffer::read(void* p, int32_t size)
 {
     // We make sure that the buffer is large enough...
     checkBufferSize_Read(size);
 
     // We read the data from the buffer...
-    std::memcpy(p, &m_data[m_position], size);
+    std::memcpy(p, m_pBuffer + m_position, size);
 
     // We update the position... 
     updatePosition_Read(size);
 }
 
-void Buffer::write(const void* p, size_t size)
+void Buffer::write(const void* p, int32_t size)
 {
     // We make sure that the buffer can hold the new data...
     checkBufferSize_Write(size);
 
     // We write the data to the buffer...
-    std::memcpy(&m_data[m_position], p, size);
+    std::memcpy(m_pBuffer + m_position, p, size);
 
     // We update the position and data size... 
     updatePosition_Write(size);
@@ -161,10 +165,10 @@ void Buffer::readCopyable(T& item)
     checkBufferSize_Read(size);
 
     // We read the data from the buffer...
-    std::memcpy(&item, &m_data[m_position], size);
+    std::memcpy(&item, m_pBuffer + m_position, size);
 
     // We update the position...
-    updatePosition_Read(size);
+    updatePosition_Read(static_cast<int32_t>(size));
 }
 
 template <typename T>
@@ -175,10 +179,10 @@ void Buffer::writeCopyable(const T& item)
     checkBufferSize_Write(size);
 
     // We write the data to the buffer...
-    std::memcpy(&m_data[m_position], &item, size);
+    std::memcpy(m_pBuffer + m_position, &item, size);
 
     // We update the position and data size... 
-    updatePosition_Write(size);
+    updatePosition_Write(static_cast<int32_t>(size));
 }
 
 void Buffer::checkBufferSize_Read(size_t bytesRequired)
@@ -193,31 +197,47 @@ void Buffer::checkBufferSize_Read(size_t bytesRequired)
 void Buffer::checkBufferSize_Write(size_t bytesRequired)
 {
     // We check if we can fit the bytes-required into the buffer at the current position...
-    auto dataSize = m_data.size();
-    if (m_position + bytesRequired <= dataSize)
+    if (m_position + bytesRequired <= m_bufferSize)
     {
         // The bytes will fit...
         return;
     }
 
-    // The bytes will not fit, so we expand the buffer by doubling its size...
-    if (dataSize >= INT32_MAX)
-    {
-        throw Exception("Buffer is at max capacity");
-    }
-    m_data.resize(dataSize * 2);
+    // The bytes will not fit, so we expand the buffer...
+    expandBuffer();
 
     // We re-check that the bytes-required will fit with the new size...
     checkBufferSize_Write(bytesRequired);
 }
 
-void Buffer::updatePosition_Read(size_t bytesWritten)
+// Expands the buffer by doubling its size.
+void Buffer::expandBuffer()
+{
+    if (m_bufferSize >= INT32_MAX)
+    {
+        throw Exception("Buffer is at max capacity");
+    }
+
+    // We create a new buffer double the size and copy the existing data into it...
+    auto newBufferSize = m_bufferSize * 2;
+    auto newBuffer = new char[newBufferSize];
+    std::memcpy(newBuffer, m_pBuffer, m_bufferSize);
+
+    // We delete the old buffer...
+    delete[] m_pBuffer;
+
+    // We use the new buffer...
+    m_pBuffer = newBuffer;
+    m_bufferSize = newBufferSize;
+}
+
+void Buffer::updatePosition_Read(int32_t bytesWritten)
 {
     // We update the position...
     m_position += bytesWritten;
 }
 
-void Buffer::updatePosition_Write(size_t bytesWritten)
+void Buffer::updatePosition_Write(int32_t bytesWritten)
 {
     // We update the position...
     m_position += bytesWritten;

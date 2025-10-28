@@ -54,6 +54,7 @@ void runServer()
 
 int main(int argc, char* argv[])
 {
+    Logger::registerCallback(onMessageLogged);
     Tests::messageSerialization();
 
     //UVUtils::setThreadName("MAIN");

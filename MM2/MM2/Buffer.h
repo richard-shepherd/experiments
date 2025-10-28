@@ -19,13 +19,11 @@ namespace MessagingMesh
     //
     // You can request the data size from the buffer which will return the number 
     // of bytes in the buffer, regardless of where the position is set.
+    //
+    // The buffer includes the size
+    // ----------------------------
     class Buffer
     {
-    // Public types...
-    public:
-        // Typedef for the vecotr of data held in the buffer.
-        typedef std::vector<unsigned char> VecData;
-
     // Public methods...
     public:
         // Creates a Buffer instance.
@@ -37,18 +35,10 @@ namespace MessagingMesh
         // void clear(); TODO does not reset the size of the buffer (create a new instance to do this)
 
         // Gets the position in the buffer where data will be written.
-        size_t getPosition() const { return m_position; }
+        int32_t getPosition() const { return m_position; }
 
         // Sets the position in the buffer where data will be written.
-        void setPosition(size_t position) { m_position = position; }
-
-        // Gets the data.
-        // NOTE: The vector may be larger than the data stored in it. Use getDataSize()
-        //       to get the data size.
-        const VecData& getData() const { return m_data; }
-
-        // Gets the size of data stored in the buffer.
-        size_t getDataSize() const { return m_dataSize; }
+        void setPosition(int32_t position) { m_position = position; }
 
     // write() method for various types...
     public:
@@ -68,7 +58,7 @@ namespace MessagingMesh
         void write(const std::string& item);
 
         // Writes bytes to the buffer from the pointer passed in.
-        void write(const void* p, size_t size);
+        void write(const void* p, int32_t size);
 
         // Writes a field to the buffer.
         void write(const ConstFieldPtr& item);
@@ -95,7 +85,7 @@ namespace MessagingMesh
 
         // Reads bytes from the buffer to the pointer passed in.
         // NOTE: You must make sure that the memory pointed to is large enough.
-        void read(void* p, size_t size);
+        void read(void* p, int32_t size);
 
         // Reads a field from the buffer.
         ConstFieldPtr readField();
@@ -124,25 +114,29 @@ namespace MessagingMesh
         // Throws a MessagingMesh::Exception if the buffer is not large enough.
         void checkBufferSize_Read(size_t bytesRequired);
 
+        // Expands the buffer by doubling its size.
+        void expandBuffer();
+
         // Updates the position to reflect the bytes read.
-        void updatePosition_Read(size_t bytesWritten);
+        void updatePosition_Read(int32_t bytesWritten);
 
         // Updates the position and data-size to reflect the bytes written.
-        void updatePosition_Write(size_t bytesWritten);
+        void updatePosition_Write(int32_t bytesWritten);
 
     // Private data...
     private:
         // The initial size of the vector...
-        const size_t INITIAL_SIZE = 8192;
+        const int32_t INITIAL_SIZE = 8192;
 
-        // The vector of bytes...
-        VecData m_data;
+        // The buffer...
+        char* m_pBuffer;
+        int32_t m_bufferSize;
 
         // The current position...
-        size_t m_position = 0;
+        int32_t m_position = 0;
 
         // The size of all data written to the buffer...
-        size_t m_dataSize = 0;
+        int32_t m_dataSize = 0;
     };
 
 } // namespace
