@@ -23,9 +23,12 @@ namespace MessagingMesh
     ///
     /// The buffer includes the size
     /// ----------------------------
-    /// The first four bytes of the buffer is the buffer size stored in a little-endian
+    /// The first four bytes of the buffer is the data size stored in a little-endian
     /// format. This helps when sending buffers over the network as receiving code can
     /// see how much data to expect.
+    /// 
+    /// NOTE: This is the size of the data itself, not including the size.
+    ///       So it is m_dataSize - INITIAL_POSITION.
     /// 
     /// The size is added to the buffer when the getBuffer() method is called.
     /// </summary>
@@ -39,15 +42,30 @@ namespace MessagingMesh
         // Destructor.
         ~Buffer();
 
+        // Gets the buffer.
+        char* getBuffer() const;
+
+        // Gets the size of the data stored in the buffer.
+        // This includes the four bytes for the size plus the data.
+        int32_t getBufferSize() { return m_dataSize; }
+
         // Resets the position to the initial position for reading data.
         // Note: This is the position after the size.
-        void resetPosition() { m_position = INITIAL_POSITION; }
+        void resetPosition() { m_position = SIZE_SIZE; }
 
         // Gets the position in the buffer where data will be written.
         int32_t getPosition() const { return m_position; }
 
         // Sets the position in the buffer where data will be written.
         void setPosition(int32_t position) { m_position = position; }
+
+        // Returns true if we hold all data for a network message, false if not.
+        bool hasAllData() const { return m_hasAllData; }
+
+        // Reads data from a network data buffer until we have all the data for
+        // a network message.
+        // Returns the number of bytes read from the buffer.
+        size_t readNetworkMessage(const char* pBuffer, size_t bufferSize, size_t bufferPosition);
 
     // write() method for various types...
     public:
@@ -132,24 +150,34 @@ namespace MessagingMesh
         // Updates the position and data-size to reflect the bytes written.
         void updatePosition_Write(int32_t bytesWritten);
 
+        // Reads the network message size (or as much as can be read) from the buffer.
+        size_t readNetworkMessageSize(const char* pBuffer, size_t bufferSize, size_t bufferPosition);
+
     // Private data...
     private:
+        // True if we have all data for the message, false if not.
+        bool m_hasAllData = false;
+
+        // Buffer when reading the size.
+        // (We may receive the size across multiple network updates.)
+        static const int SIZE_SIZE = 4;
+        char m_networkMessageSizeBuffer[SIZE_SIZE] = {};
+        int m_networkMessageSizeBufferPosition = 0;
+        int32_t m_networkMessageSize = -1;
+
         // The initial size of the vector...
         const int32_t INITIAL_SIZE = 8192;
-
-        // We reserve the first four bytes of the buffer for the size.
-        // (See heading comment.)
-        const int32_t INITIAL_POSITION = 4;
 
         // The buffer...
         char* m_pBuffer;
         int32_t m_bufferSize;
 
         // The current position...
-        int32_t m_position = INITIAL_POSITION;
+        int32_t m_position = SIZE_SIZE;
 
-        // The size of all data written to the buffer...
-        int32_t m_dataSize = 0;
+        // The size of all data written to the buffer.
+        // Note: This includes the size held in the first four bytes.
+        int32_t m_dataSize = SIZE_SIZE;
     };
 
 } // namespace

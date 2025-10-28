@@ -17,6 +17,19 @@ Buffer::~Buffer()
     delete[] m_pBuffer;
 }
 
+// Gets the buffer.
+char* Buffer::getBuffer() const
+{
+    // We update the data size, stored in the first four bytes.
+    // This is the size of the data itself not including the bytes 
+    // that hold the size.
+    int32_t size = m_dataSize - SIZE_SIZE;
+    std::memcpy(m_pBuffer, &size, sizeof(size));
+
+    // We r eturn the buffer...
+    return m_pBuffer;
+}
+
 // INT8
 int8_t Buffer::readInt8()
 {
@@ -251,5 +264,96 @@ void Buffer::updatePosition_Write(int32_t bytesWritten)
     }
 }
 
+// Reads data from a network data buffer until we have all the data for
+// a network message.
+// Returns the number of bytes read from the buffer.
+size_t Buffer::readNetworkMessage(const char* pBuffer, size_t bufferSize, size_t bufferPosition)
+{
+    // See also the comments in Socket::onDataReceived() about how data for a message
+    // can be received across multiple updates.
 
+    // If we already have all the data we need, there is nothing to do...
+    if (m_hasAllData)
+    {
+        return 0;
+    }
+
+    // We make sure that we have the message size.
+    // (This is a no-op if we already know the size.)
+    size_t bytesRead = readNetworkMessageSize(pBuffer, bufferSize, bufferPosition);
+    if (m_networkMessageSize == -1)
+    {
+        // We do not (yet) have the size...
+        return bytesRead;
+    }
+    bufferPosition += bytesRead;
+
+    // We find the number of bytes we need. This may not be the same as
+    // the size of the message, as we may have already read from of the
+    // data from previous updates.
+    size_t sizeRequired = m_networkMessageSize - m_position;
+
+    // We find how much data there is available in the buffer and
+    // work out how many bytes to read from the buffer...
+    size_t sizeAvailable = bufferSize - bufferPosition;
+    size_t sizeToRead = std::min(sizeRequired, sizeAvailable);
+
+    // We copy the data into our buffer...
+    std::memcpy(m_pBuffer + m_position, pBuffer + bufferPosition, sizeToRead);
+    bytesRead += sizeToRead;
+
+    // We update the data buffer position. It may be that we still have not read the
+    // whole message and we could need this position so we know where to append data
+    // from future updates...
+    m_position += static_cast<int32_t>(sizeToRead);
+
+    // We check if we have the whole message...
+    if (m_position == m_networkMessageSize)
+    {
+        m_hasAllData = true;
+    }
+
+    return bytesRead;
+}
+
+// Reads the network message size (or as much as can be read) from the buffer.
+size_t Buffer::readNetworkMessageSize(const char* pBuffer, size_t bufferSize, size_t bufferPosition)
+{
+    // We check if we already have the size...
+    if (m_networkMessageSize != -1)
+    {
+        return 0;
+    }
+
+    // We read as many bytes as we can for the size from the buffer...
+    int32_t bytesRead = 0;
+    while (m_networkMessageSizeBufferPosition < SIZE_SIZE)
+    {
+        if (bufferPosition >= bufferSize) break;
+        m_networkMessageSizeBuffer[m_networkMessageSizeBufferPosition++] = pBuffer[bufferPosition++];
+        bytesRead++;
+    }
+
+    // If we have read all the bytes for the size, we get the size...
+    if (m_networkMessageSizeBufferPosition == SIZE_SIZE)
+    {
+        // We copy the size buffer to the network message size field. (We can do this as
+        // the messaging-mesh network protocol for int32 is little-endian.)
+        std::memcpy(&m_networkMessageSize, &m_networkMessageSizeBuffer[0], SIZE_SIZE);
+
+        // We allocate the data buffer for the size, plus four bytes to 
+        // hold the size itself...
+        delete[] m_pBuffer;
+        m_pBuffer = new char[m_networkMessageSize + SIZE_SIZE];
+
+        // We make sure that the position is four bytes from the start of the buffer.
+        // The first four bytes are reserved for the size itself. The data will be
+        // written after this.
+        m_position = SIZE_SIZE;
+    }
+
+    // We return the number of bytes read from the buffer (which may have not 
+    // been enough to fully parse the size)...
+    return bytesRead;
+}
 
