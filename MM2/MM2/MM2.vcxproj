@@ -27,6 +27,7 @@
     <ClInclude Include="OSSocketHolder.h" />
     <ClInclude Include="SharedPointers.h" />
     <ClInclude Include="Socket.h" />
+    <ClInclude Include="Tests.h" />
     <ClInclude Include="ThreadsafeConsumableVector.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="UVLoop.h" />
@@ -47,6 +48,7 @@
     <ClCompile Include="NetworkMessage.cpp" />
     <ClCompile Include="NetworkMessageHeader.cpp" />
     <ClCompile Include="Socket.cpp" />
+    <ClCompile Include="Tests.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="UVLoop.cpp" />
     <ClCompile Include="UVUtils.cpp" />

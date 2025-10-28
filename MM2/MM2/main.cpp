@@ -5,6 +5,7 @@
 #include "Gateway.h"
 #include "NetworkData.h"
 #include "Utils.h"
+#include "Tests.h"
 using namespace MessagingMesh;
 
 
@@ -53,22 +54,24 @@ void runServer()
 
 int main(int argc, char* argv[])
 {
-    UVUtils::setThreadName("MAIN");
-    Logger::registerCallback(onMessageLogged);
+    Tests::messageSerialization();
 
-    const char CLIENT[] = "-client";
-    const char SERVER[] = "-server";
-    if (argc >= 2 && strncmp(argv[1], CLIENT, sizeof(CLIENT)) == 0)
-    {
-        runClient();
-    }
-    else if (argc >= 2 && strncmp(argv[1], SERVER, sizeof(SERVER)) == 0)
-    {
-        runServer();
-    }
-    else
-    {
-        Logger::info("Usage: libuv-test1.exe -client / -server");
-    }
+    //UVUtils::setThreadName("MAIN");
+    //Logger::registerCallback(onMessageLogged);
+
+    //const char CLIENT[] = "-client";
+    //const char SERVER[] = "-server";
+    //if (argc >= 2 && strncmp(argv[1], CLIENT, sizeof(CLIENT)) == 0)
+    //{
+    //    runClient();
+    //}
+    //else if (argc >= 2 && strncmp(argv[1], SERVER, sizeof(SERVER)) == 0)
+    //{
+    //    runServer();
+    //}
+    //else
+    //{
+    //    Logger::info("Usage: libuv-test1.exe -client / -server");
+    //}
 }
 
