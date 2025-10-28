@@ -25,7 +25,7 @@ namespace MessagingMesh
         public:
             // Called when data has been received on the socket.
             // Called on the UV loop thread.
-            virtual void onDataReceived(NetworkDataPtr networkData) = 0;
+            virtual void onDataReceived(BufferPtr pBuffer) = 0;
 
             // Called when a new client connection has been made to a listening socket.
             // Called on the UV loop thread.
@@ -61,7 +61,7 @@ namespace MessagingMesh
         // Queues data to be written to the socket.
         // Can be called from any thread, not just from the uv loop thread.
         // Queued writes will be coalesced into one network update.
-        void write(NetworkDataPtr pNetworkData);
+        void write(BufferPtr pBuffer);
 
         // Moves the socket to be managed by the UV loop specified.
         void moveToLoop(UVLoopPtr pLoop);
@@ -147,10 +147,10 @@ namespace MessagingMesh
         uv_tcp_t* m_pSocket;
 
         // The message being currently read (possibly across multiple onDataReceived callbacks).
-        NetworkDataPtr m_pCurrentMessage;
+        BufferPtr m_pCurrentMessage;
 
         // Data queued for writing.
-        ThreadsafeConsumableVector<NetworkDataPtr> m_queuedWrites;
+        ThreadsafeConsumableVector<BufferPtr> m_queuedWrites;
 
     // Constants...
     private:

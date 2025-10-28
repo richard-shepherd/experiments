@@ -8,8 +8,6 @@ using namespace MessagingMesh;
 
 Buffer::Buffer()
 {
-    m_pBuffer = new char[INITIAL_SIZE];
-    m_bufferSize = INITIAL_SIZE;
 }
 
 Buffer::~Buffer()
@@ -26,7 +24,7 @@ char* Buffer::getBuffer() const
     int32_t size = m_dataSize - SIZE_SIZE;
     std::memcpy(m_pBuffer, &size, sizeof(size));
 
-    // We r eturn the buffer...
+    // We return the buffer...
     return m_pBuffer;
 }
 
@@ -231,6 +229,14 @@ void Buffer::expandBuffer()
         throw Exception("Buffer is at max capacity");
     }
 
+    // If the buffer has not yet been allocated, we allocate the initial size...
+    if (!m_pBuffer)
+    {
+        m_pBuffer = new char[INITIAL_SIZE];
+        m_bufferSize = INITIAL_SIZE;
+        return;
+    }
+
     // We create a new buffer double the size and copy the existing data into it...
     auto newBufferSize = m_bufferSize * 2;
     auto newBuffer = new char[newBufferSize];
@@ -291,7 +297,7 @@ size_t Buffer::readNetworkMessage(const char* pBuffer, size_t bufferSize, size_t
     // We find the number of bytes we need. This may not be the same as
     // the size of the message, as we may have already read from of the
     // data from previous updates.
-    size_t sizeRequired = m_networkMessageSize - m_position;
+    size_t sizeRequired = m_networkMessageSize - m_position + SIZE_SIZE;
 
     // We find how much data there is available in the buffer and
     // work out how many bytes to read from the buffer...
@@ -308,7 +314,7 @@ size_t Buffer::readNetworkMessage(const char* pBuffer, size_t bufferSize, size_t
     m_position += static_cast<int32_t>(sizeToRead);
 
     // We check if we have the whole message...
-    if (m_position == m_networkMessageSize)
+    if (m_position == m_networkMessageSize + SIZE_SIZE)
     {
         m_hasAllData = true;
     }
@@ -344,7 +350,9 @@ size_t Buffer::readNetworkMessageSize(const char* pBuffer, size_t bufferSize, si
         // We allocate the data buffer for the size, plus four bytes to 
         // hold the size itself...
         delete[] m_pBuffer;
-        m_pBuffer = new char[m_networkMessageSize + SIZE_SIZE];
+        m_bufferSize = m_networkMessageSize + SIZE_SIZE;
+        m_dataSize = m_bufferSize;
+        m_pBuffer = new char[m_bufferSize];
 
         // We make sure that the position is four bytes from the start of the buffer.
         // The first four bytes are reserved for the size itself. The data will be

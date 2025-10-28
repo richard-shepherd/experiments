@@ -1,7 +1,6 @@
 #include "UVUtils.h"
 #include "Utils.h"
 #include "Logger.h"
-#include "NetworkData.h"
 #include "Exception.h"
 #include "OSSocketHolder.h"
 using namespace MessagingMesh;
@@ -55,9 +54,9 @@ void UVUtils::releaseBufferMemory(const uv_buf_t* pBuffer)
 }
 
 // Allocates a write request.
-UVUtils::WriteRequest* UVUtils::allocateWriteRequest(NetworkDataPtr pNetworkData)
+UVUtils::WriteRequest* UVUtils::allocateWriteRequest(BufferPtr pBuffer)
 {
-    return new WriteRequest(pNetworkData);
+    return new WriteRequest(pBuffer);
 }
 
 // Allocates a write request.

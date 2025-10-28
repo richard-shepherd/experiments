@@ -3,7 +3,7 @@
 #include <thread>
 #include "Logger.h"
 #include "Gateway.h"
-#include "NetworkData.h"
+#include "Buffer.h"
 #include "Utils.h"
 #include "Tests.h"
 using namespace MessagingMesh;
@@ -30,13 +30,12 @@ void runClient()
 
     // We send some data...
     Logger::info("Sending data");
-    const int size = 10;
     for (auto i = 0; i < 50000000; ++i)
     {
-        int data[size + 1];
-        data[0] = size * 4;
-        auto pNetworkData = NetworkData::create(&data[0], sizeof(data));
-        pSocket->write(pNetworkData);
+        auto pBuffer = Buffer::create();
+        pBuffer->write("Hello");
+        pBuffer->write(123);
+        pSocket->write(pBuffer);
         //if (i % 100000 == 0) uv_sleep(100);
     }
 
@@ -56,6 +55,7 @@ int main(int argc, char** argv)
 {
     //Logger::registerCallback(onMessageLogged);
     //Tests::messageSerialization();
+    //return 0;
 
     UVUtils::setThreadName("MAIN");
     Logger::registerCallback(onMessageLogged);

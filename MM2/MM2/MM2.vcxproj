@@ -21,7 +21,6 @@
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Message.h" />
     <ClInclude Include="MessageImpl.h" />
-    <ClInclude Include="NetworkData.h" />
     <ClInclude Include="NetworkMessage.h" />
     <ClInclude Include="NetworkMessageHeader.h" />
     <ClInclude Include="OSSocketHolder.h" />
@@ -44,7 +43,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Message.cpp" />
     <ClCompile Include="MessageImpl.cpp" />
-    <ClCompile Include="NetworkData.cpp" />
     <ClCompile Include="NetworkMessage.cpp" />
     <ClCompile Include="NetworkMessageHeader.cpp" />
     <ClCompile Include="Socket.cpp" />

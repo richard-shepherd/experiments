@@ -3,7 +3,7 @@
 #include "Utils.h"
 #include "UVUtils.h"
 #include "UVLoop.h"
-#include "NetworkData.h"
+#include "Buffer.h"
 #include "OSSocketHolder.h"
 #include "Exception.h"
 using namespace MessagingMesh;
@@ -372,10 +372,10 @@ void Socket::moveToLoop_registerDuplicatedSocket(UVLoopPtr pUVLoop, OSSocketHold
 // Can be called from any thread, not just from the uv loop thread.
 // Queued writes will be coalesced into one network update.
 // RSSTODO: We need some way to slow down the client if it publishes too much too fast.
-void Socket::write(NetworkDataPtr pNetworkData)
+void Socket::write(BufferPtr pBuffer)
 {
     // We queue the data to write...
-    m_queuedWrites.add(pNetworkData);
+    m_queuedWrites.add(pBuffer);
 
     // We marshall an event to write the data. As this does not take place straight 
     // away, this allows us to coalesce multiple queued writes...
@@ -404,7 +404,7 @@ void Socket::processQueuedWrites()
         size_t totalSize = 0;
         for (auto queuedWrite : *queuedWrites)
         {
-            totalSize += queuedWrite->getDataSize();
+            totalSize += queuedWrite->getBufferSize();
         }
 
         // We create a write-request with a buffer to hold all the queued items...
@@ -415,8 +415,8 @@ void Socket::processQueuedWrites()
         size_t bufferPosition = 0;
         for (auto queuedWrite : *queuedWrites)
         {
-            auto itemSize = queuedWrite->getDataSize();
-            auto itemData = queuedWrite->getData();
+            auto itemSize = queuedWrite->getBufferSize();
+            auto itemData = queuedWrite->getBuffer();
             std::memcpy(pWriteRequest->buffer.base + bufferPosition, itemData, itemSize);
             bufferPosition += itemSize;
         }
@@ -554,17 +554,21 @@ void Socket::onDataReceived(uv_stream_t* /*pStream*/, ssize_t nread, const uv_bu
             // If we do not have a current message we create one...
             if (!m_pCurrentMessage)
             {
-                m_pCurrentMessage = NetworkData::create();
+                m_pCurrentMessage = Buffer::create();
             }
 
             // We read data into the current message...
-            size_t bytesRead = m_pCurrentMessage->read(pBuffer->base, bufferSize, bufferPosition);
+            size_t bytesRead = m_pCurrentMessage->readNetworkMessage(pBuffer->base, bufferSize, bufferPosition);
 
-            // If we have read all data for the current message we call back with it.
-            // We can then clear the message to start a new one.
+            // If we have read all data for the current message we call back with it...
             if (m_pCurrentMessage->hasAllData())
             {
+                // We reset the position of the message / buffer so that it is 
+                // ready to be read by the client in the callback...
+                m_pCurrentMessage->resetPosition();
                 if (m_pCallback) m_pCallback->onDataReceived(m_pCurrentMessage);
+
+                // We clear the current message to start a new one...
                 m_pCurrentMessage = nullptr;
             }
 

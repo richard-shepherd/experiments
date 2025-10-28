@@ -169,8 +169,8 @@ namespace MessagingMesh
         const int32_t INITIAL_SIZE = 8192;
 
         // The buffer...
-        char* m_pBuffer;
-        int32_t m_bufferSize;
+        char* m_pBuffer = nullptr;
+        int32_t m_bufferSize = 0;
 
         // The current position...
         int32_t m_position = SIZE_SIZE;

@@ -7,7 +7,6 @@ namespace MessagingMesh
     class Field;
     class Message;
     class Buffer;
-    class NetworkData;
     class Socket;
     class OSSocketHolder;
     class UVLoop;
@@ -29,9 +28,6 @@ namespace MessagingMesh
 
     // Shared pointer to a const Buffer.
     typedef std::shared_ptr<const Buffer> ConstBufferPtr;
-
-    // Shared pointer to a NetworkData.
-    typedef std::shared_ptr<NetworkData> NetworkDataPtr;
 
     // Shared pointer to a Socket.
     typedef std::shared_ptr<Socket> SocketPtr;

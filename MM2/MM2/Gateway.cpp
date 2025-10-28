@@ -30,7 +30,7 @@ Gateway::~Gateway()
 
 // Called when data has been received on the socket.
 // Called on the thread of the client socket.
-void Gateway::onDataReceived(NetworkDataPtr /*pNetworkData*/)
+void Gateway::onDataReceived(BufferPtr pBuffer)
 {
     static int count = 0;
 
@@ -38,7 +38,9 @@ void Gateway::onDataReceived(NetworkDataPtr /*pNetworkData*/)
     //Logger::info(Utils::format("Received data: %d", count));
     if (count % 1000000 == 0)
     {
-        Logger::info(Utils::format("Received data: %d", count));
+        auto text = pBuffer->readString();
+        auto value = pBuffer->readInt32();
+        Logger::info(Utils::format("Received data: %d, data=%s;%d", count, text.c_str(), value));
     }
 }
 
