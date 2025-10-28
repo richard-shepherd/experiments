@@ -33,24 +33,6 @@ NetworkData::~NetworkData()
     delete[] m_pDataBuffer;
 }
 
-// Gets a pointer to the data.
-char* NetworkData::getData() const
-{
-    return m_pDataBuffer;
-}
-
-// Gets the data size.
-int32_t NetworkData::getDataSize() const
-{
-    return m_size;
-}
-
-// Returns true if we hold all data for the message, false if not.
-bool NetworkData::hasAllData() const
-{
-    return m_hasAllData;
-}
-
 // Reads data from the buffer until we have all the data for this message
 // or until we have consumed all the available data in the buffer.
 // Returns the number of bytes read from the buffer.
@@ -65,7 +47,8 @@ size_t NetworkData::read(const char* pBuffer, size_t bufferSize, size_t bufferPo
         return 0;
     }
 
-    // We make sure that we have the message size...
+    // We make sure that we have the message size.
+    // (This is a no-op if we already know the size.)
     size_t bytesRead = readSize(pBuffer, bufferSize, bufferPosition);
     if (m_size == -1)
     {

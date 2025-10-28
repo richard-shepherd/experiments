@@ -13,7 +13,7 @@ Gateway::Gateway(int port) :
 {
     // We create a socket to listen to client connections, managed by the uv loop...
     m_pUVLoop->marshallEvent(
-        [this](uv_loop_t* pLoop)
+        [this](uv_loop_t* /*pLoop*/)
         {
             // RSSTODO: Needs try-catch on this callback
             m_listeningSocket = Socket::create(m_pUVLoop);
@@ -30,16 +30,16 @@ Gateway::~Gateway()
 
 // Called when data has been received on the socket.
 // Called on the thread of the client socket.
-void Gateway::onDataReceived(NetworkDataPtr pNetworkData)
+void Gateway::onDataReceived(NetworkDataPtr /*pNetworkData*/)
 {
     static int count = 0;
 
     count++;
-    Logger::info(Utils::format("Received data: %d", count));
-    //if (count % 1000000 == 0)
-    //{
-    //    Logger::info(Utils::format("Received data: %d", count));
-    //}
+    //Logger::info(Utils::format("Received data: %d", count));
+    if (count % 1000000 == 0)
+    {
+        Logger::info(Utils::format("Received data: %d", count));
+    }
 }
 
 // Called when a new client connection has been made to a listening socket.

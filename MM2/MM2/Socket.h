@@ -82,7 +82,7 @@ namespace MessagingMesh
         struct connect_hostname_t
         {
             Socket* self = nullptr;
-            int port;
+            int port = 0;
         };
 
     // Private functions...

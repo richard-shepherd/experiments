@@ -22,7 +22,7 @@ void runClient()
 
     // We connect to the server...
     pUVLoop->marshallEvent(
-        [pSocket](uv_loop_t* pLoop)
+        [pSocket](uv_loop_t* /*pLoop*/)
         {
             pSocket->connect("localhost", 5050);
         }
@@ -31,7 +31,7 @@ void runClient()
     // We send some data...
     Logger::info("Sending data");
     const int size = 10;
-    for (auto i = 0; i < 500; ++i)
+    for (auto i = 0; i < 50000000; ++i)
     {
         int data[size + 1];
         data[0] = size * 4;
@@ -52,27 +52,27 @@ void runServer()
     std::cin.get();
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char** argv)
 {
-    Logger::registerCallback(onMessageLogged);
-    Tests::messageSerialization();
-
-    //UVUtils::setThreadName("MAIN");
     //Logger::registerCallback(onMessageLogged);
+    //Tests::messageSerialization();
 
-    //const char CLIENT[] = "-client";
-    //const char SERVER[] = "-server";
-    //if (argc >= 2 && strncmp(argv[1], CLIENT, sizeof(CLIENT)) == 0)
-    //{
-    //    runClient();
-    //}
-    //else if (argc >= 2 && strncmp(argv[1], SERVER, sizeof(SERVER)) == 0)
-    //{
-    //    runServer();
-    //}
-    //else
-    //{
-    //    Logger::info("Usage: libuv-test1.exe -client / -server");
-    //}
+    UVUtils::setThreadName("MAIN");
+    Logger::registerCallback(onMessageLogged);
+
+    const char CLIENT[] = "-client";
+    const char SERVER[] = "-server";
+    if (argc >= 2 && strncmp(argv[1], CLIENT, sizeof(CLIENT)) == 0)
+    {
+        runClient();
+    }
+    else if (argc >= 2 && strncmp(argv[1], SERVER, sizeof(SERVER)) == 0)
+    {
+        runServer();
+    }
+    else
+    {
+        Logger::info("Usage: MM2.exe -client / -server");
+    }
 }
 

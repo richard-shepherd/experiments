@@ -29,7 +29,7 @@ Socket::~Socket()
     // to the socket's UV loop.
     auto pSocket = m_pSocket;
     m_pUVLoop->marshallEvent(
-        [pSocket](uv_loop_t* pLoop)
+        [pSocket](uv_loop_t* /*pLoop*/)
         {
             if (!pSocket) return;
             uv_close(
@@ -132,7 +132,7 @@ void Socket::accept(uv_stream_t* pServer)
     {
         // We find the name of the client...
         auto peerInfo = UVUtils::getPeerIPInfo(m_pSocket);
-        m_name = Utils::format("CLIENT-SOCKET:%s:%s", peerInfo.Hostname, peerInfo.Service);
+        m_name = Utils::format("CLIENT-SOCKET:%s:%s", peerInfo.Hostname.c_str(), peerInfo.Service.c_str());
         Logger::info("Accepted socket: " + m_name);
 
         // We start reading and writing...
@@ -254,6 +254,7 @@ void Socket::onConnectCompleted(uv_connect_t* pRequest, int status)
 {
     try
     {
+        delete pRequest;
         if (status < 0)
         {
             Logger::error(Utils::format("Connection error: %s", uv_strerror(status)));
@@ -319,7 +320,7 @@ void Socket::moveToLoop_onSocketClosed(move_socket_t* pMoveInfo)
         auto pNewUVLoop = pMoveInfo->pNewUVLoop;
         auto pNewOSSocket = pMoveInfo->pNewOSSocket;
         pMoveInfo->pNewUVLoop->marshallEvent(
-            [this, pNewUVLoop, pNewOSSocket](uv_loop_t* pLoop)
+            [this, pNewUVLoop, pNewOSSocket](uv_loop_t* /*pLoop*/)
             {
                 // The move continues in moveToLoop_registerDuplicatedSocket()...
                 moveToLoop_registerDuplicatedSocket(pNewUVLoop, pNewOSSocket);
@@ -380,7 +381,7 @@ void Socket::write(NetworkDataPtr pNetworkData)
     // away, this allows us to coalesce multiple queued writes...
     m_pUVLoop->marshallUniqueEvent(
         UVLoop::UniqueEventKey::SOCKET_QUEUE_WRITE,
-        [this](uv_loop_t* pLoop)
+        [this](uv_loop_t* /*pLoop*/)
         {
             processQueuedWrites();
         }
@@ -488,7 +489,7 @@ void Socket::onNewConnection(uv_stream_t* pServer, int status)
 }
 
 // Called when data has been received on a socket.
-void Socket::onDataReceived(uv_stream_t* pStream, ssize_t nread, const uv_buf_t* pBuffer)
+void Socket::onDataReceived(uv_stream_t* /*pStream*/, ssize_t nread, const uv_buf_t* pBuffer)
 {
     try
     {

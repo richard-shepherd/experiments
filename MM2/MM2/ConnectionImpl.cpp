@@ -21,7 +21,7 @@ ConnectionImpl::ConnectionImpl(const std::string& hostname, int port, const std:
 
     // We connect to the gateway...
     m_pUVLoop->marshallEvent(
-        [this](uv_loop_t* pLoop)
+        [this](uv_loop_t* /*pLoop*/)
         {
             m_pSocket->connect(m_hostname, m_port);
         }
@@ -34,7 +34,7 @@ ConnectionImpl::ConnectionImpl(const std::string& hostname, int port, const std:
 }
 
 // Sends a network-message to the gateway.
-void ConnectionImpl::sendNetworkMessage(const NetworkMessage& networkMessage)
+void ConnectionImpl::sendNetworkMessage(const NetworkMessage& /*networkMessage*/)
 {
 
 }

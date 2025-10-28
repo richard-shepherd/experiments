@@ -42,7 +42,7 @@ UVUtils::IPInfo UVUtils::getPeerIPInfo(uv_tcp_t* pTCPHandle)
 }
 
 // Allocates buffer memory for a UV read from a socket.
-void UVUtils::allocateBufferMemory(uv_handle_t* handle, size_t suggested_size, uv_buf_t* pBuffer)
+void UVUtils::allocateBufferMemory(uv_handle_t* /*handle*/, size_t suggested_size, uv_buf_t* pBuffer)
 {
     pBuffer->base = new char[suggested_size];
     pBuffer->len = (ULONG)suggested_size;
