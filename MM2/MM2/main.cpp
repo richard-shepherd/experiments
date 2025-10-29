@@ -32,6 +32,7 @@ void runClient()
     Logger::info("Sending data");
     for (auto i = 0; i < 50000000; ++i)
     {
+
         auto pBuffer = Buffer::create();
         pBuffer->write_string("Hello");
         pBuffer->write_int32(123);

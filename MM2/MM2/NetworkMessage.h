@@ -19,14 +19,22 @@ namespace MessagingMesh
         // Gets a reference to the header.
         NetworkMessageHeader& getHeader() { return m_header; }
 
-        // Gets a reference to the message.
-        MessagePtr& getMessage() { return m_pMessage; }
+        // Gets the message.
+        MessagePtr getMessage() const;
+
+        // Sets the message.
+        void setMessage(MessagePtr pMessage);
 
         // Serializes the network message to the current position of the buffer.
         void serialize(Buffer& buffer) const;
 
         // Deserialized the network message from the current position in the buffer.
         void deserialize(Buffer& buffer);
+
+    // Private functions...
+    private:
+        // Creates the message we hold if it does not already exist.
+        void createMessageIfItDoesNotExist() const;
         
     // Private data...
     private:
@@ -34,7 +42,7 @@ namespace MessagingMesh
         NetworkMessageHeader m_header;
 
         // Message payload...
-        MessagePtr m_pMessage;
+        mutable MessagePtr m_pMessage = nullptr;
     };
 } // namespace
 
