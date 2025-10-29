@@ -16,6 +16,9 @@ namespace MessagingMesh
     public:
         // Constructor.
         Connection(const std::string& hostname, int port, const std::string& service);
+
+        // Destructor.
+        ~Connection();
         
     // Private data...
     private:

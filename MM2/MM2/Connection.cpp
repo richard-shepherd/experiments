@@ -7,3 +7,9 @@ Connection::Connection(const std::string& hostname, int port, const std::string&
     m_pImpl(std::make_unique<ConnectionImpl>(hostname, port, service))
 {
 }
+
+// Destructor.
+Connection::~Connection()
+{
+}
+

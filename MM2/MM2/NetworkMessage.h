@@ -19,6 +19,9 @@ namespace MessagingMesh
         // Gets a reference to the header.
         NetworkMessageHeader& getHeader() { return m_header; }
 
+        // Gets a const reference to the header.
+        const NetworkMessageHeader& getHeader() const { return m_header; }
+
         // Gets the message.
         MessagePtr getMessage() const;
 

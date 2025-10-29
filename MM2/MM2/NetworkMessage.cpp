@@ -38,6 +38,7 @@ void NetworkMessage::deserialize(Buffer& buffer)
     m_header.deserialize(buffer);
 
     // Message...
+    createMessageIfItDoesNotExist();
     m_pMessage->deserialize(buffer);
 }
 

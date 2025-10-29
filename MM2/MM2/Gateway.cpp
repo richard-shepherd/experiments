@@ -2,7 +2,7 @@
 #include "Socket.h"
 #include "Utils.h"
 #include "Logger.h"
-#include "OSSocketHolder.h"
+#include "NetworkMessage.h"
 using namespace MessagingMesh;
 
 // Constructor.
@@ -32,16 +32,22 @@ Gateway::~Gateway()
 // Called on the thread of the client socket.
 void Gateway::onDataReceived(BufferPtr pBuffer)
 {
-    static int count = 0;
+    // We deserialize the buffer to a NetworkMessage...
+    NetworkMessage networkMessage;
+    networkMessage.deserialize(*pBuffer);
+    auto action = networkMessage.getHeader().getAction();
+    Logger::info(Utils::format("Received message. Action=%d", static_cast<int8_t>(action)));
 
-    count++;
-    //Logger::info(Utils::format("Received data: %d", count));
-    if (count % 1000000 == 0)
-    {
-        auto text = pBuffer->read_string();
-        auto value = pBuffer->read_int32();
-        Logger::info(Utils::format("Received data: %d, data=%s;%d", count, text.c_str(), value));
-    }
+    //static int count = 0;
+
+    //count++;
+    ////Logger::info(Utils::format("Received data: %d", count));
+    //if (count % 1000000 == 0)
+    //{
+    //    auto text = pBuffer->read_string();
+    //    auto value = pBuffer->read_int32();
+    //    Logger::info(Utils::format("Received data: %d, data=%s;%d", count, text.c_str(), value));
+    //}
 }
 
 // Called when a new client connection has been made to a listening socket.
@@ -57,8 +63,7 @@ void Gateway::onNewConnection(SocketPtr pClientSocket)
 }
 
 // Called when a socket has been disconnected.
-        // Called when a socket has been disconnected.
-        // Called on the socket's thread.
+// Called on the socket's thread.
 void Gateway::onDisconnected(const std::string& socketName)
 {
     m_clientSockets.erase(socketName);

@@ -31,11 +31,15 @@ ConnectionImpl::ConnectionImpl(const std::string& hostname, int port, const std:
     NetworkMessage connectMessage;
     connectMessage.getHeader().setAction(NetworkMessageHeader::Action::CONNECT);
     connectMessage.getMessage()->addField("SERVICE", m_service);
+    sendNetworkMessage(connectMessage);
 }
 
 // Sends a network-message to the gateway.
-void ConnectionImpl::sendNetworkMessage(const NetworkMessage& /*networkMessage*/)
+void ConnectionImpl::sendNetworkMessage(const NetworkMessage& networkMessage)
 {
-
+    // We serialize the message and send it...
+    auto pBuffer = Buffer::create();
+    networkMessage.serialize(*pBuffer);
+    m_pSocket->write(pBuffer);
 }
 
