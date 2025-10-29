@@ -3,6 +3,8 @@
 #include "Utils.h"
 #include "Logger.h"
 #include "NetworkMessage.h"
+#include "Message.h"
+#include "Field.h"
 using namespace MessagingMesh;
 
 // Constructor.
@@ -32,11 +34,24 @@ Gateway::~Gateway()
 // Called on the thread of the client socket.
 void Gateway::onDataReceived(BufferPtr pBuffer)
 {
-    // We deserialize the buffer to a NetworkMessage...
-    NetworkMessage networkMessage;
-    networkMessage.deserialize(*pBuffer);
-    auto action = networkMessage.getHeader().getAction();
-    Logger::info(Utils::format("Received message. Action=%d", static_cast<int8_t>(action)));
+    static int count = 0;
+    count++;
+
+    if (count % 1000000 == 0)
+    {
+        // We deserialize the buffer to a NetworkMessage...
+        NetworkMessage networkMessage;
+        networkMessage.deserialize(*pBuffer);
+        auto& header = networkMessage.getHeader();
+        auto action = header.getAction();
+        if (action == NetworkMessageHeader::Action::SEND_MESSAGE)
+        {
+            auto& subject = header.getSubject();
+            auto pMessage = networkMessage.getMessage();
+            auto value = pMessage->getField("VALUE")->getSignedInt32();
+            Logger::info(Utils::format("Received: subject=%s, value=%d", subject.c_str(), value));
+        }
+    }
 
     //static int count = 0;
 

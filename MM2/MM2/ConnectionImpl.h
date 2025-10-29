@@ -18,10 +18,16 @@ namespace MessagingMesh
         // Constructor.
         ConnectionImpl(const std::string& hostname, int port, const std::string& service);
 
+        // Destructor.
+        ~ConnectionImpl();
+
+        // Sends a message to the specified subject.
+        void sendMessage(const std::string& subject, const MessagePtr& pMessage) const;
+
     // Private functions...
     private:
         // Sends a network-message to the gateway.
-        void sendNetworkMessage(const NetworkMessage& networkMessage);
+        void sendNetworkMessage(const NetworkMessage& networkMessage) const;
 
     // Private data...
     private:

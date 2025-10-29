@@ -16,6 +16,9 @@ namespace MessagingMesh
         // Constructor.
         NetworkMessage();
 
+        // Destructor.
+        ~NetworkMessage();
+
         // Gets a reference to the header.
         NetworkMessageHeader& getHeader() { return m_header; }
 
@@ -26,7 +29,7 @@ namespace MessagingMesh
         MessagePtr getMessage() const;
 
         // Sets the message.
-        void setMessage(MessagePtr pMessage);
+        void setMessage(const MessagePtr& pMessage);
 
         // Serializes the network message to the current position of the buffer.
         void serialize(Buffer& buffer) const;

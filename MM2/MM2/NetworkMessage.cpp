@@ -1,9 +1,15 @@
 #include "NetworkMessage.h"
 #include "Message.h"
+#include "Logger.h"
 using namespace MessagingMesh;
 
 // Constructor.
 NetworkMessage::NetworkMessage()
+{
+}
+
+// Destructor.
+NetworkMessage::~NetworkMessage()
 {
 }
 
@@ -15,7 +21,7 @@ MessagePtr NetworkMessage::getMessage() const
 }
 
 // Sets the message.
-void NetworkMessage::setMessage(MessagePtr pMessage) 
+void NetworkMessage::setMessage(const MessagePtr& pMessage) 
 {
     m_pMessage = pMessage;
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <string>
+#include "SharedPointers.h"
 
 namespace MessagingMesh
 {
@@ -19,6 +20,9 @@ namespace MessagingMesh
 
         // Destructor.
         ~Connection();
+
+        // Sends a message to the specified subject.
+        void sendMessage(const std::string& subject, const MessagePtr& pMessage);
         
     // Private data...
     private:

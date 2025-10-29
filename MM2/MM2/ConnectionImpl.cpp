@@ -34,8 +34,27 @@ ConnectionImpl::ConnectionImpl(const std::string& hostname, int port, const std:
     sendNetworkMessage(connectMessage);
 }
 
+// Destructor.
+ConnectionImpl::~ConnectionImpl()
+{
+}
+
+// Sends a message to the specified subject.
+void ConnectionImpl::sendMessage(const std::string& subject, const MessagePtr& pMessage) const
+{
+    // We create a NetworkMessage to send the message...
+    NetworkMessage networkMessage;
+    auto& header = networkMessage.getHeader();
+    header.setAction(NetworkMessageHeader::Action::SEND_MESSAGE);
+    header.setSubject(subject);
+    networkMessage.setMessage(pMessage);
+
+    // We send the message...
+    sendNetworkMessage(networkMessage);
+}
+
 // Sends a network-message to the gateway.
-void ConnectionImpl::sendNetworkMessage(const NetworkMessage& networkMessage)
+void ConnectionImpl::sendNetworkMessage(const NetworkMessage& networkMessage) const
 {
     // We serialize the message and send it...
     auto pBuffer = Buffer::create();

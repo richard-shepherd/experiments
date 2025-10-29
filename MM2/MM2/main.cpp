@@ -1,12 +1,10 @@
 #include <iostream>
-#include <ctime>
-#include <thread>
 #include "Logger.h"
 #include "Gateway.h"
-#include "Buffer.h"
 #include "Utils.h"
 #include "Tests.h"
 #include "Connection.h"
+#include "Message.h"
 using namespace MessagingMesh;
 
 
@@ -18,31 +16,17 @@ void onMessageLogged(Logger::LogLevel logLevel, const std::string& message)
 
 void runClient()
 {
-    //auto pUVLoop = UVLoop::create("CLIENT");
-    //auto pSocket = Socket::create(pUVLoop);
-
-    //// We connect to the server...
-    //pUVLoop->marshallEvent(
-    //    [pSocket](uv_loop_t* /*pLoop*/)
-    //    {
-    //        pSocket->connect("localhost", 5050);
-    //    }
-    //);
-
-    //// We send some data...
-    //Logger::info("Sending data");
-    //for (auto i = 0; i < 50000000; ++i)
-    //{
-
-    //    auto pBuffer = Buffer::create();
-    //    pBuffer->write_string("Hello");
-    //    pBuffer->write_int32(123);
-    //    pSocket->write(pBuffer);
-    //    //if (i % 100000 == 0) uv_sleep(100);
-    //}
-
     // We connect to the gateway...
     Connection connection("localhost", 5050, "VULCAN");
+
+    Logger::info("Sending data");
+    std::string subject = "A.B";
+    for (int32_t i = 1; i <= 50000000; ++i)
+    {
+        auto pMessage = Message::create();
+        pMessage->addField("VALUE", i);
+        connection.sendMessage(subject, pMessage);
+    }
 
     Logger::info("Press Enter to exit");
     std::cin.get();
