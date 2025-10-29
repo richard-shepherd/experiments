@@ -33,8 +33,8 @@ void runClient()
     for (auto i = 0; i < 50000000; ++i)
     {
         auto pBuffer = Buffer::create();
-        pBuffer->write("Hello");
-        pBuffer->write(123);
+        pBuffer->write_string("Hello");
+        pBuffer->write_int32(123);
         pSocket->write(pBuffer);
         //if (i % 100000 == 0) uv_sleep(100);
     }
@@ -55,7 +55,6 @@ int main(int argc, char** argv)
 {
     //Logger::registerCallback(onMessageLogged);
     //Tests::messageSerialization();
-    //return 0;
 
     UVUtils::setThreadName("MAIN");
     Logger::registerCallback(onMessageLogged);

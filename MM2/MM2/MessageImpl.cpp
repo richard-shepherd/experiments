@@ -66,24 +66,24 @@ void MessageImpl::serialize(Buffer& buffer) const
 {
     // We write the number of fields...
     auto fieldCount = static_cast<int32_t>(m_fields.size());
-    buffer.write(fieldCount);
+    buffer.write_int32(fieldCount);
 
     // We write each field...
     for (auto& field : m_fields)
     {
-        buffer.write(field);
+        buffer.write_field(field);
     }
 }
 
 void MessageImpl::deserialize(Buffer& buffer)
 {
     // We find the number of fields...
-    auto fieldCount = buffer.readInt32();
+    auto fieldCount = buffer.read_int32();
 
     // We read each field and add them to the message...
     for (auto i = 0; i < fieldCount; ++i)
     {
-        auto field = buffer.readField();
+        auto field = buffer.read_field();
         m_fields.push_back(field);
         m_mapNameToField.insert({ field->getName(), field });
     }

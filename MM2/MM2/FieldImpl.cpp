@@ -78,28 +78,28 @@ void FieldImpl::setMessage(const ConstMessagePtr& value)
 void FieldImpl::serialize(Buffer& buffer) const
 {
     // We serialize the field name...
-    buffer.write(m_name);
+    buffer.write_string(m_name);
 
     // We serialize the data type...
-    buffer.write(static_cast<int8_t>(m_dataType));
+    buffer.write_int8(static_cast<int8_t>(m_dataType));
 
     // We serialize the data, depending on the type...
     switch (m_dataType)
     {
     case Field::STRING:
-        buffer.write(m_dataString);
+        buffer.write_string(m_dataString);
         break;
 
     case Field::SIGNED_INT32:
-        buffer.write(m_dataNumeric.Int32);
+        buffer.write_int32(m_dataNumeric.Int32);
         break;
 
     case Field::DOUBLE:
-        buffer.write(m_dataNumeric.Double);
+        buffer.write_double(m_dataNumeric.Double);
         break;
 
     case Field::MESSAGE:
-        buffer.write(m_dataMessage);
+        buffer.write_message(m_dataMessage);
         break;
 
     default:
@@ -110,28 +110,28 @@ void FieldImpl::serialize(Buffer& buffer) const
 void FieldImpl::deserialize(Buffer& buffer)
 {
     // We deserialize the name...
-    m_name = buffer.readString();
+    m_name = buffer.read_string();
 
     // We deserialize the data type...
-    m_dataType = static_cast<Field::DataType>(buffer.readInt8());
+    m_dataType = static_cast<Field::DataType>(buffer.read_int8());
 
     // We deserialize the data, depending on the type...
     switch (m_dataType)
     {
     case Field::STRING:
-        m_dataString = buffer.readString();
+        m_dataString = buffer.read_string();
         break;
 
     case Field::SIGNED_INT32:
-        m_dataNumeric.Int32 = buffer.readInt32();
+        m_dataNumeric.Int32 = buffer.read_int32();
         break;
 
     case Field::DOUBLE:
-        m_dataNumeric.Double = buffer.readDouble();
+        m_dataNumeric.Double = buffer.read_double();
         break;
 
     case Field::MESSAGE:
-        m_dataMessage = buffer.readMessage();
+        m_dataMessage = buffer.read_message();
         break;
 
     default:

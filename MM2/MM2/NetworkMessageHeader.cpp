@@ -11,30 +11,30 @@ NetworkMessageHeader::NetworkMessageHeader()
 void NetworkMessageHeader::serialize(Buffer& buffer) const
 {
     // Subscription ID...
-    buffer.write(m_subscriptionID);
+    buffer.write_uint32(m_subscriptionID);
 
     // Subject...
-    buffer.write(m_subject);
+    buffer.write_string(m_subject);
 
     // Reply subject...
-    buffer.write(m_replySubject);
+    buffer.write_string(m_replySubject);
 
     // Action...
-    buffer.write(static_cast<int8_t>(m_action));
+    buffer.write_int8(static_cast<int8_t>(m_action));
 }
 
 // Deserialized the network message header from the current position in the buffer.
 void NetworkMessageHeader::deserialize(Buffer& buffer)
 {
     // Subscription ID...
-    m_subscriptionID = buffer.readUInt32();
+    m_subscriptionID = buffer.read_uint32();
 
     // Subject...
-    m_subject = buffer.readString();
+    m_subject = buffer.read_string();
 
     // Reply subject...
-    m_replySubject = buffer.readString();
+    m_replySubject = buffer.read_string();
 
     // Action...
-    m_action = static_cast<Action>(buffer.readInt8());
+    m_action = static_cast<Action>(buffer.read_int8());
 }

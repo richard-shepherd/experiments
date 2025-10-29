@@ -38,8 +38,8 @@ void Gateway::onDataReceived(BufferPtr pBuffer)
     //Logger::info(Utils::format("Received data: %d", count));
     if (count % 1000000 == 0)
     {
-        auto text = pBuffer->readString();
-        auto value = pBuffer->readInt32();
+        auto text = pBuffer->read_string();
+        auto value = pBuffer->read_int32();
         Logger::info(Utils::format("Received data: %d, data=%s;%d", count, text.c_str(), value));
     }
 }

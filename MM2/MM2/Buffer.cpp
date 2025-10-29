@@ -6,86 +6,101 @@
 #include "Utils.h"
 using namespace MessagingMesh;
 
+// Constructor.
+// NOTE: The constructor is private. Use Buffer::create() to create an instance.
 Buffer::Buffer()
 {
 }
 
+// Destructor.
 Buffer::~Buffer()
 {
     delete[] m_pBuffer;
 }
 
 // Gets the buffer.
-char* Buffer::getBuffer() const
+char* Buffer::getBuffer()
 {
-    // We update the data size, stored in the first four bytes.
-    // This is the size of the data itself not including the bytes 
-    // that hold the size.
-    int32_t size = m_dataSize - SIZE_SIZE;
+    // If the buffer has not yet been allocated we allocate a buffer to hold the
+    // size, as client code is always expecting a buffer with at least a size at
+    // the start of the buffer...
+    if (!m_pBuffer)
+    {
+        m_pBuffer = new char[SIZE_SIZE];
+        m_bufferSize = SIZE_SIZE;
+    }
+
+    // We update the data size, stored in the first four bytes of the buffer...
+    int32_t size = m_dataSize;
     std::memcpy(m_pBuffer, &size, sizeof(size));
 
     // We return the buffer...
     return m_pBuffer;
 }
 
-// INT8
-int8_t Buffer::readInt8()
+// Reads an int8 from the buffer.
+int8_t Buffer::read_int8()
 {
     int8_t result;
     readCopyable(result);
     return result;
 }
 
-void Buffer::write(int8_t item)
+// Writes an int8 to the buffer.
+void Buffer::write_int8(int8_t item)
 {
     writeCopyable(item);
 }
 
-// INT32
-int32_t Buffer::readInt32()
+// Reads an int32 from the buffer.
+int32_t Buffer::read_int32()
 {
     int32_t result;
     readCopyable(result);
     return result;
 }
 
-void Buffer::write(int32_t item)
+// Writes a signed int32 to the buffer.
+void Buffer::write_int32(int32_t item)
 {
     writeCopyable(item);
 }
 
-// UINT32
-uint32_t Buffer::readUInt32()
+// Reads a uint32 from the buffer.
+uint32_t Buffer::read_uint32()
 {
     uint32_t result;
     readCopyable(result);
     return result;
 }
-void Buffer::write(uint32_t item)
+
+// Writes an unsigned int32 to the buffer.
+void Buffer::write_uint32(uint32_t item)
 {
     writeCopyable(item);
 }
 
-// DOUBLE
-double Buffer::readDouble()
+// Reads a double from the buffer.
+double Buffer::read_double()
 {
     double result;
     readCopyable(result);
     return result;
 }
 
-void Buffer::write(double item)
+// Writes a double to the buffer.
+void Buffer::write_double(double item)
 {
     writeCopyable(item);
 }
 
-// STRING
-std::string Buffer::readString()
+// Reads a string from the buffer.
+std::string Buffer::read_string()
 {
     // String are serialized as [length][chars].
 
     // We read the length...
-    auto length = readInt32();
+    auto length = read_int32();
 
     // We check the buffer size...
     checkBufferSize_Read(length);
@@ -99,20 +114,22 @@ std::string Buffer::readString()
     return result;
 }
 
-void Buffer::write(const std::string& item)
+// Writes a string to the buffer.
+void Buffer::write_string(const std::string& item)
 {
     // String are serialized as [length][chars].
 
     // We write the length...
     auto length = static_cast<int32_t>(item.length());
-    write(length);
+    write_int32(length);
 
     // We write the characters...
-    write(item.c_str(), length);
+    write_bytes(item.c_str(), length);
 }
 
-// BYTE ARRAY
-void Buffer::read(void* p, int32_t size)
+// Reads bytes from the buffer to the pointer passed in.
+// NOTE: You must make sure that the memory pointed to is large enough.
+void Buffer::read_bytes(void* p, int32_t size)
 {
     // We make sure that the buffer is large enough...
     checkBufferSize_Read(size);
@@ -124,7 +141,8 @@ void Buffer::read(void* p, int32_t size)
     updatePosition_Read(size);
 }
 
-void Buffer::write(const void* p, int32_t size)
+// Writes bytes to the buffer from the pointer passed in.
+void Buffer::write_bytes(const void* p, int32_t size)
 {
     // We make sure that the buffer can hold the new data...
     checkBufferSize_Write(size);
@@ -136,8 +154,8 @@ void Buffer::write(const void* p, int32_t size)
     updatePosition_Write(size);
 }
 
-// FIELD
-ConstFieldPtr Buffer::readField()
+// Reads a field from the buffer.
+ConstFieldPtr Buffer::read_field()
 {
     // We create a new field and deserialize into it...
     auto field = Field::create();
@@ -145,15 +163,16 @@ ConstFieldPtr Buffer::readField()
     return field;
 }
 
-void Buffer::write(const ConstFieldPtr& item)
+// Writes a field to the buffer.
+void Buffer::write_field(const ConstFieldPtr& item)
 {
     // We call the field's serialize() method. This calls back into the buffer
     // to write the data for the field and the specific type it is managing...
     item->serialize(*this);
 }
 
-// MESSAGE
-ConstMessagePtr Buffer::readMessage()
+// Reads a message from the buffer.
+ConstMessagePtr Buffer::read_message()
 {
     // We create a new message and deserialize into it...
     auto message = Message::create();
@@ -161,13 +180,15 @@ ConstMessagePtr Buffer::readMessage()
     return message;
 }
 
-void Buffer::write(const ConstMessagePtr& item)
+// Writes a message to the buffer.
+void Buffer::write_message(const ConstMessagePtr& item)
 {
     // We call the message's serialize() method. This calls back into the buffer
     // to write the data for the message and the fields it is managing...
     item->serialize(*this);
 }
 
+// Reads an item from the buffer using memcpy.
 template <typename T>
 void Buffer::readCopyable(T& item)
 {
@@ -182,6 +203,7 @@ void Buffer::readCopyable(T& item)
     updatePosition_Read(static_cast<int32_t>(size));
 }
 
+// Writes an item to the buffer which can be written with memcpy.
 template <typename T>
 void Buffer::writeCopyable(const T& item)
 {
@@ -196,6 +218,8 @@ void Buffer::writeCopyable(const T& item)
     updatePosition_Write(static_cast<int32_t>(size));
 }
 
+// Checks that the buffer is large enough to read the specified number of bytes.
+// Throws a MessagingMesh::Exception if the buffer is not large enough.
 void Buffer::checkBufferSize_Read(size_t bytesRequired)
 {
     if (m_position + bytesRequired > m_dataSize)
@@ -205,6 +229,9 @@ void Buffer::checkBufferSize_Read(size_t bytesRequired)
     }
 }
 
+// Checks that the buffer has the capacity to hold the number of bytes specified
+// and expands it if it does not.
+// Throws a MessagingMesh::Exception if the buffer required is too large.
 void Buffer::checkBufferSize_Write(size_t bytesRequired)
 {
     // We check if we can fit the bytes-required into the buffer at the current position...
@@ -250,12 +277,14 @@ void Buffer::expandBuffer()
     m_bufferSize = newBufferSize;
 }
 
+// Updates the position to reflect bytes read from the buffer.
 void Buffer::updatePosition_Read(int32_t bytesWritten)
 {
     // We update the position...
     m_position += bytesWritten;
 }
 
+// Updates the position and data-size to reflect bytes written to the buffer.
 void Buffer::updatePosition_Write(int32_t bytesWritten)
 {
     // We update the position...
@@ -271,7 +300,7 @@ void Buffer::updatePosition_Write(int32_t bytesWritten)
 }
 
 // Reads data from a network data buffer until we have all the data for
-// a network message.
+// the buffer as specified by the size in the network message.
 // Returns the number of bytes read from the buffer.
 size_t Buffer::readNetworkMessage(const char* pBuffer, size_t bufferSize, size_t bufferPosition)
 {
@@ -287,7 +316,7 @@ size_t Buffer::readNetworkMessage(const char* pBuffer, size_t bufferSize, size_t
     // We make sure that we have the message size.
     // (This is a no-op if we already know the size.)
     size_t bytesRead = readNetworkMessageSize(pBuffer, bufferSize, bufferPosition);
-    if (m_networkMessageSize == -1)
+    if (m_bufferSize == 0)
     {
         // We do not (yet) have the size...
         return bytesRead;
@@ -297,7 +326,7 @@ size_t Buffer::readNetworkMessage(const char* pBuffer, size_t bufferSize, size_t
     // We find the number of bytes we need. This may not be the same as
     // the size of the message, as we may have already read from of the
     // data from previous updates.
-    size_t sizeRequired = m_networkMessageSize - m_position + SIZE_SIZE;
+    size_t sizeRequired = m_bufferSize - m_position;
 
     // We find how much data there is available in the buffer and
     // work out how many bytes to read from the buffer...
@@ -314,7 +343,7 @@ size_t Buffer::readNetworkMessage(const char* pBuffer, size_t bufferSize, size_t
     m_position += static_cast<int32_t>(sizeToRead);
 
     // We check if we have the whole message...
-    if (m_position == m_networkMessageSize + SIZE_SIZE)
+    if (m_position == m_bufferSize)
     {
         m_hasAllData = true;
     }
@@ -326,7 +355,7 @@ size_t Buffer::readNetworkMessage(const char* pBuffer, size_t bufferSize, size_t
 size_t Buffer::readNetworkMessageSize(const char* pBuffer, size_t bufferSize, size_t bufferPosition)
 {
     // We check if we already have the size...
-    if (m_networkMessageSize != -1)
+    if (m_bufferSize != 0)
     {
         return 0;
     }
@@ -343,14 +372,12 @@ size_t Buffer::readNetworkMessageSize(const char* pBuffer, size_t bufferSize, si
     // If we have read all the bytes for the size, we get the size...
     if (m_networkMessageSizeBufferPosition == SIZE_SIZE)
     {
-        // We copy the size buffer to the network message size field. (We can do this as
+        // We copy the size buffer to the m_bufferSize field. (We can do this as
         // the messaging-mesh network protocol for int32 is little-endian.)
-        std::memcpy(&m_networkMessageSize, &m_networkMessageSizeBuffer[0], SIZE_SIZE);
+        std::memcpy(&m_bufferSize, &m_networkMessageSizeBuffer[0], SIZE_SIZE);
 
-        // We allocate the data buffer for the size, plus four bytes to 
-        // hold the size itself...
+        // We allocate the data buffer for the size...
         delete[] m_pBuffer;
-        m_bufferSize = m_networkMessageSize + SIZE_SIZE;
         m_dataSize = m_bufferSize;
         m_pBuffer = new char[m_bufferSize];
 
