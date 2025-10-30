@@ -20,12 +20,11 @@ void runClient()
     Connection connection("localhost", 5050, "VULCAN");
 
     Logger::info("Sending data");
-    std::string subject = "A.B";
-    for (int32_t i = 1; i <= 50000000; ++i)
+    for (int32_t i = 1; i <= 500; ++i)
     {
         auto pMessage = Message::create();
         pMessage->addField("VALUE", i);
-        connection.sendMessage(subject, pMessage);
+        connection.sendMessage("A.B", pMessage);
     }
 
     Logger::info("Press Enter to exit");

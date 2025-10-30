@@ -34,35 +34,18 @@ Gateway::~Gateway()
 // Called on the thread of the client socket.
 void Gateway::onDataReceived(BufferPtr pBuffer)
 {
-    static int count = 0;
-    count++;
-
-    if (count % 1000000 == 0)
+    // We deserialize the buffer to a NetworkMessage...
+    NetworkMessage networkMessage;
+    networkMessage.deserialize(*pBuffer);
+    auto& header = networkMessage.getHeader();
+    auto action = header.getAction();
+    if (action == NetworkMessageHeader::Action::SEND_MESSAGE)
     {
-        // We deserialize the buffer to a NetworkMessage...
-        NetworkMessage networkMessage;
-        networkMessage.deserialize(*pBuffer);
-        auto& header = networkMessage.getHeader();
-        auto action = header.getAction();
-        if (action == NetworkMessageHeader::Action::SEND_MESSAGE)
-        {
-            auto& subject = header.getSubject();
-            auto pMessage = networkMessage.getMessage();
-            auto value = pMessage->getField("VALUE")->getSignedInt32();
-            Logger::info(Utils::format("Received: subject=%s, value=%d", subject.c_str(), value));
-        }
+        auto& subject = header.getSubject();
+        auto pMessage = networkMessage.getMessage();
+        auto value = pMessage->getField("VALUE")->getSignedInt32();
+        Logger::info(Utils::format("Received: subject=%s, value=%d", subject.c_str(), value));
     }
-
-    //static int count = 0;
-
-    //count++;
-    ////Logger::info(Utils::format("Received data: %d", count));
-    //if (count % 1000000 == 0)
-    //{
-    //    auto text = pBuffer->read_string();
-    //    auto value = pBuffer->read_int32();
-    //    Logger::info(Utils::format("Received data: %d, data=%s;%d", count, text.c_str(), value));
-    //}
 }
 
 // Called when a new client connection has been made to a listening socket.
