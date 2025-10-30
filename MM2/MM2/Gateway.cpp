@@ -17,34 +17,48 @@ Gateway::Gateway(int port) :
     m_pUVLoop->marshallEvent(
         [this](uv_loop_t* /*pLoop*/)
         {
-            // RSSTODO: Needs try-catch on this callback
-            m_listeningSocket = Socket::create(m_pUVLoop);
-            m_listeningSocket->setCallback(this);
-            m_listeningSocket->listen(m_port);
+            createListeningSocket();
         }
     );
 }
 
-// Destructor.
-Gateway::~Gateway()
+// Creates the socket to listen for client connections.
+void Gateway::createListeningSocket()
 {
+    try
+    {
+        m_listeningSocket = Socket::create(m_pUVLoop);
+        m_listeningSocket->setCallback(this);
+        m_listeningSocket->listen(m_port);
+    }
+    catch (const std::exception& ex)
+    {
+        Logger::error(Utils::format("%s: %s", __func__, ex.what()));
+    }
 }
 
 // Called when data has been received on the socket.
 // Called on the thread of the client socket.
 void Gateway::onDataReceived(BufferPtr pBuffer)
 {
-    // We deserialize the buffer to a NetworkMessage...
-    NetworkMessage networkMessage;
-    networkMessage.deserialize(*pBuffer);
-    auto& header = networkMessage.getHeader();
-    auto action = header.getAction();
-    if (action == NetworkMessageHeader::Action::SEND_MESSAGE)
+    try
     {
-        auto& subject = header.getSubject();
-        auto pMessage = networkMessage.getMessage();
-        auto value = pMessage->getField("VALUE")->getSignedInt32();
-        Logger::info(Utils::format("Received: subject=%s, value=%d", subject.c_str(), value));
+        // We deserialize the buffer to a NetworkMessage...
+        NetworkMessage networkMessage;
+        networkMessage.deserialize(*pBuffer);
+        auto& header = networkMessage.getHeader();
+        auto action = header.getAction();
+        if (action == NetworkMessageHeader::Action::SEND_MESSAGE)
+        {
+            auto& subject = header.getSubject();
+            auto pMessage = networkMessage.getMessage();
+            auto value = pMessage->getField("VALUE")->getSignedInt32();
+            Logger::info(Utils::format("Received: subject=%s, value=%d", subject.c_str(), value));
+        }
+    }
+    catch (const std::exception& ex)
+    {
+        Logger::error(Utils::format("%s: %s", __func__, ex.what()));
     }
 }
 
@@ -52,17 +66,31 @@ void Gateway::onDataReceived(BufferPtr pBuffer)
 // Called on the GATEWAY thread.
 void Gateway::onNewConnection(SocketPtr pClientSocket)
 {
-    // We observe the socket...
-    pClientSocket->setCallback(this);
-    m_clientSockets[pClientSocket->getName()] = pClientSocket;
+    try
+    {
+        // We observe the socket...
+        pClientSocket->setCallback(this);
+        m_clientSockets[pClientSocket->getName()] = pClientSocket;
 
-    // We move the socket to the client loop...
-    pClientSocket->moveToLoop(m_pUVClientLoop);
+        // We move the socket to the client loop...
+        pClientSocket->moveToLoop(m_pUVClientLoop);
+    }
+    catch (const std::exception& ex)
+    {
+        Logger::error(Utils::format("%s: %s", __func__, ex.what()));
+    }
 }
 
 // Called when a socket has been disconnected.
 // Called on the socket's thread.
 void Gateway::onDisconnected(const std::string& socketName)
 {
-    m_clientSockets.erase(socketName);
+    try
+    {
+        m_clientSockets.erase(socketName);
+    }
+    catch (const std::exception& ex)
+    {
+        Logger::error(Utils::format("%s: %s", __func__, ex.what()));
+    }
 }

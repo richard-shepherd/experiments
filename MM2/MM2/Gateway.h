@@ -7,11 +7,14 @@
 
 namespace MessagingMesh
 {
-    // Forward declarations...
-    class UVLoop;
-
     /// <summary>
     /// Manages a messaging-mesh gateway.
+    /// 
+    /// UV loop and threading
+    /// ---------------------
+    /// The gateway uses a UV loop to manage a socket listeing for client connections.
+    /// All methods except the constructor and destructor will be called from the UV
+    /// loop's thread.
     /// 
     /// Services
     /// --------
@@ -28,11 +31,16 @@ namespace MessagingMesh
     /// -----------------------
     /// The gateway has a loop which it uses to listen for new client connections. All initial
     /// connections are handled by this loop, regardless of service. At the point of the initial
-    /// connection we do not yet know the service requested by the client.
+    /// connection we do not yet know the service requested by the client and the client socket
+    /// will be held in the pending-connection collection.
     /// 
-    /// Shortly after making a connection the client will send a 
+    /// Shortly after making a connection the client will send a CONNECT message including the
+    /// service name. The gateway will then find the ServiceManager for this service, or create
+    /// one if this is the first client for the service. The client socket will be handed to the
+    /// ServiceManager and removed from the pending-connection collectio.
     /// 
-    /// 
+    /// Each ServiceManager runs its own UV loop, so all subsequent interactions with the client
+    /// will be managed by that loop. This means that each service runs on its own thread.
     /// </summary>
     class Gateway : public Socket::ICallback
     {
@@ -42,7 +50,7 @@ namespace MessagingMesh
         Gateway(int port);
 
         // Destructor.
-        ~Gateway();
+        ~Gateway() = default;
 
     // Socket::ICallback implementation...
     public:
@@ -57,6 +65,11 @@ namespace MessagingMesh
         // Called when a socket has been disconnected.
         // Called on the socket's thread.
         void onDisconnected(const std::string& socketName);
+
+    // Private functions...
+    private:
+        // Creates the socket to listen for client connections.
+        void createListeningSocket();
 
     // Private data...
     private:
