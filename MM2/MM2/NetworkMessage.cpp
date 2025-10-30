@@ -37,13 +37,22 @@ void NetworkMessage::serialize(Buffer& buffer) const
     m_pMessage->serialize(buffer);
 }
 
-// Deserialized the network message from the current position in the buffer.
+// Deserializes the network message from the current position in the buffer.
 void NetworkMessage::deserialize(Buffer& buffer)
 {
-    // Header...
-    m_header.deserialize(buffer);
+    deserializeHeader(buffer);
+    deserializeMessage(buffer);
+}
 
-    // Message...
+// Deserializes the header from the current position in the buffer.
+void NetworkMessage::deserializeHeader(Buffer& buffer)
+{
+    m_header.deserialize(buffer);
+}
+
+// Deserializes the message from the current position in the buffer.
+void NetworkMessage::deserializeMessage(Buffer& buffer)
+{
     createMessageIfItDoesNotExist();
     m_pMessage->deserialize(buffer);
 }

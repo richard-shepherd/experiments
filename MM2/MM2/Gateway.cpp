@@ -10,8 +10,7 @@ using namespace MessagingMesh;
 // Constructor.
 Gateway::Gateway(int port) :
     m_port(port),
-    m_pUVLoop(UVLoop::create("GATEWAY")),
-    m_pUVClientLoop(UVLoop::create("CLIENT-LOOP"))
+    m_pUVLoop(UVLoop::create("GATEWAY"))
 {
     // We create a socket to listen to client connections, managed by the uv loop...
     m_pUVLoop->marshallEvent(
@@ -37,24 +36,20 @@ void Gateway::createListeningSocket()
     }
 }
 
-// Called when data has been received on the socket.
-// Called on the thread of the client socket.
-void Gateway::onDataReceived(BufferPtr pBuffer)
+// Called when a new client connection has been made to a listening socket.
+// Called on the GATEWAY thread.
+void Gateway::onNewConnection(SocketPtr pClientSocket)
 {
     try
     {
-        // We deserialize the buffer to a NetworkMessage...
-        NetworkMessage networkMessage;
-        networkMessage.deserialize(*pBuffer);
-        auto& header = networkMessage.getHeader();
-        auto action = header.getAction();
-        if (action == NetworkMessageHeader::Action::SEND_MESSAGE)
-        {
-            auto& subject = header.getSubject();
-            auto pMessage = networkMessage.getMessage();
-            auto value = pMessage->getField("VALUE")->getSignedInt32();
-            Logger::info(Utils::format("Received: subject=%s, value=%d", subject.c_str(), value));
-        }
+        // We add the socket to the pending-collection...
+        m_pendingConnections[pClientSocket->getName()] = pClientSocket;
+
+        // We observe the socket, to listen for the CONNECT message...
+        pClientSocket->setCallback(this);
+
+        //// We move the socket to the client loop...
+        //pClientSocket->moveToLoop(m_pUVClientLoop);
     }
     catch (const std::exception& ex)
     {
@@ -62,18 +57,19 @@ void Gateway::onDataReceived(BufferPtr pBuffer)
     }
 }
 
-// Called when a new client connection has been made to a listening socket.
-// Called on the GATEWAY thread.
-void Gateway::onNewConnection(SocketPtr pClientSocket)
+// Called when data has been received on the socket.
+// Called on the thread of the client socket.
+void Gateway::onDataReceived(const std::string& socketName, BufferPtr pBuffer)
 {
     try
     {
-        // We observe the socket...
-        pClientSocket->setCallback(this);
-        m_clientSockets[pClientSocket->getName()] = pClientSocket;
-
-        // We move the socket to the client loop...
-        pClientSocket->moveToLoop(m_pUVClientLoop);
+        // The buffer holds a serialized NetworkMessage. We deserialize
+        // the header and check the action.
+        NetworkMessage networkMessage;
+        networkMessage.deserializeHeader(*pBuffer);
+        auto& header = networkMessage.getHeader();
+        auto action = static_cast<int8_t>(header.getAction());
+        Logger::info(Utils::format("Received: socket=%s, action=%d", socketName.c_str(), action));
     }
     catch (const std::exception& ex)
     {
@@ -83,11 +79,10 @@ void Gateway::onNewConnection(SocketPtr pClientSocket)
 
 // Called when a socket has been disconnected.
 // Called on the socket's thread.
-void Gateway::onDisconnected(const std::string& socketName)
+void Gateway::onDisconnected(const std::string& /*socketName*/)
 {
     try
     {
-        m_clientSockets.erase(socketName);
     }
     catch (const std::exception& ex)
     {

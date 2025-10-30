@@ -4,6 +4,7 @@
 #include "UVLoop.h"
 #include "Socket.h"
 #include "SharedPointers.h"
+#include "ServiceManager.h"
 
 namespace MessagingMesh
 {
@@ -54,13 +55,13 @@ namespace MessagingMesh
 
     // Socket::ICallback implementation...
     public:
-        // Called when data has been received on the socket.
-        // Called on the thread of the client socket.
-        void onDataReceived(BufferPtr pBuffer);
-
         // Called when a new client connection has been made to a listening socket.
         // Called on the GATEWAY thread.
         void onNewConnection(SocketPtr pClientSocket);
+
+        // Called when data has been received on the socket.
+        // Called on the thread of the client socket.
+        void onDataReceived(const std::string& socketName, BufferPtr pBuffer);
 
         // Called when a socket has been disconnected.
         // Called on the socket's thread.
@@ -79,15 +80,16 @@ namespace MessagingMesh
         // UV loop for listening for new client connections.
         UVLoopPtr m_pUVLoop;
 
-        // UV loop to manage client sockets.
-        // RSSTODO: In the real thing we will have one of these per MM service.
-        UVLoopPtr m_pUVClientLoop;
-
         // Socket listening for incoming connections.
         SocketPtr m_listeningSocket;
 
-        // Client sockets.
-        std::map<std::string, SocketPtr> m_clientSockets;
+        // Sockets for which we have not yet received a CONNECT message, keyed 
+        // by socket name. We need to hold onto these to avoid the Sockets going
+        // out of scope and being destructed.
+        std::map<std::string, SocketPtr> m_pendingConnections;
+
+        // Service managers, keyed by service name...
+        std::map<std::string, ServiceManager> m_serviceManagers;
     };
 } // namespace
 

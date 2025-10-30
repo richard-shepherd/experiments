@@ -24,6 +24,7 @@
     <ClInclude Include="NetworkMessage.h" />
     <ClInclude Include="NetworkMessageHeader.h" />
     <ClInclude Include="OSSocketHolder.h" />
+    <ClInclude Include="ServiceManager.h" />
     <ClInclude Include="SharedPointers.h" />
     <ClInclude Include="Socket.h" />
     <ClInclude Include="Tests.h" />
@@ -45,6 +46,7 @@
     <ClCompile Include="MessageImpl.cpp" />
     <ClCompile Include="NetworkMessage.cpp" />
     <ClCompile Include="NetworkMessageHeader.cpp" />
+    <ClCompile Include="ServiceManager.cpp" />
     <ClCompile Include="Socket.cpp" />
     <ClCompile Include="Tests.cpp" />
     <ClCompile Include="Utils.cpp" />

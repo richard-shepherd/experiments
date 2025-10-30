@@ -23,13 +23,13 @@ namespace MessagingMesh
         class ICallback
         {
         public:
-            // Called when data has been received on the socket.
-            // Called on the UV loop thread.
-            virtual void onDataReceived(BufferPtr pBuffer) = 0;
-
             // Called when a new client connection has been made to a listening socket.
             // Called on the UV loop thread.
             virtual void onNewConnection(SocketPtr pClientSocket) = 0;
+
+            // Called when data has been received on the socket.
+            // Called on the UV loop thread.
+            virtual void onDataReceived(const std::string& socketName, BufferPtr pBuffer) = 0;
 
             // Called when a socket has been disconnected.
             virtual void onDisconnected(const std::string& socketName) = 0;

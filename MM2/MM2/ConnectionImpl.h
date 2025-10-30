@@ -19,7 +19,7 @@ namespace MessagingMesh
         ConnectionImpl(const std::string& hostname, int port, const std::string& service);
 
         // Destructor.
-        ~ConnectionImpl() = default;
+        ~ConnectionImpl();
 
         // Sends a message to the specified subject.
         void sendMessage(const std::string& subject, const MessagePtr& pMessage) const;

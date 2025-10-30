@@ -29,8 +29,20 @@ ConnectionImpl::ConnectionImpl(const std::string& hostname, int port, const std:
 
     // We send a CONNECT message...
     NetworkMessage connectMessage;
-    connectMessage.getHeader().setAction(NetworkMessageHeader::Action::CONNECT);
-    connectMessage.getMessage()->addField("SERVICE", m_service);
+    auto& header = connectMessage.getHeader();
+    header.setAction(NetworkMessageHeader::Action::CONNECT);
+    header.setSubject(m_service);
+    sendNetworkMessage(connectMessage);
+}
+
+// Destructor.
+ConnectionImpl::~ConnectionImpl()
+{
+    // We send a CONNECT message...
+    NetworkMessage connectMessage;
+    auto& header = connectMessage.getHeader();
+    header.setAction(NetworkMessageHeader::Action::DISCONNECT);
+    header.setSubject(m_service);
     sendNetworkMessage(connectMessage);
 }
 

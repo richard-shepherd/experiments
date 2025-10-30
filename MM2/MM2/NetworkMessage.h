@@ -34,8 +34,14 @@ namespace MessagingMesh
         // Serializes the network message to the current position of the buffer.
         void serialize(Buffer& buffer) const;
 
-        // Deserialized the network message from the current position in the buffer.
+        // Deserializes the network message from the current position in the buffer.
         void deserialize(Buffer& buffer);
+
+        // Deserializes the header from the current position in the buffer.
+        void deserializeHeader(Buffer& buffer);
+
+        // Deserializes the message from the current position in the buffer.
+        void deserializeMessage(Buffer& buffer);
 
     // Private functions...
     private:

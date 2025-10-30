@@ -67,7 +67,8 @@ namespace MessagingMesh
         // Client ID for a subscription. Helps match subscriptions to callbacks.
         uint32_t m_subscriptionID = 0;
 
-        // Subject, for subscriptions and message-sending...
+        // Subject for subscriptions and message-sending.
+        // Also holds the service-name for CONNECT and DISCONNECT messages.
         std::string m_subject;
 
         // Reply subject for synchronous requests...
