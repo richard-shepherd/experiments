@@ -8,10 +8,6 @@ MessageImpl::MessageImpl()
 {
 }
 
-MessageImpl::~MessageImpl()
-{
-}
-
 const ConstFieldPtr& MessageImpl::getField(const std::string& name) const
 {
     auto it = m_mapNameToField.find(name);

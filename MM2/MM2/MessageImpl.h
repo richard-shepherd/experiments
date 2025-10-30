@@ -16,7 +16,7 @@ namespace MessagingMesh
         MessageImpl();
 
         // Destructor.
-        ~MessageImpl();
+        ~MessageImpl() = default;
 
         // Gets a field by name.
         // Throws a MessagingMesh::Exception if the field is not in the message.

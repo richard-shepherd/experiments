@@ -34,11 +34,6 @@ ConnectionImpl::ConnectionImpl(const std::string& hostname, int port, const std:
     sendNetworkMessage(connectMessage);
 }
 
-// Destructor.
-ConnectionImpl::~ConnectionImpl()
-{
-}
-
 // Sends a message to the specified subject.
 void ConnectionImpl::sendMessage(const std::string& subject, const MessagePtr& pMessage) const
 {

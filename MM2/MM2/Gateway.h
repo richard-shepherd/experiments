@@ -12,6 +12,27 @@ namespace MessagingMesh
 
     /// <summary>
     /// Manages a messaging-mesh gateway.
+    /// 
+    /// Services
+    /// --------
+    /// When clients connect using the Connection class, they specify a service. Each service
+    /// is a messaging group where clients can send and receive messages with each other. All
+    /// messages sent or received by the Connection are managed within the service. 
+    /// 
+    /// Message subjects are scoped by the service. So a client subscribing to subject A.B on
+    /// service SERVICE-1 will only recieve updates to A.B sent by other clients connected to
+    /// SERVICE-1. This allows a single gateway to manage messaging for multiple systems with
+    /// no cross-talk of messaging between them, even if they use the same subject names.
+    /// 
+    /// One UV loop per service
+    /// -----------------------
+    /// The gateway has a loop which it uses to listen for new client connections. All initial
+    /// connections are handled by this loop, regardless of service. At the point of the initial
+    /// connection we do not yet know the service requested by the client.
+    /// 
+    /// Shortly after making a connection the client will send a 
+    /// 
+    /// 
     /// </summary>
     class Gateway : public Socket::ICallback
     {

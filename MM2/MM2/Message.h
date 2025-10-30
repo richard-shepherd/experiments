@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <memory>
 #include "SharedPointers.h"
 
 namespace MessagingMesh
@@ -53,7 +54,7 @@ namespace MessagingMesh
 
     // Implementation...
     private:
-        MessageImpl* m_pImpl;
+        std::unique_ptr<MessageImpl> m_pImpl;
     };
 
 } // namespace

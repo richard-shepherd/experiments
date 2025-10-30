@@ -9,9 +9,7 @@ Connection::Connection(const std::string& hostname, int port, const std::string&
 }
 
 // Destructor.
-Connection::~Connection()
-{
-}
+Connection::~Connection() = default;
 
 // Sends a message to the specified subject.
 void Connection::sendMessage(const std::string& subject, const MessagePtr& pMessage)

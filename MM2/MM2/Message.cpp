@@ -3,14 +3,12 @@
 using namespace MessagingMesh;
 
 Message::Message() :
-    m_pImpl(new MessageImpl())
+    m_pImpl(std::make_unique<MessageImpl>())
 {
 }
 
-Message::~Message()
-{
-    delete m_pImpl;
-}
+// Destructor.
+Message::~Message() = default;
 
 const ConstFieldPtr& Message::getField(const std::string& name) const
 {
