@@ -2,9 +2,13 @@
 #include <map>
 #include <string>
 #include "SharedPointers.h"
+#include "Socket.h"
 
 namespace MessagingMesh
 {
+    // Forward declarations...
+    class NetworkMessageHeader;
+
     /// <summary>
     /// Manages a messaging-mesh service. 
     /// 
@@ -19,7 +23,7 @@ namespace MessagingMesh
     /// (single) UV loop thread, this means that we do not have to lock service
     /// specific code such as the subject-matching engine.
     /// </summary>
-    class ServiceManager
+    class ServiceManager : public Socket::ICallback
     {
     // Public methods...
     public:
@@ -28,6 +32,28 @@ namespace MessagingMesh
 
         // Destructor.
         ~ServiceManager() = default;
+
+        // Registers a client socket to be managed for this service.
+        void registerSocket(SocketPtr pSocket);
+
+    // Socket::ICallback implementation...
+    public:
+        // Called when a new client connection has been made to a listening socket.
+        // Called on the GATEWAY thread.
+        void onNewConnection(SocketPtr /*pClientSocket*/) {}
+
+        // Called when data has been received on the socket.
+        // Called on the thread of the client socket.
+        void onDataReceived(const std::string& socketName, BufferPtr pBuffer);
+
+        // Called when a socket has been disconnected.
+        // Called on the socket's thread.
+        void onDisconnected(const std::string& socketName);
+
+    // Private functions...
+    private:
+        // Called when we receive a message.
+        void onMessage(const std::string& socketName, const NetworkMessageHeader& header, BufferPtr pBuffer);
 
     // Private data...
     private:

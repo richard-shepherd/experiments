@@ -8,6 +8,9 @@
 
 namespace MessagingMesh
 {
+    // Forward declarations...
+    class NetworkMessageHeader;
+
     /// <summary>
     /// Manages a messaging-mesh gateway.
     /// 
@@ -71,6 +74,9 @@ namespace MessagingMesh
     private:
         // Creates the socket to listen for client connections.
         void createListeningSocket();
+
+        // Called when we receive a CONNECT message from a client.
+        void onConnect(const std::string& socketName, const NetworkMessageHeader& header);
 
     // Private data...
     private:
