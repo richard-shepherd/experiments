@@ -28,29 +28,10 @@ void ServiceManager::registerSocket(SocketPtr pSocket)
 
 // Called when data has been received on the socket.
 // Called on the thread of the client socket.
-void ServiceManager::onDataReceived(const Socket* pSocket, BufferPtr pBuffer)
+void ServiceManager::onDataReceived(Socket* pSocket, BufferPtr pBuffer)
 {
     try
     {
-        // TODO: REMOVE THIS!!! It might lead to out-of-order messaging.
-        // It is possible that we received data from the Gateway's UV loop.
-        // This can happen for messages sent by the client before the socket has
-        // been moved to the loop for the service. We want to process all messages
-        // on our own UV loop and thread, so if we see messages from another loop
-        // we marshall them to our loop...
-        if (!pSocket->isSameUVLoop(m_pUVLoop))
-        {
-            static int count = 0;
-            Logger::info(Utils::format("TODO: REMOVE THIS. Not same loop: %d", ++count));
-            m_pUVLoop->marshallEvent(
-                [this, pSocket, pBuffer](uv_loop_t* /*pLoop*/)
-                {
-                    onDataReceived(pSocket, pBuffer);
-                }
-            );
-            return;
-        }
-
         // The buffer holds a serialized NetworkMessage. We deserialize
         // the header and check the action.
         NetworkMessage networkMessage;
@@ -76,13 +57,31 @@ void ServiceManager::onDataReceived(const Socket* pSocket, BufferPtr pBuffer)
 
 // Called when a socket has been disconnected.
 // Called on the socket's thread.
-void ServiceManager::onDisconnected(const Socket* pSocket)
+void ServiceManager::onDisconnected(Socket* pSocket)
 {
     try
     {
         // We remove the socket from the collection of client sockets...
         auto& socketName = pSocket->getName();
         m_clientSockets.erase(socketName);
+    }
+    catch (const std::exception& ex)
+    {
+        Logger::error(Utils::format("%s: %s", __func__, ex.what()));
+    }
+}
+
+// Called when the movement of the socket to a new UV loop has been completed.
+void ServiceManager::onMoveToLoopComplete(Socket* pSocket)
+{
+    try
+    {
+        // We send an ACK message to the client to let them know that the
+        // CONNECT has completed successfully...
+        NetworkMessage connectMessage;
+        auto& header = connectMessage.getHeader();
+        header.setAction(NetworkMessageHeader::Action::ACK);
+        Utils::sendNetworkMessage(connectMessage, pSocket);
     }
     catch (const std::exception& ex)
     {

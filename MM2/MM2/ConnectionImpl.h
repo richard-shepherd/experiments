@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "SharedPointers.h"
+#include "Socket.h"
 
 namespace MessagingMesh
 {
@@ -11,7 +12,7 @@ namespace MessagingMesh
     /// Implementation of the Connection class, ie a client connection
     /// to the messaging-mesh.
     /// </summary>
-    class ConnectionImpl
+    class ConnectionImpl : Socket::ICallback
     {
     // Public methods...
     public:
@@ -24,10 +25,21 @@ namespace MessagingMesh
         // Sends a message to the specified subject.
         void sendMessage(const std::string& subject, const MessagePtr& pMessage) const;
 
-    // Private functions...
+    // Socket::ICallback implementation
     private:
-        // Sends a network-message to the gateway.
-        void sendNetworkMessage(const NetworkMessage& networkMessage) const;
+        // Called when a new client connection has been made to a listening socket.
+        // Called on the UV loop thread.
+        void onNewConnection(SocketPtr /*pClientSocket*/) {}
+
+        // Called when data has been received on the socket.
+        // Called on the UV loop thread.
+        void onDataReceived(Socket* pSocket, BufferPtr pBuffer);
+
+        // Called when a socket has been disconnected.
+        void onDisconnected(Socket* pSocket);
+
+        // Called when the movement of the socket to a new UV loop has been completed.
+        void onMoveToLoopComplete(Socket* /*pSocket*/) {}
 
     // Private data...
     private:

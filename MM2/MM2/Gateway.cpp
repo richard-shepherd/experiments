@@ -56,12 +56,12 @@ void Gateway::onNewConnection(SocketPtr pSocket)
 
 // Called when data has been received on the socket.
 // Called on the thread of the client socket.
-void Gateway::onDataReceived(const Socket* pSocket, BufferPtr pBuffer)
+void Gateway::onDataReceived(Socket* pSocket, BufferPtr pBuffer)
 {
     try
     {
         // The buffer holds a serialized NetworkMessage. We deserialize
-        // the header and check the action.
+        // the header and check the action...
         NetworkMessage networkMessage;
         networkMessage.deserializeHeader(*pBuffer);
         auto& header = networkMessage.getHeader();
@@ -81,7 +81,7 @@ void Gateway::onDataReceived(const Socket* pSocket, BufferPtr pBuffer)
 
 // Called when a socket has been disconnected.
 // Called on the socket's thread.
-void Gateway::onDisconnected(const Socket* pSocket)
+void Gateway::onDisconnected(Socket* pSocket)
 {
     try
     {

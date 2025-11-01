@@ -37,18 +37,21 @@ namespace MessagingMesh
         void registerSocket(SocketPtr pSocket);
 
     // Socket::ICallback implementation...
-    public:
+    private:
         // Called when a new client connection has been made to a listening socket.
         // Called on the GATEWAY thread.
         void onNewConnection(SocketPtr /*pClientSocket*/) {}
 
         // Called when data has been received on the socket.
         // Called on the thread of the client socket.
-        void onDataReceived(const Socket* pSocket, BufferPtr pBuffer);
+        void onDataReceived(Socket* pSocket, BufferPtr pBuffer);
 
         // Called when a socket has been disconnected.
         // Called on the socket's thread.
-        void onDisconnected(const Socket* pSocket);
+        void onDisconnected(Socket* pSocket);
+
+        // Called when the movement of the socket to a new UV loop has been completed.
+        void onMoveToLoopComplete(Socket* pSocket);
 
     // Private functions...
     private:

@@ -29,12 +29,13 @@ namespace MessagingMesh
 
             // Called when data has been received on the socket.
             // Called on the UV loop thread.
-            virtual void onDataReceived(const Socket* pSocket, BufferPtr pBuffer) = 0;
+            virtual void onDataReceived(Socket* pSocket, BufferPtr pBuffer) = 0;
 
             // Called when a socket has been disconnected.
-            virtual void onDisconnected(const Socket* pSocket) = 0;
+            virtual void onDisconnected(Socket* pSocket) = 0;
 
-            //virtual void onMoveToLoopComplete()
+            // Called when the movement of the socket to a new UV loop has been completed.
+            virtual void onMoveToLoopComplete(Socket* pSocket) = 0;
         };
 
     // Public methods...

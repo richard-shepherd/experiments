@@ -361,6 +361,9 @@ void Socket::moveToLoop_registerDuplicatedSocket(UVLoopPtr pUVLoop, OSSocketHold
 
         // We start reading and writing...
         onSocketConnected();
+
+        // We notify that the move to the new loop has completed...
+        if (m_pCallback) m_pCallback->onMoveToLoopComplete(this);
     }
     catch (const std::exception& ex)
     {

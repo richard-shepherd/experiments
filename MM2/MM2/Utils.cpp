@@ -5,6 +5,8 @@
 #include <sstream>
 #include <string>
 #include "Utils.h"
+#include "NetworkMessage.h"
+#include "Socket.h"
 using namespace MessagingMesh;
 
 // Returns a std::string created using the string format and variadic arguments.
@@ -59,4 +61,19 @@ std::string Utils::getTimeString()
     oss << std::put_time(&bt, "%H:%M:%S"); // HH:MM:SS
     oss << '.' << std::setfill('0') << std::setw(3) << ms.count();
     return oss.str();
+}
+
+// Sends a network-message to the socket.
+void Utils::sendNetworkMessage(const NetworkMessage& networkMessage, SocketPtr pSocket)
+{
+    sendNetworkMessage(networkMessage, pSocket.get());
+}
+
+// Sends a network-message to the socket.
+void Utils::sendNetworkMessage(const NetworkMessage& networkMessage, Socket* pSocket)
+{
+    // We serialize the message and send it...
+    auto pBuffer = Buffer::create();
+    networkMessage.serialize(*pBuffer);
+    pSocket->write(pBuffer);
 }

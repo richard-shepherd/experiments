@@ -1,6 +1,7 @@
 #include "ConnectionImpl.h"
 #include "UVLoop.h"
 #include "Socket.h"
+#include "Logger.h"
 #include "Utils.h"
 #include "NetworkMessage.h"
 #include "Message.h"
@@ -18,6 +19,7 @@ ConnectionImpl::ConnectionImpl(const std::string& hostname, int port, const std:
 
     // We create the socket to connect to the gateway...
     m_pSocket = Socket::create(m_pUVLoop);
+    m_pSocket->setCallback(this);
 
     // We connect to the gateway...
     m_pUVLoop->marshallEvent(
@@ -32,18 +34,18 @@ ConnectionImpl::ConnectionImpl(const std::string& hostname, int port, const std:
     auto& header = connectMessage.getHeader();
     header.setAction(NetworkMessageHeader::Action::CONNECT);
     header.setSubject(m_service);
-    sendNetworkMessage(connectMessage);
+    Utils::sendNetworkMessage(connectMessage, m_pSocket);
 }
 
 // Destructor.
 ConnectionImpl::~ConnectionImpl()
 {
-    // We send a CONNECT message...
+    // We send a DISCONNECT message...
     NetworkMessage connectMessage;
     auto& header = connectMessage.getHeader();
     header.setAction(NetworkMessageHeader::Action::DISCONNECT);
     header.setSubject(m_service);
-    sendNetworkMessage(connectMessage);
+    Utils::sendNetworkMessage(connectMessage, m_pSocket);
 }
 
 // Sends a message to the specified subject.
@@ -57,15 +59,40 @@ void ConnectionImpl::sendMessage(const std::string& subject, const MessagePtr& p
     networkMessage.setMessage(pMessage);
 
     // We send the message...
-    sendNetworkMessage(networkMessage);
+    Utils::sendNetworkMessage(networkMessage, m_pSocket);
 }
 
-// Sends a network-message to the gateway.
-void ConnectionImpl::sendNetworkMessage(const NetworkMessage& networkMessage) const
+// Called when data has been received on the socket.
+// Called on the UV loop thread.
+void ConnectionImpl::onDataReceived(Socket* /*pSocket*/, BufferPtr pBuffer)
 {
-    // We serialize the message and send it...
-    auto pBuffer = Buffer::create();
-    networkMessage.serialize(*pBuffer);
-    m_pSocket->write(pBuffer);
+    try
+    {
+        // The buffer holds a serialized NetworkMessage. We deserialize
+        // the header and check the action...
+        NetworkMessage networkMessage;
+        networkMessage.deserializeHeader(*pBuffer);
+        auto& header = networkMessage.getHeader();
+        auto action = header.getAction();
+        Logger::info(Utils::format("ConnectionImpl::onDataReceived, action=%d", static_cast<int8_t>(action)));
+    }
+    catch (const std::exception& ex)
+    {
+        Logger::error(Utils::format("%s: %s", __func__, ex.what()));
+    }
+}
+
+// Called when a socket has been disconnected.
+void ConnectionImpl::onDisconnected(Socket* pSocket)
+{
+    try
+    {
+        // RSSTODO: REMOVE THIS!!!
+        Logger::info(Utils::format("ConnectionImpl::onDisconnected, socket-name=%s", pSocket->getName().c_str()));
+    }
+    catch (const std::exception& ex)
+    {
+        Logger::error(Utils::format("%s: %s", __func__, ex.what()));
+    }
 }
 
