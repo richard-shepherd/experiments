@@ -29,10 +29,10 @@ namespace MessagingMesh
 
             // Called when data has been received on the socket.
             // Called on the UV loop thread.
-            virtual void onDataReceived(const std::string& socketName, BufferPtr pBuffer) = 0;
+            virtual void onDataReceived(const Socket* pSocket, BufferPtr pBuffer) = 0;
 
             // Called when a socket has been disconnected.
-            virtual void onDisconnected(const std::string& socketName) = 0;
+            virtual void onDisconnected(const Socket* pSocket) = 0;
         };
 
     // Public methods...
@@ -45,6 +45,9 @@ namespace MessagingMesh
 
         // Gets the socket's name.
         const std::string& getName() const { return m_name; }
+
+        // Returns true if the UV loop passed in is the same one managing this socket.
+        bool isSameUVLoop(const UVLoopPtr& pUVLoop) const { return pUVLoop == m_pUVLoop; }
 
         // Sets the callback.
         void setCallback(ICallback* pCallback);

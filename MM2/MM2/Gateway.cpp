@@ -56,7 +56,7 @@ void Gateway::onNewConnection(SocketPtr pSocket)
 
 // Called when data has been received on the socket.
 // Called on the thread of the client socket.
-void Gateway::onDataReceived(const std::string& socketName, BufferPtr pBuffer)
+void Gateway::onDataReceived(const Socket* pSocket, BufferPtr pBuffer)
 {
     try
     {
@@ -69,7 +69,7 @@ void Gateway::onDataReceived(const std::string& socketName, BufferPtr pBuffer)
         switch (action)
         {
         case NetworkMessageHeader::Action::CONNECT:
-            onConnect(socketName, header);
+            onConnect(pSocket->getName(), header);
             break;
         }
     }
@@ -81,7 +81,7 @@ void Gateway::onDataReceived(const std::string& socketName, BufferPtr pBuffer)
 
 // Called when a socket has been disconnected.
 // Called on the socket's thread.
-void Gateway::onDisconnected(const std::string& socketName)
+void Gateway::onDisconnected(const Socket* pSocket)
 {
     try
     {
@@ -93,6 +93,7 @@ void Gateway::onDisconnected(const std::string& socketName)
         // 
         // If this happens, we remove the socket from the pending-collection. This 
         // releases our reference to it, allowing it to be destructed.
+        auto& socketName = pSocket->getName();
         m_pendingConnections.erase(socketName);
     }
     catch (const std::exception& ex)

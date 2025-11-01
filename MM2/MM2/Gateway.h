@@ -64,11 +64,11 @@ namespace MessagingMesh
 
         // Called when data has been received on the socket.
         // Called on the thread of the client socket.
-        void onDataReceived(const std::string& socketName, BufferPtr pBuffer);
+        void onDataReceived(const Socket* pSocket, BufferPtr pBuffer);
 
         // Called when a socket has been disconnected.
         // Called on the socket's thread.
-        void onDisconnected(const std::string& socketName);
+        void onDisconnected(const Socket* pSocket);
 
     // Private functions...
     private:

@@ -28,10 +28,27 @@ void ServiceManager::registerSocket(SocketPtr pSocket)
 
 // Called when data has been received on the socket.
 // Called on the thread of the client socket.
-void ServiceManager::onDataReceived(const std::string& socketName, BufferPtr pBuffer)
+void ServiceManager::onDataReceived(const Socket* pSocket, BufferPtr pBuffer)
 {
     try
     {
+        // It is possible that we received data from the Gateway's UV loop.
+        // This can happen for messages sent by the client before the socket has
+        // been moved to the loop for the service. We want to process all messages
+        // on our own UV loop and thread, so if we see messages from another loop
+        // we marshall them to our loop...
+        if (!pSocket->isSameUVLoop(m_pUVLoop))
+        {
+            Logger::info("TODO: REMOVE THIS. Not same loop!!!");
+            m_pUVLoop->marshallEvent(
+                [this, pSocket, pBuffer](uv_loop_t* /*pLoop*/)
+                {
+                    onDataReceived(pSocket, pBuffer);
+                }
+            );
+            return;
+        }
+
         // The buffer holds a serialized NetworkMessage. We deserialize
         // the header and check the action.
         NetworkMessage networkMessage;
@@ -45,7 +62,7 @@ void ServiceManager::onDataReceived(const std::string& socketName, BufferPtr pBu
         switch (action)
         {
         case NetworkMessageHeader::Action::SEND_MESSAGE:
-            onMessage(socketName, header, pBuffer);
+            onMessage(pSocket, header, pBuffer);
             break;
         }
     }
@@ -57,11 +74,12 @@ void ServiceManager::onDataReceived(const std::string& socketName, BufferPtr pBu
 
 // Called when a socket has been disconnected.
 // Called on the socket's thread.
-void ServiceManager::onDisconnected(const std::string& socketName)
+void ServiceManager::onDisconnected(const Socket* pSocket)
 {
     try
     {
         // We remove the socket from the collection of client sockets...
+        auto& socketName = pSocket->getName();
         m_clientSockets.erase(socketName);
     }
     catch (const std::exception& ex)
@@ -71,7 +89,7 @@ void ServiceManager::onDisconnected(const std::string& socketName)
 }
 
 // Called when we receive a message.
-void ServiceManager::onMessage(const std::string& /*socketName*/, const NetworkMessageHeader& /*header*/, BufferPtr /*pBuffer*/)
+void ServiceManager::onMessage(const Socket* /*pSocket*/, const NetworkMessageHeader& /*header*/, BufferPtr /*pBuffer*/)
 {
 }
 
