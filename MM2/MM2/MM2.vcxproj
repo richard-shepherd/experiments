@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AutoResetEvent.h" />
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="Connection.h" />
     <ClInclude Include="ConnectionImpl.h" />

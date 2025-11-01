@@ -1,5 +1,6 @@
 #include "ConnectionImpl.h"
 #include "UVLoop.h"
+#include "Exception.h"
 #include "Socket.h"
 #include "Logger.h"
 #include "Utils.h"
@@ -35,6 +36,18 @@ ConnectionImpl::ConnectionImpl(const std::string& hostname, int port, const std:
     header.setAction(NetworkMessageHeader::Action::CONNECT);
     header.setSubject(m_service);
     Utils::sendNetworkMessage(connectMessage, m_pSocket);
+
+    // We wait for the ACK to confirm that we have connected.
+    //
+    // This is done in the constructor as we do not want client code to send messages
+    // until the Gateway has fully set up the socket at its end and assigned it to
+    // the correct thread for the requested service. When the ACK signal has been sent
+    // we know that this has been completed.
+    auto waitResult = m_ackSignal.waitOne(30.0);
+    if (!waitResult)
+    {
+        throw Exception("Timed out without receive ACK from the Messaging Mesh Gateway");
+    }
 }
 
 // Destructor.
@@ -74,7 +87,12 @@ void ConnectionImpl::onDataReceived(Socket* /*pSocket*/, BufferPtr pBuffer)
         networkMessage.deserializeHeader(*pBuffer);
         auto& header = networkMessage.getHeader();
         auto action = header.getAction();
-        Logger::info(Utils::format("ConnectionImpl::onDataReceived, action=%d", static_cast<int8_t>(action)));
+        switch (action)
+        {
+        case NetworkMessageHeader::Action::ACK:
+            onAck();
+            break;
+        }
     }
     catch (const std::exception& ex)
     {
@@ -89,6 +107,20 @@ void ConnectionImpl::onDisconnected(Socket* pSocket)
     {
         // RSSTODO: REMOVE THIS!!!
         Logger::info(Utils::format("ConnectionImpl::onDisconnected, socket-name=%s", pSocket->getName().c_str()));
+    }
+    catch (const std::exception& ex)
+    {
+        Logger::error(Utils::format("%s: %s", __func__, ex.what()));
+    }
+}
+
+// Called when we see the ACK message from the Gateway.
+void ConnectionImpl::onAck()
+{
+    try
+    {
+        // We signal that the ACK has been received...
+        m_ackSignal.set();
     }
     catch (const std::exception& ex)
     {

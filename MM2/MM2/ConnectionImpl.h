@@ -2,6 +2,7 @@
 #include <string>
 #include "SharedPointers.h"
 #include "Socket.h"
+#include "AutoResetEvent.h"
 
 namespace MessagingMesh
 {
@@ -41,6 +42,11 @@ namespace MessagingMesh
         // Called when the movement of the socket to a new UV loop has been completed.
         void onMoveToLoopComplete(Socket* /*pSocket*/) {}
 
+    // Private functions...
+    private:
+        // Called when we see the ACK message from the Gateway.
+        void onAck();
+
     // Private data...
     private:
         // Construction params...
@@ -53,6 +59,9 @@ namespace MessagingMesh
 
         // Socket connection to the gateway...
         SocketPtr m_pSocket;
+
+        // Waits for the ACK signal...
+        AutoResetEvent m_ackSignal;
     };
 } // namespace
 
