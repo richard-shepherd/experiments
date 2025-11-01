@@ -32,6 +32,7 @@ void ServiceManager::onDataReceived(const Socket* pSocket, BufferPtr pBuffer)
 {
     try
     {
+        // TODO: REMOVE THIS!!! It might lead to out-of-order messaging.
         // It is possible that we received data from the Gateway's UV loop.
         // This can happen for messages sent by the client before the socket has
         // been moved to the loop for the service. We want to process all messages
@@ -39,7 +40,8 @@ void ServiceManager::onDataReceived(const Socket* pSocket, BufferPtr pBuffer)
         // we marshall them to our loop...
         if (!pSocket->isSameUVLoop(m_pUVLoop))
         {
-            Logger::info("TODO: REMOVE THIS. Not same loop!!!");
+            static int count = 0;
+            Logger::info(Utils::format("TODO: REMOVE THIS. Not same loop: %d", ++count));
             m_pUVLoop->marshallEvent(
                 [this, pSocket, pBuffer](uv_loop_t* /*pLoop*/)
                 {

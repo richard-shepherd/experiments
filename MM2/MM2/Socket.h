@@ -33,6 +33,8 @@ namespace MessagingMesh
 
             // Called when a socket has been disconnected.
             virtual void onDisconnected(const Socket* pSocket) = 0;
+
+            //virtual void onMoveToLoopComplete()
         };
 
     // Public methods...
