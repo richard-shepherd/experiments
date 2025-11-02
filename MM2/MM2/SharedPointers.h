@@ -42,7 +42,4 @@ namespace MessagingMesh
     // Shared pointer to a Subscription.
     typedef std::shared_ptr<Subscription> SubscriptionPtr;
 
-    // Weak pointer to a Subscription.
-    typedef std::weak_ptr<Subscription> SubscriptionWeakPtr;
-
 } // namespace

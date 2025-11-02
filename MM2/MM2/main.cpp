@@ -19,6 +19,11 @@ void runClient()
     // We connect to the gateway...
     Connection connection("localhost", 5050, "VULCAN");
 
+    // We make subscriptions...
+    auto s1 = connection.subscribe("A.B", nullptr);
+    auto s2 = connection.subscribe("C.D", nullptr);
+
+    // We send updates...
     Logger::info("Sending data");
     for (int32_t i = 1; i <= 5; ++i)
     {

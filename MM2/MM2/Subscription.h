@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <mutex>
 #include "Callbacks.h"
 
 namespace MessagingMesh
@@ -24,6 +25,10 @@ namespace MessagingMesh
         // Destructor.
         ~Subscription();
 
+        // Sets m_pConnection to nullptr when the Connection is closed, to avoid calling
+        // into it if the lifetime of this object is longer than that of the Connection.
+        void resetConnection();
+
     // Private functions...
     private:
         // Constructor.
@@ -36,6 +41,9 @@ namespace MessagingMesh
         ConnectionImpl* m_pConnection;
         uint32_t m_subscriptionID;
         SubscriptionCallback m_callback;
+
+        // For updates to m_pConnection.
+        std::mutex m_mutex;
     };
 } // namespace
 

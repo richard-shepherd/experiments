@@ -55,11 +55,25 @@ ConnectionImpl::ConnectionImpl(const std::string& hostname, int port, const std:
 // Destructor.
 ConnectionImpl::~ConnectionImpl()
 {
+    // We unsubscribe from all active subscriptions...
+    for (auto& pair : m_subscriptions)
+    {
+        // We unsubscribe...
+        auto subscriptionID = pair.first;
+        unsubscribe(subscriptionID, false);
+
+        // We note in the Subscription object that the Connection has closed
+        // in case client code is holding these objects after the lifetime of
+        // the COnnection.
+        auto pSubscription = pair.second;
+        pSubscription->resetConnection();
+    }
+    m_subscriptions.clear();
+
     // We send a DISCONNECT message...
     NetworkMessage networkMessage;
     auto& header = networkMessage.getHeader();
     header.setAction(NetworkMessageHeader::Action::DISCONNECT);
-    header.setSubject(m_service);
     Utils::sendNetworkMessage(networkMessage, m_pSocket);
 }
 
@@ -87,7 +101,7 @@ SubscriptionPtr ConnectionImpl::subscribe(const std::string& subject, Subscripti
     // We create an object to manage the subscription. 
     // The subscription will be removed when this object is destructed.
     auto pSubscription = Subscription::create(this, subscriptionID, callback);
-    m_subscriptions.insert({ subscriptionID, pSubscription });
+    m_subscriptions.insert({ subscriptionID, pSubscription.get()});
 
     // We send a SUBSCRIBE message...
     NetworkMessage networkMessage;
@@ -96,6 +110,25 @@ SubscriptionPtr ConnectionImpl::subscribe(const std::string& subject, Subscripti
     header.setSubscriptionID(subscriptionID);
     header.setSubject(subject);
     Utils::sendNetworkMessage(networkMessage, m_pSocket);
+
+    return pSubscription;
+}
+
+// Unsubscribes from a subscription.
+void ConnectionImpl::unsubscribe(uint32_t subscriptionID, bool removeFromCollection)
+{
+    // We send an UNSUBSCRIBE message...
+    NetworkMessage networkMessage;
+    auto& header = networkMessage.getHeader();
+    header.setAction(NetworkMessageHeader::Action::UNSUBSCRIBE);
+    header.setSubscriptionID(subscriptionID);
+    Utils::sendNetworkMessage(networkMessage, m_pSocket);
+
+    // We remove the subscription from the collection...
+    if (removeFromCollection)
+    {
+        m_subscriptions.erase(subscriptionID);
+    }
 }
 
 // Called when data has been received on the socket.

@@ -21,5 +21,5 @@ void Connection::sendMessage(const std::string& subject, const MessagePtr& pMess
 // The lifetime of the subscription is the lifetime of the object returned.
 SubscriptionPtr Connection::subscribe(const std::string& subject, SubscriptionCallback callback)
 {
-    m_pImpl->subscribe(subject, callback);
+    return m_pImpl->subscribe(subject, callback);
 }

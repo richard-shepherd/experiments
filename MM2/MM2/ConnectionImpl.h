@@ -33,6 +33,9 @@ namespace MessagingMesh
         // The lifetime of the subscription is the lifetime of the object returned.
         SubscriptionPtr subscribe(const std::string& subject, SubscriptionCallback callback);
 
+        // Unsubscribes from a subscription.
+        void unsubscribe(uint32_t subscriptionID, bool removeFromCollection);
+
     // Socket::ICallback implementation
     private:
         // Called when a new client connection has been made to a listening socket.
@@ -74,10 +77,10 @@ namespace MessagingMesh
         std::atomic<uint32_t> m_nextSubscriptionID;
 
         // Active subscriptions, keyed by subscription ID.
-        // Note: This holds weak pointers as the lifetime of Subscriptions objects
+        // Note: This holds non-shared pointers as the lifetime of Subscriptions objects
         //       is managed by the shared-pointers passed to client code.
         // RSSTODO: THIS NEEDS TO BE THREAD SAFE!!!
-        std::map<uint32_t, SubscriptionWeakPtr> m_subscriptions;
+        std::map<uint32_t, Subscription*> m_subscriptions;
     };
 } // namespace
 
