@@ -6,6 +6,7 @@
 #include "Utils.h"
 #include "NetworkMessage.h"
 #include "Message.h"
+#include "Subscription.h"
 using namespace MessagingMesh;
 
 // Constructor.
@@ -32,11 +33,11 @@ ConnectionImpl::ConnectionImpl(const std::string& hostname, int port, const std:
     );
 
     // We send a CONNECT message...
-    NetworkMessage connectMessage;
-    auto& header = connectMessage.getHeader();
+    NetworkMessage networkMessage;
+    auto& header = networkMessage.getHeader();
     header.setAction(NetworkMessageHeader::Action::CONNECT);
     header.setSubject(m_service);
-    Utils::sendNetworkMessage(connectMessage, m_pSocket);
+    Utils::sendNetworkMessage(networkMessage, m_pSocket);
 
     // We wait for the ACK to confirm that we have connected.
     //
@@ -55,11 +56,11 @@ ConnectionImpl::ConnectionImpl(const std::string& hostname, int port, const std:
 ConnectionImpl::~ConnectionImpl()
 {
     // We send a DISCONNECT message...
-    NetworkMessage connectMessage;
-    auto& header = connectMessage.getHeader();
+    NetworkMessage networkMessage;
+    auto& header = networkMessage.getHeader();
     header.setAction(NetworkMessageHeader::Action::DISCONNECT);
     header.setSubject(m_service);
-    Utils::sendNetworkMessage(connectMessage, m_pSocket);
+    Utils::sendNetworkMessage(networkMessage, m_pSocket);
 }
 
 // Sends a message to the specified subject.
@@ -78,9 +79,23 @@ void ConnectionImpl::sendMessage(const std::string& subject, const MessagePtr& p
 
 // Subscribes to a subject.
 // The lifetime of the subscription is the lifetime of the object returned.
-SubscriptionPtr ConnectionImpl::subscribe(const std::string& /*subject*/, SubscriptionCallback /*callback*/)
+SubscriptionPtr ConnectionImpl::subscribe(const std::string& subject, SubscriptionCallback callback)
 {
+    // We find the next subscription ID...
+    auto subscriptionID = m_nextSubscriptionID++;
 
+    // We create an object to manage the subscription. 
+    // The subscription will be removed when this object is destructed.
+    auto pSubscription = Subscription::create(this, subscriptionID, callback);
+    m_subscriptions.insert({ subscriptionID, pSubscription });
+
+    // We send a SUBSCRIBE message...
+    NetworkMessage networkMessage;
+    auto& header = networkMessage.getHeader();
+    header.setAction(NetworkMessageHeader::Action::SUBSCRIBE);
+    header.setSubscriptionID(subscriptionID);
+    header.setSubject(subject);
+    Utils::sendNetworkMessage(networkMessage, m_pSocket);
 }
 
 // Called when data has been received on the socket.

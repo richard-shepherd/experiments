@@ -5,7 +5,7 @@
 namespace MessagingMesh
 {
     // Forward declarations...
-    class Connection;
+    class ConnectionImpl;
 
     /// <summary>
     /// Manages a client subscription.
@@ -15,16 +15,25 @@ namespace MessagingMesh
     {
     // Public methods:
     public:
-        // Constructor.
-        Subscription(Connection& connection, uint32_t subscriptionID, SubscriptionCallback callback);
+        // Creates a Subscription instance.
+        static SubscriptionPtr create(ConnectionImpl* pConnection, uint32_t subscriptionID, SubscriptionCallback callback) 
+        { 
+            return SubscriptionPtr(new Subscription(pConnection, subscriptionID, callback));
+        }
 
         // Destructor.
         ~Subscription();
 
+    // Private functions...
+    private:
+        // Constructor.
+        // NOTE: The constructor is private. Use Subscription::create() to create an instance.
+        Subscription(ConnectionImpl* pConnection, uint32_t subscriptionID, SubscriptionCallback callback);
+
     // Private data...
     private:
         // Construction params...
-        Connection& m_connection;
+        ConnectionImpl* m_pConnection;
         uint32_t m_subscriptionID;
         SubscriptionCallback m_callback;
     };

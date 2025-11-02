@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <map>
 #include <atomic>
 #include "SharedPointers.h"
 #include "Socket.h"
@@ -71,6 +72,12 @@ namespace MessagingMesh
 
         // Threadsafe subscription ID...
         std::atomic<uint32_t> m_nextSubscriptionID;
+
+        // Active subscriptions, keyed by subscription ID.
+        // Note: This holds weak pointers as the lifetime of Subscriptions objects
+        //       is managed by the shared-pointers passed to client code.
+        // RSSTODO: THIS NEEDS TO BE THREAD SAFE!!!
+        std::map<uint32_t, SubscriptionWeakPtr> m_subscriptions;
     };
 } // namespace
 

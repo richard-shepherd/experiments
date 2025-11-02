@@ -1,5 +1,7 @@
 TODO
 ----
+- ConnectionImpl::m_subscriptions needs to be thread safe
+
 - Handle client connection failure, eg if gateway is not running
 
 - Think about use of std::string. We want to encode strings as UTF-8
@@ -10,27 +12,6 @@ TODO
 
 - Handle fast producers and slow consumers
 
-
-Handling post-connect messages in ServiceManager
-------------------------------------------------
-- We want all post-connect messages to be handled by the service-manager (SM)
-
-- This includes subscriptions and sent messages
-
-- They *are* all handled by the SM
-  - Because it has taken over the socket callback
-  - BUT: They are not all happening on the SM UV loop
-  - SO: They are not all happening on the SM thread
-
-- IDEA: Can we check the loop and marshall them?
-  - NO!!!!
-  - This could lead to out-of-order messaging between marshalled and unmarshalled updates
-
-- IDEA: Queue messages at the client until CONNECT has been processed and ACK received
-
-- IDEA: Block the Connection constructor until the ACK has been received
-  - This would also mean that you get an error (exception?) if the client fails to connect
-  - I quite like this
 
 
 
