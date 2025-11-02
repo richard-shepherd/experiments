@@ -81,6 +81,12 @@
     <ClInclude Include="AutoResetEvent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Subscription.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Callbacks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Gateway.cpp">
@@ -135,6 +141,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ServiceManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Subscription.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

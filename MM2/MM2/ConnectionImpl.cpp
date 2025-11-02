@@ -12,7 +12,8 @@ using namespace MessagingMesh;
 ConnectionImpl::ConnectionImpl(const std::string& hostname, int port, const std::string& service) :
     m_hostname(hostname),
     m_port(port),
-    m_service(service)
+    m_service(service),
+    m_nextSubscriptionID(0)
 {
     // We create the UV loop for client messaging...
     auto name = Utils::format("MM-%s", service.c_str());
@@ -73,6 +74,13 @@ void ConnectionImpl::sendMessage(const std::string& subject, const MessagePtr& p
 
     // We send the message...
     Utils::sendNetworkMessage(networkMessage, m_pSocket);
+}
+
+// Subscribes to a subject.
+// The lifetime of the subscription is the lifetime of the object returned.
+SubscriptionPtr ConnectionImpl::subscribe(const std::string& /*subject*/, SubscriptionCallback /*callback*/)
+{
+
 }
 
 // Called when data has been received on the socket.

@@ -1,8 +1,10 @@
 #pragma once
 #include <string>
+#include <atomic>
 #include "SharedPointers.h"
 #include "Socket.h"
 #include "AutoResetEvent.h"
+#include "Callbacks.h"
 
 namespace MessagingMesh
 {
@@ -25,6 +27,10 @@ namespace MessagingMesh
 
         // Sends a message to the specified subject.
         void sendMessage(const std::string& subject, const MessagePtr& pMessage) const;
+
+        // Subscribes to a subject.
+        // The lifetime of the subscription is the lifetime of the object returned.
+        SubscriptionPtr subscribe(const std::string& subject, SubscriptionCallback callback);
 
     // Socket::ICallback implementation
     private:
@@ -62,6 +68,9 @@ namespace MessagingMesh
 
         // Waits for the ACK signal...
         AutoResetEvent m_ackSignal;
+
+        // Threadsafe subscription ID...
+        std::atomic<uint32_t> m_nextSubscriptionID;
     };
 } // namespace
 

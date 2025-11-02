@@ -10,6 +10,7 @@ namespace MessagingMesh
     class Socket;
     class OSSocketHolder;
     class UVLoop;
+    class Subscription;
 
     // Shared pointer to a Field.
     typedef std::shared_ptr<Field> FieldPtr;
@@ -37,5 +38,8 @@ namespace MessagingMesh
 
     // Shared pointer to a UVLoop.
     typedef std::shared_ptr<UVLoop> UVLoopPtr;
+
+    // Shared pointer to a Subscription.
+    typedef std::shared_ptr<Subscription> SubscriptionPtr;
 
 } // namespace
