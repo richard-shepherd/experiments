@@ -12,6 +12,8 @@ TODO
 
 - Handle fast producers and slow consumers
 
+- I'm not convinced that the ConnectionImpl and Subscription dtors are properly thread safe
+
 
 
 
