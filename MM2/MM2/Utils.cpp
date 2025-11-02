@@ -7,6 +7,7 @@
 #include "Utils.h"
 #include "NetworkMessage.h"
 #include "Socket.h"
+#include "Buffer.h"
 using namespace MessagingMesh;
 
 // Returns a std::string created using the string format and variadic arguments.

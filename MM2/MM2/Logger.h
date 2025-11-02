@@ -2,6 +2,7 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include <mutex>
 
 namespace MessagingMesh
 {
@@ -57,8 +58,9 @@ namespace MessagingMesh
 
     // Private data...
     private:
-        // Vector of registered callbacks...
+        // Vector of registered callbacks and a mutex for it...
         static std::vector<Callback> m_callbacks;
+        static std::mutex m_mutex;
 
         // Log levels as strings...
         static const std::string DEBUG_STRING;

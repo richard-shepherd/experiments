@@ -5,6 +5,7 @@
 #include "Tests.h"
 #include "Connection.h"
 #include "Message.h"
+#include "UVUtils.h"
 using namespace MessagingMesh;
 
 

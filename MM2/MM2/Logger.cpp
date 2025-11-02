@@ -5,21 +5,9 @@
 #include "UVUtils.h"
 using namespace MessagingMesh;
 
-// File-scope LoggerMutex.
-// Note: This avoids having a tricky forward declaration of uv_mutex_t in the header.
-struct LoggerMutex
-{
-    LoggerMutex()
-    {
-        pMutex = std::make_unique<uv_mutex_t>();
-        uv_mutex_init(pMutex.get());
-    }
-    std::unique_ptr<uv_mutex_t> pMutex;
-};
-LoggerMutex loggerMutex;
-
 // Static fields...
 std::vector<Logger::Callback> Logger::m_callbacks;
+std::mutex Logger::m_mutex;
 
 // Log levels as strings...
 const std::string Logger::DEBUG_STRING = "DEBUG";
@@ -33,14 +21,14 @@ const std::string Logger::UNKNOWN_LOG_LEVEL_STRING = "[UNKNOWN-LOG-LEVEL]";
 // Registers a function to be called when messages are logged.
 void Logger::registerCallback(Callback callback)
 {
-    UVUtils::Lock lock(loggerMutex.pMutex);
+    std::lock_guard<std::mutex> lock(m_mutex);
     m_callbacks.push_back(callback);
 }
 
 // Logs a message at the level specified.
 void Logger::log(LogLevel logLevel, const std::string& message)
 {
-    UVUtils::Lock lock(loggerMutex.pMutex);
+    std::lock_guard<std::mutex> lock(m_mutex);
 
     // We add info the the message...
     auto threadName = UVUtils::getThreadName();

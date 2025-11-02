@@ -1,8 +1,8 @@
 #pragma once
 #include <memory>
+#include <mutex>
 #include "uv.h"
 #include "SharedPointers.h"
-#include "UVUtils.h"
 
 namespace MessagingMesh
 {
@@ -18,14 +18,14 @@ namespace MessagingMesh
         // Sets the socket.
         void setSocket(uv_os_sock_t socket)
         {
-            UVUtils::Lock lock(m_mutex);
+            std::lock_guard<std::mutex> lock(m_mutex);
             m_socket = socket;
         }
 
         // Gets the socket,
         uv_os_sock_t getSocket() const
         {
-            UVUtils::Lock lock(m_mutex);
+            std::lock_guard<std::mutex> lock(m_mutex);
             return m_socket;
         }
 
@@ -36,9 +36,6 @@ namespace MessagingMesh
         OSSocketHolder() :
             m_socket{}
         {
-            // We create the mutex...
-            m_mutex = std::make_unique<uv_mutex_t>();
-            uv_mutex_init(m_mutex.get());
         }
 
     // Private data...
@@ -47,7 +44,7 @@ namespace MessagingMesh
         uv_os_sock_t m_socket;
 
         // Mutex.
-        std::unique_ptr<uv_mutex_t> m_mutex;
+        mutable std::mutex m_mutex;
     };
 } // namespace
 

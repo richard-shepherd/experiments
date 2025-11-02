@@ -14,16 +14,6 @@ namespace MessagingMesh
     // Public types...
     public:
 
-        // Locks a mutex in the constructor and releases the lock in the destructor.
-        class Lock
-        {
-        public:
-            Lock(const std::unique_ptr<uv_mutex_t>& handle) : m_handle(handle) { uv_mutex_lock(m_handle.get()); }
-            ~Lock() { uv_mutex_unlock(m_handle.get()); }
-        private:
-            const std::unique_ptr<uv_mutex_t>& m_handle;
-        };
-
         // Holds parsed IP info.
         struct IPInfo
         {

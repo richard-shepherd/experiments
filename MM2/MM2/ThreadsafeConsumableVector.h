@@ -2,8 +2,7 @@
 #include <vector>
 #include <set>
 #include <memory>
-#include "uv.h"
-#include "UVUtils.h"
+#include <mutex>
 
 namespace MessagingMesh
 {
@@ -32,16 +31,12 @@ namespace MessagingMesh
         {
             // We create the items vector...
             m_items = std::make_shared<VecItemType>();
-
-            // We create the mutex...
-            m_mutex = std::make_unique<uv_mutex_t>();
-            uv_mutex_init(m_mutex.get());
         }
 
         // Adds an item to the vector.
         void add(ItemType& item)
         {
-            UVUtils::Lock lock(m_mutex);
+            std::lock_guard<std::mutex> lock(m_mutex);
             m_items->push_back(item);
         }
 
@@ -49,7 +44,7 @@ namespace MessagingMesh
         // Returns true if the item was added, false if not.
         bool addUnique(const UniqueKeyType& key, ItemType& item)
         {
-            UVUtils::Lock lock(m_mutex);
+            std::lock_guard<std::mutex> lock(m_mutex);
             if (m_uniqueKeys.count(key))
             {
                 // The name has already been registered...
@@ -67,7 +62,7 @@ namespace MessagingMesh
         // Gets the current contents of the vector, and clears the data being held.
         VecItemTypePtr getItems()
         {
-            UVUtils::Lock lock(m_mutex);
+            std::lock_guard<std::mutex> lock(m_mutex);
             auto result = m_items;
             m_items = std::make_shared<VecItemType>();
             m_uniqueKeys.clear();
@@ -84,7 +79,7 @@ namespace MessagingMesh
         UniqueKeySet m_uniqueKeys;
 
         // Mutex.
-        std::unique_ptr<uv_mutex_t> m_mutex;
+        std::mutex m_mutex;
     };
 } // namespace
 
